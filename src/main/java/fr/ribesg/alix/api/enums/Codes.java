@@ -17,39 +17,39 @@ public enum Codes {
 	// Formatting //
 	// ########## //
 
-	BOLD(get(0x02)),
-	ITALIC(get(0x09)),
-	STRIKETHROUGH(get(0x13)),
-	UNDERLINE(get(0x1F)),
-	UNDERLINE2(get(0x15)),
-	REVERSE(get(0x16)),
+	BOLD(CodesUtils.get(0x02)),
+	ITALIC(CodesUtils.get(0x09)),
+	STRIKETHROUGH(CodesUtils.get(0x13)),
+	UNDERLINE(CodesUtils.get(0x1F)),
+	UNDERLINE2(CodesUtils.get(0x15)),
+	REVERSE(CodesUtils.get(0x16)),
 
 	// ###### //
 	// Colors //
 	// ###### //
 
-	WHITE(Codes.COLOR_CODE + Color.WHITE),
-	BLACK(Codes.COLOR_CODE + Color.BLACK),
-	BLUE(Codes.COLOR_CODE + Color.BLUE),
-	GREEN(Codes.COLOR_CODE + Color.GREEN),
-	RED(Codes.COLOR_CODE + Color.RED),
-	BROWN(Codes.COLOR_CODE + Color.BROWN),
-	PURPLE(Codes.COLOR_CODE + Color.PURPLE),
-	ORANGE(Codes.COLOR_CODE + Color.ORANGE),
-	YELLOW(Codes.COLOR_CODE + Color.YELLOW),
-	LIGHT_GREEN(Codes.COLOR_CODE + Color.LIGHT_GREEN),
-	TEAL(Codes.COLOR_CODE + Color.TEAL),
-	LIGHT_CYAN(Codes.COLOR_CODE + Color.LIGHT_CYAN),
-	LIGHT_BLUE(Codes.COLOR_CODE + Color.LIGHT_BLUE),
-	PINK(Codes.COLOR_CODE + Color.PINK),
-	GREY(Codes.COLOR_CODE + Color.GREY),
-	LIGHT_GREY(Codes.COLOR_CODE + Color.LIGHT_GREY),
+	WHITE(Color.CODE + Color.WHITE),
+	BLACK(Color.CODE + Color.BLACK),
+	BLUE(Color.CODE + Color.BLUE),
+	GREEN(Color.CODE + Color.GREEN),
+	RED(Color.CODE + Color.RED),
+	BROWN(Color.CODE + Color.BROWN),
+	PURPLE(Color.CODE + Color.PURPLE),
+	ORANGE(Color.CODE + Color.ORANGE),
+	YELLOW(Color.CODE + Color.YELLOW),
+	LIGHT_GREEN(Color.CODE + Color.LIGHT_GREEN),
+	TEAL(Color.CODE + Color.TEAL),
+	LIGHT_CYAN(Color.CODE + Color.LIGHT_CYAN),
+	LIGHT_BLUE(Color.CODE + Color.LIGHT_BLUE),
+	PINK(Color.CODE + Color.PINK),
+	GREY(Color.CODE + Color.GREY),
+	LIGHT_GREY(Color.CODE + Color.LIGHT_GREY),
 
 	// ##################### //
 	// Reset colors & format //
 	// ##################### //
 
-	RESET(get(0x0f)),
+	RESET(CodesUtils.get(0x0f)),
 
 	// ########### //
 	// Other codes //
@@ -59,50 +59,51 @@ public enum Codes {
 	 * Space character, used to separate prefix, command and parameters in
 	 * IRC messages
 	 */
-	SP(get(0x20)),
+	SP(CodesUtils.get(0x20)),
 
 	/** Carriage return, used to separate different IRC messages */
-	CRLF(get(0x0D) + get(0x0A)),
+	CRLF(CodesUtils.get(0x0D) + CodesUtils.get(0x0A)),
 
 	/**
 	 * ASCII Colon, used as first character of any IRC message. Is not
 	 * separated from the prefix by SP
 	 */
-	COLON(get(0x3b)),
+	COLON(CodesUtils.get(0x3b)),
 
 	/**
 	 * 'Blank' character. Will not appear in clients that supports UTF-8.
 	 * Used to prevent pinging someone by inserting this character into its
 	 * name
 	 */
-	EMPTY(get(0x200B));
+	EMPTY(CodesUtils.get(0x200B));
 
 	// ###################### //
 	// ## END OF ENUM LIST ## //
 	// ###################### //
 
 	/**
-	 * Code used in color codes. A valid color code is composed of this code
-	 * + the color number
+	 * The only purpose of this inner class is to allow contained methods
+	 * to be called from Codes enum definition.
 	 */
-	private static final String COLOR_CODE = get(0x03);
+	private static class CodesUtils {
 
-	/**
-	 * Transform a char into a String
-	 *
-	 * @param charCode the integer code of the char
-	 *
-	 * @return a String containing the char
-	 */
-	private static String get(int charCode) {
-		return Character.toString((char) charCode);
+		/**
+		 * Transform a char into a String
+		 *
+		 * @param charCode the integer code of the char
+		 *
+		 * @return a String containing the char
+		 */
+		private static String get(int charCode) {
+			return Character.toString((char) charCode);
+		}
 	}
 
 	/**
 	 * This enum provides a list of color number, their number being their
 	 * ordinal
 	 */
-	private enum Color {
+	private static enum Color {
 		WHITE,
 		BLACK,
 		BLUE,
@@ -119,6 +120,12 @@ public enum Codes {
 		PINK,
 		GREY,
 		LIGHT_GREY;
+
+		/**
+		 * Code used in color codes. A valid color code is composed of this code
+		 * + the color number
+		 */
+		private static final String CODE = CodesUtils.get(0x03);
 
 		/**
 		 * Allows to have 2-chars number, even if it's in the 0-9 range
