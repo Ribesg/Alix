@@ -5,6 +5,10 @@
 *.swp
 *.out
 
+# Maven
+log/
+target/
+
 
 ## Operating System Specific ##
 
