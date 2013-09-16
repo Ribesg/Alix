@@ -50,14 +50,13 @@ public interface Client {
 	public boolean quit(Server server);
 
 	/**
-	 * Send a message in a channel on a connected server
+	 * Send a message to a receiver on a connected server
 	 *
-	 * @param channel The channel to send the message to.
-	 * @param message The message to send.
+	 * @param receiver The receiver to send the message to.
+	 * @param message  The message to send.
 	 *
-	 * @return False if not connected to the channel's server
-	 *         or not in the channel, true otherwise.
+	 * @return False if not connected to the receiver's server
 	 */
-	public boolean sendMessage(Channel channel, String message);
+	public boolean sendMessage(Receiver receiver, String message);
 
 }
