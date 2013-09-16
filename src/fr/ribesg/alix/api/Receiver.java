@@ -8,7 +8,7 @@ package fr.ribesg.alix.api;
 public interface Receiver {
 
 	/**
-	 * Sends a message in this Channel.
+	 * Sends a message in this Receiver.
 	 * <p/>
 	 * Will call
 	 * {@link Server#sendRaw(fr.ribesg.alix.api.enums.Command, String...)}
@@ -19,7 +19,7 @@ public interface Receiver {
 	public void sendMessage(String message);
 
 	/**
-	 * Sends an action to this Channel.
+	 * Sends an action to this Receiver.
 	 * An Action is when somebody uses the command /me is a teapot
 	 * <p/>
 	 * Will call
