@@ -8,4 +8,7 @@
 	<version>0.0-SNAPSHOT</version>
 	<name>Alix</name>
 	<url>https://github.com/Ribesg/Alix</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 </project>
