@@ -1,6 +1,40 @@
-*.class
+## Generic files to ignore ##
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+
+
+## Operating System Specific ##
+
+# Windows stuff
+Thumbs.db
+Desktop.ini
+
+# Mac OSX stuff
+*.DS_Store
+
+
+## Java specific ##
 
 # Package Files #
 *.jar
 *.war
 *.ear
+
+
+## IDE Specific ##
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Netbeans
+nbproject/
