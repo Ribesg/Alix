@@ -23,6 +23,9 @@ Desktop.ini
 *.war
 *.ear
 
+# Others #
+*.class
+
 
 ## IDE Specific ##
 
