@@ -1,4 +1,7 @@
 package fr.ribesg.alix.api.enums;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Lists all possible IRC replies defined by the protocol.
  * <p/>
@@ -154,6 +157,22 @@ public enum Reply {
 	ERR_NOOPERHOST(491),
 	ERR_UMODEUNKNOWNFLAG(501),
 	ERR_USERSDONTMATCH(502);
+
+	private static Map<Integer, Reply> intCodeToReply;
+
+	private static Map<Integer, Reply> getIntCodeToReply() {
+		if (intCodeToReply == null) {
+			intCodeToReply = new HashMap<>(values().length);
+			for (final Reply r : values()) {
+				intCodeToReply.put(r.getIntCode(), r);
+			}
+		}
+		return intCodeToReply;
+	}
+
+	public static Reply getFromCode(int code) {
+		return getIntCodeToReply().get(code);
+	}
 
 	private final int intCode;
 
