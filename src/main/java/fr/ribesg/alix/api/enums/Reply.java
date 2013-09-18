@@ -160,6 +160,7 @@ public enum Reply {
 
 	private static Map<Integer, Reply> intCodeToReply;
 
+	/** @return a map linking Integer codes to their corresponding Reply */
 	private static Map<Integer, Reply> getIntCodeToReply() {
 		if (intCodeToReply == null) {
 			intCodeToReply = new HashMap<>(values().length);
@@ -170,6 +171,13 @@ public enum Reply {
 		return intCodeToReply;
 	}
 
+	/**
+	 * Gets a Reply enum value from its corresponding Integer code.
+	 *
+	 * @param code the code of the required enum value
+	 *
+	 * @return the enum value if the code is valid, null otherwise
+	 */
 	public static Reply getFromCode(int code) {
 		return getIntCodeToReply().get(code);
 	}
@@ -180,6 +188,7 @@ public enum Reply {
 		this.intCode = intCode;
 	}
 
+	/** @return the int code representing this enum value */
 	public int getIntCode() {
 		return intCode;
 	}
