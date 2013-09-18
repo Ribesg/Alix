@@ -65,8 +65,8 @@ public enum Codes {
 	CRLF(CodesUtils.get(0x0D) + CodesUtils.get(0x0A)),
 
 	/**
-	 * ASCII Colon, used as first character of any IRC message. Is not
-	 * separated from the prefix by SP
+	 * ASCII Colon, used as first character of any IRC message and as first
+	 * character of the trailing parameter
 	 */
 	COLON(CodesUtils.get(0x3b)),
 
