@@ -13,8 +13,61 @@
 	<name>Alix</name>
 	<url>https://github.com/Ribesg/Alix</url>
 
+	<licenses>
+		<license>
+			<name>GNU General Public License (GPL) v3</name>
+			<url>http://www.gnu.org/licenses/gpl.txt</url>
+		</license>
+	</licenses>
+
+	<issueManagement>
+		<url>https://github.com/Ribesg/Alix/issues</url>
+		<system>GitHub Issues</system>
+	</issueManagement>
+
+	<developers>
+		<developer>
+			<id>ribesg</id>
+			<name>Ribesg</name>
+			<email>ribesg@yahoo.fr</email>
+			<url>http://www.ribesg.fr/</url>
+			<roles>
+				<role>Main contributor</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<charset>UTF-8</charset>
+					<encoding>UTF-8</encoding>
+					<docencoding>UTF-8</docencoding>
+					<breakiterator>true</breakiterator>
+					<version>true</version>
+					<author>true</author>
+					<keywords>true</keywords>
+					<show>private</show>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
