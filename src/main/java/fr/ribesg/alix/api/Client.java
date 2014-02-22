@@ -112,7 +112,7 @@ public abstract class Client {
 	 * @param author  the User that sent the message
 	 * @param message the message sent in the Channel
 	 */
-	public void onMessageInChannel(final Channel channel, final String author, final String message) {}
+	public void onChannelMessage(final Channel channel, final String author, final String message) {}
 
 	/**
 	 * Executed every time the Client receive an IRC message.

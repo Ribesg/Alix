@@ -67,7 +67,7 @@ public class InternalMessageHandler {
 					final String fromUser = m.getPrefix().substring(0, m.getPrefix().indexOf('!'));
 					final String dest = m.getParameters()[0];
 					if (dest.startsWith("#")) {
-						client.onMessageInChannel(server.getChannel(dest), fromUser, m.getTrail());
+						client.onChannelMessage(server.getChannel(dest), fromUser, m.getTrail());
 					} else {
 						client.onPrivateMessage(server, fromUser, m.getTrail());
 					}

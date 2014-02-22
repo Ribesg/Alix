@@ -50,7 +50,7 @@ public class TestClient {
 			}
 
 			@Override
-			public void onMessageInChannel(final Channel channel, final String author, final String message) {
+			public void onChannelMessage(final Channel channel, final String author, final String message) {
 				if (message.equalsIgnoreCase(getName() + ", quit")) {
 					// Disconnect from server
 					channel.getServer().disconnect();
