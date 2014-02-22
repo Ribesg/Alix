@@ -1,4 +1,4 @@
-package fr.ribesg.alix.impl.connection;
+package fr.ribesg.alix.network;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.Message;
 
@@ -10,9 +10,15 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 /**
+ * This class handles all the Network stuff.
+ * TODO: All the docz
+ *
  * @author Ribesg
  */
 public class SocketHandler {
+
+	/* package */ static final int CHECK_DELAY = 100;
+	/* package */ static final int SEND_LIMIT  = 50;
 
 	private final String url;
 	private final int    port;
@@ -22,6 +28,9 @@ public class SocketHandler {
 	private Socket         socket;
 	private SocketSender   socketSender;
 	private SocketReceiver socketReceiver;
+
+	private Thread senderThread;
+	private Thread receiverThread;
 
 	public SocketHandler(final Server server, final String url, final int port) {
 		this.url = url;
@@ -37,11 +46,15 @@ public class SocketHandler {
 		this.socketSender = new SocketSender(writer);
 		this.socketReceiver = new SocketReceiver(server, reader);
 
-		final Thread senderThread = new Thread(socketSender);
-		final Thread receiverThread = new Thread(socketReceiver);
+		senderThread = new Thread(socketSender);
+		receiverThread = new Thread(socketReceiver);
 
 		senderThread.start();
 		receiverThread.start();
+	}
+
+	public boolean hasAnythingToWrite() {
+		return this.socketSender.hasAnythingToWrite();
 	}
 
 	public void writeRaw(final String message) {
@@ -62,8 +75,20 @@ public class SocketHandler {
 	}
 
 	public void kill() {
-		this.socketSender.kill();
 		this.socketReceiver.kill();
+		try {
+			this.receiverThread.join();
+		} catch (final InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		this.socketSender.kill();
+		try {
+			this.senderThread.join();
+		} catch (final InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		try {
 			this.socket.close();
 		} catch (IOException ignored) {

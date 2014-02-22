@@ -23,11 +23,17 @@ import fr.ribesg.alix.api.enums.Codes;
  */
 public class Message {
 
-	// TODO Optimize this
+	/**
+	 * Parse a Message object from a String.
+	 *
+	 * @param stringMessage the String to parse
+	 *
+	 * @return a Message object
+	 */
 	public static Message parseMessage(final String stringMessage) {
 		String prefix, command, trail, params[];
-		boolean startsWithColon = stringMessage.charAt(0) == ':';
-		final int secondColonIndex = stringMessage.indexOf(':', 1);
+		boolean startsWithColon = stringMessage.charAt(0) == Codes.COLON.toChar();
+		final int secondColonIndex = stringMessage.indexOf(Codes.COLON.toChar(), 1);
 		String prefixCommandParamsString;
 		if (secondColonIndex != -1) {
 			trail = stringMessage.substring(secondColonIndex + 1);
@@ -36,8 +42,8 @@ public class Message {
 			trail = null;
 			prefixCommandParamsString = stringMessage.substring(startsWithColon ? 1 : 0);
 		}
-		String[] split = prefixCommandParamsString.split(" ");
-		if (startsWithColon && stringMessage.charAt(1) != ' ') {
+		String[] split = prefixCommandParamsString.split(Codes.SP.toString());
+		if (startsWithColon && stringMessage.charAt(1) != Codes.SP.toChar()) {
 			prefix = split[0];
 			command = split[1];
 			params = new String[split.length - 2];

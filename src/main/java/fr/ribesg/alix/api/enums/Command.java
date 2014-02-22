@@ -25,7 +25,7 @@ public enum Command {
 	AWAY,
 
 	/**
-	 * Request a new connection to another server immediately.
+	 * Request a new network to another server immediately.
 	 */
 	CONNECT,
 
@@ -65,8 +65,8 @@ public enum Command {
 	KICK,
 
 	/**
-	 * Close a client-server connection by the server which has the actual
-	 * connection.
+	 * Close a client-server network by the server which has the actual
+	 * network.
 	 */
 	KILL,
 
@@ -128,7 +128,7 @@ public enum Command {
 	PART,
 
 	/**
-	 * Set a connection password.
+	 * Set a network password.
 	 */
 	PASS,
 

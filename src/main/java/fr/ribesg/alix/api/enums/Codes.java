@@ -155,4 +155,8 @@ public enum Codes {
 	public String toString() {
 		return code;
 	}
+
+	public char toChar() {
+		return code.charAt(0);
+	}
 }

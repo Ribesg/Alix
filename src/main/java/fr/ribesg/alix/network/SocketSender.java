@@ -1,5 +1,5 @@
-package fr.ribesg.alix.impl.connection;
-import fr.ribesg.alix.api.Tools;
+package fr.ribesg.alix.network;
+import fr.ribesg.alix.Tools;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedWriter;
@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
+ * This class handles sending packets.
+ * TODO: All the docz
+ *
  * @author Ribesg
  */
 public class SocketSender implements Runnable {
@@ -35,11 +38,11 @@ public class SocketSender implements Runnable {
 		this.stopped = false;
 		String mes;
 		while (!stopAsked) {
-			Tools.pause(100);
+			Tools.pause(SocketHandler.CHECK_DELAY);
 			try {
 				while ((mes = buffer.poll()) != null) {
-					Tools.pause(100);
-					LOGGER.debug("SENDING MESSAGE: '" + mes + "'");
+					Tools.pause(SocketHandler.SEND_LIMIT);
+					LOGGER.debug("SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
 					writer.write(mes);
 				}
 				writer.flush();
@@ -48,7 +51,10 @@ public class SocketSender implements Runnable {
 			}
 		}
 		this.kill();
-		this.stopped = true;
+	}
+
+	/* package */ boolean hasAnythingToWrite() {
+		return !this.buffer.isEmpty();
 	}
 
 	/* package */ void askStop() {
@@ -62,6 +68,7 @@ public class SocketSender implements Runnable {
 	/* package */ void kill() {
 		try {
 			this.writer.close();
+			this.stopped = true;
 		} catch (IOException ignored) {
 		}
 	}

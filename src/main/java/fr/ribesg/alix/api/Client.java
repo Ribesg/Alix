@@ -1,30 +1,126 @@
 package fr.ribesg.alix.api;
 import fr.ribesg.alix.api.message.Message;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Represents an IRC Client that can connect to IRC servers,
- * join channels on those various IRC servers, send messages,
- * actions and commands to those IRC servers/channels.
+ * join channels on those various IRC servers, etc.
  *
  * @author Ribesg
  */
-public interface Client {
+public abstract class Client {
+
+	/**
+	 * Name of this Client, used as Nick
+	 */
+	private final String name;
+
+	/**
+	 * Servers this Client will join
+	 */
+	private final Set<Server> servers;
+
+	/**
+	 * Constructs an IRC Client.
+	 *
+	 * @param name the name of the Client
+	 */
+	protected Client(final String name) {
+		this.name = name;
+		this.servers = new HashSet<>();
+
+		load();
+
+		connectToServers();
+	}
 
 	/**
 	 * Gets the name of this Client.
 	 *
-	 * @return the name of this client
+	 * @return the name of this Client
 	 */
-	public String getName();
+	public final String getName() {
+		return this.name;
+	}
 
-	public void onServerJoined(final Server server);
+	public final Set<Server> getServers() {
+		return this.servers;
+	}
 
-	public void onChannelJoined(final Channel channel);
+	/**
+	 * This method is called by the Constructor.
+	 * That's typically where you should load your
+	 * config files or ask for user input to populate
+	 * the {@link #servers} Set.
+	 * <p/>
+	 * After calling this method, the Client will try to
+	 * connect to all servers ({@link #connectToServers()})
+	 */
+	protected abstract void load();
 
-	public void onMessageInChannel(final Channel channel, final String message);
+	/**
+	 * Connects to all configured servers.
+	 */
+	private void connectToServers() {
+		for (final Server server : this.servers) {
+			server.connect();
+		}
+	}
 
-	public void onPrivateMessage(final String fromUser, final String message);
+	/**
+	 * Executed once the Client successfully connects to a Server.
+	 * To be more precise, this is triggered once the Client receive
+	 * the welcome message
+	 * ({@link fr.ribesg.alix.api.enums.Reply#RPL_WELCOME}) from the Server.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param server the Server the Client just joined
+	 */
+	public void onServerJoined(final Server server) {}
 
-	public void onRawIrcMessage(final Server server, final Message message);
+	/**
+	 * Executed once the Client successfully joins a Channel.
+	 * To be more precise, this is triggered once the Client receive an
+	 * echo of the {@link fr.ribesg.alix.api.enums.Command#JOIN} command
+	 * from the Server.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param channel the Channel the Client just joined
+	 */
+	public void onChannelJoined(final Channel channel) {}
 
+	/**
+	 * Executed when the Client receive a Private Message.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param fromUser the User that sent the Private Message to the Client
+	 * @param message  the message sent to the Client
+	 */
+	public void onPrivateMessage(final Server server, final String fromUser, final String message) {}
+
+	/**
+	 * Executed when the Client sees a message sent in a Channel.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param channel the Channel the message was sent in
+	 * @param author  the User that sent the message
+	 * @param message the message sent in the Channel
+	 */
+	public void onMessageInChannel(final Channel channel, final String author, final String message) {}
+
+	/**
+	 * Executed every time the Client receive an IRC message.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param server  the Server that sent the IRC Message
+	 * @param message the IRC Message sent by the Server
+	 */
+	public void onRawIrcMessage(final Server server, final Message message) {}
 }
