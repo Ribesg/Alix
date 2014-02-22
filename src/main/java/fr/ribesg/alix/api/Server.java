@@ -108,7 +108,11 @@ public class Server {
 			throw new IllegalStateException("Not Connected!");
 		}
 		for (final Channel channel : channels.values()) {
-			send(new JoinMessage(channel.getName()));
+			if (channel.hasPassword()) {
+				send(new JoinMessage(channel.getName(), channel.getPassword()));
+			} else {
+				send(new JoinMessage(channel.getName()));
+			}
 		}
 	}
 
