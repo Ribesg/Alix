@@ -160,7 +160,9 @@ public enum Reply {
 
 	private static Map<Integer, Reply> intCodeToReply;
 
-	/** @return a map linking Integer codes to their corresponding Reply */
+	/**
+	 * @return a map linking Integer codes to their corresponding Reply
+	 */
 	private static Map<Integer, Reply> getIntCodeToReply() {
 		if (intCodeToReply == null) {
 			intCodeToReply = new HashMap<>(values().length);
@@ -178,18 +180,45 @@ public enum Reply {
 	 *
 	 * @return the enum value if the code is valid, null otherwise
 	 */
-	public static Reply getFromCode(int code) {
+	public static Reply getFromCode(final int code) {
 		return getIntCodeToReply().get(code);
 	}
 
-	private final int intCode;
-
-	private Reply(final int intCode) {
-		this.intCode = intCode;
+	/**
+	 * Gets a Reply enum value from its corresponding Integer code as a String.
+	 *
+	 * @param code the code of the required enum value
+	 *
+	 * @return the enum value if the code is valid, null otherwise
+	 */
+	public static Reply getFromCode(final String code) {
+		try {
+			final int i = Integer.parseInt(code);
+			return getFromCode(i);
+		} catch (final NumberFormatException e) {
+			return null;
+		}
 	}
 
-	/** @return the int code representing this enum value */
+	private final int    intCode;
+	private final String intCodeAsString;
+
+	private Reply(final Integer intCode) {
+		this.intCode = intCode;
+		this.intCodeAsString = intCode.toString();
+	}
+
+	/**
+	 * @return the int code representing this enum value
+	 */
 	public int getIntCode() {
 		return intCode;
+	}
+
+	/**
+	 * @return the int code representing this enum value as a String
+	 */
+	public String getIntCodeAsString() {
+		return intCodeAsString;
 	}
 }

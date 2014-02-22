@@ -6,47 +6,67 @@ package fr.ribesg.alix.api.enums;
  *
  * @author Ribesg
  * @see <a href="http://www.networksorcery.com/enp/protocol/irc.htm">
- *      IRC Protocol @ NetworkSorcery</a>
+ * IRC Protocol @ NetworkSorcery</a>
  * @see <a href="http://www.networksorcery.com/enp/rfc/rfc2812.txt">
- *      RFC 2812</a>
+ * RFC 2812</a>
  * @see <a href="http://www.networksorcery.com/enp/rfc/rfc2813.txt">
- *      RFC 2813</a>
+ * RFC 2813</a>
  */
 public enum Command {
 
-	/** Get information about the administrator of a server. */
+	/**
+	 * Get information about the administrator of a server.
+	 */
 	ADMIN,
 
-	/** Set an automatic reply string for any PRIVMSG commands. */
+	/**
+	 * Set an automatic reply string for any PRIVMSG commands.
+	 */
 	AWAY,
 
-	/** Request a new connection to another server immediately. */
+	/**
+	 * Request a new network to another server immediately.
+	 */
 	CONNECT,
 
-	/** Shutdown the server. */
+	/**
+	 * Shutdown the server.
+	 */
 	DIE,
 
-	/** Report a serious or fatal error to a peer. */
+	/**
+	 * Report a serious or fatal error to a peer.
+	 */
 	ERROR,
 
-	/** Get information describing a server. */
+	/**
+	 * Get information describing a server.
+	 */
 	INFO,
 
-	/** Invite a user to a channel. */
+	/**
+	 * Invite a user to a channel.
+	 */
 	INVITE,
 
-	/** Determine if a nickname is currently on IRC. */
+	/**
+	 * Determine if a nickname is currently on IRC.
+	 */
 	IS_ON,
 
-	/** Join a channel. */
+	/**
+	 * Join a channel.
+	 */
 	JOIN,
 
-	/** Request the forced removal of a user from a channel. */
+	/**
+	 * Request the forced removal of a user from a channel.
+	 */
 	KICK,
 
 	/**
-	 * Close a client-server connection by the server which has the actual
-	 * connection.
+	 * Close a client-server network by the server which has the actual
+	 * network.
 	 */
 	KILL,
 
@@ -56,22 +76,34 @@ public enum Command {
 	 */
 	LINKS,
 
-	/** List channels and their topics. */
+	/**
+	 * List channels and their topics.
+	 */
 	LIST,
 
-	/** Get statistics about the size of the IRC network. */
+	/**
+	 * Get statistics about the size of the IRC network.
+	 */
 	LUSERS,
 
-	/** User mode. */
+	/**
+	 * User mode.
+	 */
 	MODE,
 
-	/** Get the Message of the Day. */
+	/**
+	 * Get the Message of the Day.
+	 */
 	MOTD,
 
-	/** List all visible nicknames. */
+	/**
+	 * List all visible nicknames.
+	 */
 	NAMES,
 
-	/** Define a nickname. */
+	/**
+	 * Define a nickname.
+	 */
 	NICK,
 
 	/**
@@ -80,22 +112,34 @@ public enum Command {
 	 */
 	NJOIN,
 
-	/** Like {@link #PRIVMSG} but the receiver MUST NOT auto-respond */
+	/**
+	 * Like {@link #PRIVMSG} but the receiver MUST NOT auto-respond
+	 */
 	NOTICE,
 
-	/** Obtain operator privileges. */
+	/**
+	 * Obtain operator privileges.
+	 */
 	OPER,
 
-	/** Leave a channel. */
+	/**
+	 * Leave a channel.
+	 */
 	PART,
 
-	/** Set a connection password. */
+	/**
+	 * Set a network password.
+	 */
 	PASS,
 
-	/** Test for the presence of an active client or server. */
+	/**
+	 * Test for the presence of an active client or server.
+	 */
 	PING,
 
-	/** Reply to a PING message. */
+	/**
+	 * Reply to a PING message.
+	 */
 	PONG,
 
 	/**
@@ -104,58 +148,94 @@ public enum Command {
 	 */
 	PRIVMSG,
 
-	/** Terminate the client session. */
+	/**
+	 * Terminate the client session.
+	 */
 	QUIT,
 
-	/** Force the server to re-read and process its configuration file. */
+	/**
+	 * Force the server to re-read and process its configuration file.
+	 */
 	REHASH,
 
-	/** Force the server to restart itself. */
+	/**
+	 * Force the server to restart itself.
+	 */
 	RESTART,
 
-	/** Register a new server. */
+	/**
+	 * Register a new server.
+	 */
 	SERVER,
 
-	/** Register a new service. */
+	/**
+	 * Register a new service.
+	 */
 	SERVICE,
 
-	/** List services currently connected to the network. */
+	/**
+	 * List services currently connected to the network.
+	 */
 	SERVLIST,
 
-	/** Like {@link #PRIVMSG} but the receiver MUST BE a service */
+	/**
+	 * Like {@link #PRIVMSG} but the receiver MUST BE a service
+	 */
 	SQUERY,
 
-	/** Disconnect a server link. */
+	/**
+	 * Disconnect a server link.
+	 */
 	SQUIRT,
 
-	/** Break a local or remote server link. */
+	/**
+	 * Break a local or remote server link.
+	 */
 	SQUIT,
 
-	/** Get server statistics. */
+	/**
+	 * Get server statistics.
+	 */
 	STATS,
 
-	/** Ask a user to join IRC. */
+	/**
+	 * Ask a user to join IRC.
+	 */
 	SUMMON,
 
-	/** Get the local time from the specified server. */
+	/**
+	 * Get the local time from the specified server.
+	 */
 	TIME,
 
-	/** Change or view the topic of a channel. */
+	/**
+	 * Change or view the topic of a channel.
+	 */
 	TOPIC,
 
-	/** Find the route to a server and information about it's peers. */
+	/**
+	 * Find the route to a server and information about it's peers.
+	 */
 	TRACE,
 
-	/** Specify the username, hostname and realname of a new user. */
+	/**
+	 * Specify the username, hostname and realname of a new user.
+	 */
 	USER,
 
-	/** Get a list of information about upto 5 nicknames. */
+	/**
+	 * Get a list of information about upto 5 nicknames.
+	 */
 	USERHOST,
 
-	/** Get a list of users logged into the server. */
+	/**
+	 * Get a list of users logged into the server.
+	 */
 	USERS,
 
-	/** Get the version of the server program. */
+	/**
+	 * Get the version of the server program.
+	 */
 	VERSION,
 
 	/**
@@ -164,12 +244,18 @@ public enum Command {
 	 */
 	WALLOPS,
 
-	/** List a set of users. */
+	/**
+	 * List a set of users.
+	 */
 	WHO,
 
-	/** Get information about a specific user. */
+	/**
+	 * Get information about a specific user.
+	 */
 	WHOIS,
 
-	/** Get information about a nickname which no longer exists. */
+	/**
+	 * Get information about a nickname which no longer exists.
+	 */
 	WHOWAS
 }

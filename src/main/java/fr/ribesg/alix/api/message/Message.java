@@ -23,6 +23,40 @@ import fr.ribesg.alix.api.enums.Codes;
  */
 public class Message {
 
+	/**
+	 * Parse a Message object from a String.
+	 *
+	 * @param stringMessage the String to parse
+	 *
+	 * @return a Message object
+	 */
+	public static Message parseMessage(final String stringMessage) {
+		String prefix, command, trail, params[];
+		boolean startsWithColon = stringMessage.charAt(0) == Codes.COLON.toChar();
+		final int secondColonIndex = stringMessage.indexOf(Codes.COLON.toChar(), 1);
+		String prefixCommandParamsString;
+		if (secondColonIndex != -1) {
+			trail = stringMessage.substring(secondColonIndex + 1);
+			prefixCommandParamsString = stringMessage.substring(startsWithColon ? 1 : 0, secondColonIndex);
+		} else {
+			trail = null;
+			prefixCommandParamsString = stringMessage.substring(startsWithColon ? 1 : 0);
+		}
+		String[] split = prefixCommandParamsString.split(Codes.SP.toString());
+		if (startsWithColon && stringMessage.charAt(1) != Codes.SP.toChar()) {
+			prefix = split[0];
+			command = split[1];
+			params = new String[split.length - 2];
+			System.arraycopy(split, 2, params, 0, params.length);
+		} else {
+			prefix = null;
+			command = split[0];
+			params = new String[split.length - 1];
+			System.arraycopy(split, 1, params, 0, params.length);
+		}
+		return new Message(prefix, command, trail, params);
+	}
+
 	private       String   prefix;
 	private final String   command;
 	private       String[] parameters;
@@ -117,6 +151,7 @@ public class Message {
 			}
 		}
 		if (this.trail != null && this.trail.length() > 0) {
+			result.append(Codes.SP);
 			result.append(Codes.COLON);
 			result.append(this.trail);
 		}

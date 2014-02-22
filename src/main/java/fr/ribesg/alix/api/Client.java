@@ -1,62 +1,126 @@
 package fr.ribesg.alix.api;
+import fr.ribesg.alix.api.message.Message;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Represents an IRC Client that can connect to IRC servers,
- * join channels on those various IRC servers, send messages,
- * actions and commands to those IRC servers/channels.
+ * join channels on those various IRC servers, etc.
  *
  * @author Ribesg
  */
-public interface Client {
+public abstract class Client {
 
 	/**
-	 * Connect to a server and join provided channels
-	 *
-	 * @param server   The server to connect to.
-	 * @param channels The channels to join after connection.
-	 *
-	 * @return False if the client is already connected to this server,
-	 *         otherwise true.
+	 * Name of this Client, used as Nick
 	 */
-	public boolean connect(Server server, Channel... channels);
+	private final String name;
 
 	/**
-	 * Join a channel on a connected server
-	 *
-	 * @param channel The channel to join.
-	 *
-	 * @return False if the client is not connected to this channel's server
-	 *         or is already in this channel, otherwise true.
+	 * Servers this Client will join
 	 */
-	public boolean join(Channel channel);
+	private final Set<Server> servers;
 
 	/**
-	 * Leave a channel on a connected server
+	 * Constructs an IRC Client.
 	 *
-	 * @param channel The channel to leave.
-	 *
-	 * @return False if the client is not connected to this channel's server
-	 *         or is not in this channel, otherwise true.
+	 * @param name the name of the Client
 	 */
-	public boolean part(Channel channel);
+	protected Client(final String name) {
+		this.name = name;
+		this.servers = new HashSet<>();
+
+		load();
+
+		connectToServers();
+	}
 
 	/**
-	 * Quit a connected server
+	 * Gets the name of this Client.
 	 *
-	 * @param server The server to quit.
-	 *
-	 * @return False if the client was not connected to this server,
-	 *         otherwise true.
+	 * @return the name of this Client
 	 */
-	public boolean quit(Server server);
+	public final String getName() {
+		return this.name;
+	}
+
+	public final Set<Server> getServers() {
+		return this.servers;
+	}
 
 	/**
-	 * Send a message to a receiver on a connected server
-	 *
-	 * @param receiver The receiver to send the message to.
-	 * @param message  The message to send.
-	 *
-	 * @return False if not connected to the receiver's server
+	 * This method is called by the Constructor.
+	 * That's typically where you should load your
+	 * config files or ask for user input to populate
+	 * the {@link #servers} Set.
+	 * <p/>
+	 * After calling this method, the Client will try to
+	 * connect to all servers ({@link #connectToServers()})
 	 */
-	public boolean sendMessage(Receiver receiver, String message);
+	protected abstract void load();
 
+	/**
+	 * Connects to all configured servers.
+	 */
+	private void connectToServers() {
+		for (final Server server : this.servers) {
+			server.connect();
+		}
+	}
+
+	/**
+	 * Executed once the Client successfully connects to a Server.
+	 * To be more precise, this is triggered once the Client receive
+	 * the welcome message
+	 * ({@link fr.ribesg.alix.api.enums.Reply#RPL_WELCOME}) from the Server.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param server the Server the Client just joined
+	 */
+	public void onServerJoined(final Server server) {}
+
+	/**
+	 * Executed once the Client successfully joins a Channel.
+	 * To be more precise, this is triggered once the Client receive an
+	 * echo of the {@link fr.ribesg.alix.api.enums.Command#JOIN} command
+	 * from the Server.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param channel the Channel the Client just joined
+	 */
+	public void onChannelJoined(final Channel channel) {}
+
+	/**
+	 * Executed when the Client receive a Private Message.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param fromUser the User that sent the Private Message to the Client
+	 * @param message  the message sent to the Client
+	 */
+	public void onPrivateMessage(final Server server, final String fromUser, final String message) {}
+
+	/**
+	 * Executed when the Client sees a message sent in a Channel.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param channel the Channel the message was sent in
+	 * @param author  the User that sent the message
+	 * @param message the message sent in the Channel
+	 */
+	public void onMessageInChannel(final Channel channel, final String author, final String message) {}
+
+	/**
+	 * Executed every time the Client receive an IRC message.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param server  the Server that sent the IRC Message
+	 * @param message the IRC Message sent by the Server
+	 */
+	public void onRawIrcMessage(final Server server, final Message message) {}
 }

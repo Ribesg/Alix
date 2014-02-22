@@ -61,14 +61,16 @@ public enum Codes {
 	 */
 	SP(CodesUtils.get(0x20)),
 
-	/** Carriage return, used to separate different IRC messages */
+	/**
+	 * Carriage return, used to separate different IRC messages
+	 */
 	CRLF(CodesUtils.get(0x0D) + CodesUtils.get(0x0A)),
 
 	/**
 	 * ASCII Colon, used as first character of any IRC message and as first
 	 * character of the trailing parameter
 	 */
-	COLON(CodesUtils.get(0x3b)),
+	COLON(CodesUtils.get(0x3a)),
 
 	/**
 	 * 'Blank' character. Will not appear in clients that supports UTF-8.
@@ -133,13 +135,17 @@ public enum Codes {
 		 */
 		private static final DecimalFormat FORMAT = new DecimalFormat("00");
 
-		/** @return a String of 2 chars containing the color number */
+		/**
+		 * @return a String of 2 chars containing the color number
+		 */
 		public String toString() {
 			return FORMAT.format(this.ordinal());
 		}
 	}
 
-	/** The code that this Enum value represents. */
+	/**
+	 * The code that this Enum value represents.
+	 */
 	private String code;
 
 	private Codes(String code) {
@@ -148,5 +154,9 @@ public enum Codes {
 
 	public String toString() {
 		return code;
+	}
+
+	public char toChar() {
+		return code.charAt(0);
 	}
 }
