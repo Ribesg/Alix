@@ -1,4 +1,6 @@
 package fr.ribesg.alix.api;
+import fr.ribesg.alix.api.message.Message;
+
 /**
  * Represents an IRC Client that can connect to IRC servers,
  * join channels on those various IRC servers, send messages,
@@ -9,54 +11,20 @@ package fr.ribesg.alix.api;
 public interface Client {
 
 	/**
-	 * Connect to a server and join provided channels
+	 * Gets the name of this Client.
 	 *
-	 * @param server   The server to connect to.
-	 * @param channels The channels to join after connection.
-	 *
-	 * @return False if the client is already connected to this server,
-	 *         otherwise true.
+	 * @return the name of this client
 	 */
-	public boolean connect(Server server, Channel... channels);
+	public String getName();
 
-	/**
-	 * Join a channel on a connected server
-	 *
-	 * @param channel The channel to join.
-	 *
-	 * @return False if the client is not connected to this channel's server
-	 *         or is already in this channel, otherwise true.
-	 */
-	public boolean join(Channel channel);
+	public void onServerJoined(final Server server);
 
-	/**
-	 * Leave a channel on a connected server
-	 *
-	 * @param channel The channel to leave.
-	 *
-	 * @return False if the client is not connected to this channel's server
-	 *         or is not in this channel, otherwise true.
-	 */
-	public boolean part(Channel channel);
+	public void onChannelJoined(final Channel channel);
 
-	/**
-	 * Quit a connected server
-	 *
-	 * @param server The server to quit.
-	 *
-	 * @return False if the client was not connected to this server,
-	 *         otherwise true.
-	 */
-	public boolean quit(Server server);
+	public void onMessageInChannel(final Channel channel, final String message);
 
-	/**
-	 * Send a message to a receiver on a connected server
-	 *
-	 * @param receiver The receiver to send the message to.
-	 * @param message  The message to send.
-	 *
-	 * @return False if not connected to the receiver's server
-	 */
-	public boolean sendMessage(Receiver receiver, String message);
+	public void onPrivateMessage(final String fromUser, final String message);
+
+	public void onRawIrcMessage(final Server server, final Message message);
 
 }

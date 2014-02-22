@@ -7,6 +7,6 @@ package fr.ribesg.alix.api;
 public class Channel extends Receiver {
 
 	public Channel(Server server, String name) {
-		super(server, name);
+		super(server, name, ReceiverType.CHANNEL);
 	}
 }
