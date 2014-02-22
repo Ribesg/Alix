@@ -56,7 +56,7 @@ public class TestClient {
 					channel.getServer().disconnect();
 				} else if (message.startsWith(getName() + ", ")) {
 					// Repeat message
-					channel.sendMessage(author + message.substring(4));
+					channel.sendMessage(author + message.substring(getName().length()));
 				}
 			}
 		};

@@ -101,6 +101,17 @@ public class Server {
 	}
 
 	/**
+	 * Adds a password-protected Channel to the Set of Channels for
+	 * this Server
+	 *
+	 * @param channelName the name of the Channel to add
+	 * @param password    the password of the Channel to add
+	 */
+	public void addChannel(final String channelName, final String password) {
+		this.channels.put(channelName, new Channel(this, channelName, password));
+	}
+
+	/**
 	 * Sends a JOIN Command for every Channels in the Set
 	 */
 	public void joinChannels() {
