@@ -202,9 +202,9 @@ public class Server {
 			throw new IllegalStateException("Not Connected!");
 		} else {
 			this.socket.write(new QuitMessage("Working on the future"));
-			while (this.socket.hasAnythingToWrite()) { ; }
+			while (this.socket.hasAnythingToWrite()) {}
 			this.socket.askStop();
-			while (!this.socket.isStopped()) { ; }
+			while (!this.socket.isStopped()) {}
 			this.socket.kill();
 		}
 	}

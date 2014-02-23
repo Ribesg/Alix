@@ -1,5 +1,6 @@
 package fr.ribesg.alix.api.message;
 import fr.ribesg.alix.api.enums.Codes;
+import fr.ribesg.alix.api.enums.Command;
 
 /**
  * Represents an IRC Message.
@@ -25,6 +26,7 @@ public class Message {
 
 	/**
 	 * Parse a Message object from a String.
+	 * TODO Make this lightning fast
 	 *
 	 * @param stringMessage the String to parse
 	 *
@@ -106,6 +108,15 @@ public class Message {
 	 */
 	public String getRawCommand() {
 		return this.command;
+	}
+
+	public boolean isValidCommand() {
+		try {
+			Command.valueOf(this.command);
+			return true;
+		} catch (final IllegalArgumentException e) {
+			return false;
+		}
 	}
 
 	/**
