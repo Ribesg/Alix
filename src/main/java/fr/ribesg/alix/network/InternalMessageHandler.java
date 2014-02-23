@@ -53,9 +53,9 @@ public class InternalMessageHandler {
 		client.onRawIrcMessage(server, m);
 
 		// Command?
-		boolean isCommand = true;
-		try {
-			final Command cmd = Command.valueOf(m.getRawCommand().toUpperCase());
+		final boolean isCommand = m.isValidCommand();
+		if (isCommand) {
+			final Command cmd = m.getCommandAsCommand();
 			switch (cmd) {
 				case PING:
 					server.send(new PongMessage(m.getTrail()));
@@ -75,27 +75,23 @@ public class InternalMessageHandler {
 				default:
 					break;
 			}
-		} catch (final IllegalArgumentException e) {
-			isCommand = false;
 		}
 
 		// Reply?
-		if (!isCommand) {
-			final Reply rep = Reply.getFromCode(m.getRawCommand());
-			if (rep != null) {
-				switch (rep) {
-					case RPL_WELCOME:
-						server.setConnected(true);
-						server.joinChannels();
-						client.onServerJoined(server);
-						break;
-					default:
-						break;
-				}
-			} else {
-				// Reply code not defined by the RFCs
-				LOGGER.warn("Unknown command/reply code: " + m.getRawCommand());
+		else if (m.isValidReply()) {
+			final Reply rep = m.getCommandAsReply();
+			switch (rep) {
+				case RPL_WELCOME:
+					server.setConnected(true);
+					server.joinChannels();
+					client.onServerJoined(server);
+					break;
+				default:
+					break;
 			}
+		} else {
+			// Reply code not defined by the RFCs
+			LOGGER.warn("Unknown command/reply code: " + m.getRawCommandString());
 		}
 	}
 }

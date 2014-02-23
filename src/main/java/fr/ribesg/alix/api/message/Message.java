@@ -1,6 +1,11 @@
 package fr.ribesg.alix.api.message;
 import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Command;
+import fr.ribesg.alix.api.enums.Reply;
+
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents an IRC Message.
@@ -24,6 +29,8 @@ import fr.ribesg.alix.api.enums.Command;
  */
 public class Message {
 
+	private static final Pattern IRC_MESSAGE_REGEX = Pattern.compile("^(?:[:](?<prefix>\\S+) )?(?<command>\\S+)(?: (?!:)(?<params>.+?))?(?: [:](?<trail>.+))?$");
+
 	/**
 	 * Parse a Message object from a String.
 	 * TODO Make this lightning fast
@@ -33,30 +40,17 @@ public class Message {
 	 * @return a Message object
 	 */
 	public static Message parseMessage(final String stringMessage) {
-		String prefix, command, trail, params[];
-		boolean startsWithColon = stringMessage.charAt(0) == Codes.COLON.toChar();
-		final int secondColonIndex = stringMessage.indexOf(Codes.COLON.toChar(), 1);
-		String prefixCommandParamsString;
-		if (secondColonIndex != -1) {
-			trail = stringMessage.substring(secondColonIndex + 1);
-			prefixCommandParamsString = stringMessage.substring(startsWithColon ? 1 : 0, secondColonIndex);
+		final Matcher matcher = IRC_MESSAGE_REGEX.matcher(stringMessage);
+		if (!matcher.matches()) {
+			throw new IllegalArgumentException("Malformed IRC Message: '" + stringMessage + "'. Please report this so it can get fixed!");
 		} else {
-			trail = null;
-			prefixCommandParamsString = stringMessage.substring(startsWithColon ? 1 : 0);
+			final String prefix = matcher.group("prefix");
+			final String command = matcher.group("command");
+			final String paramsString = matcher.group("params");
+			final String trail = matcher.group("trail");
+			final String[] params = paramsString == null ? new String[0] : paramsString.split(" ");
+			return new Message(prefix, command, trail, params);
 		}
-		String[] split = prefixCommandParamsString.split(Codes.SP.toString());
-		if (startsWithColon && stringMessage.charAt(1) != Codes.SP.toChar()) {
-			prefix = split[0];
-			command = split[1];
-			params = new String[split.length - 2];
-			System.arraycopy(split, 2, params, 0, params.length);
-		} else {
-			prefix = null;
-			command = split[0];
-			params = new String[split.length - 1];
-			System.arraycopy(split, 1, params, 0, params.length);
-		}
-		return new Message(prefix, command, trail, params);
 	}
 
 	private       String   prefix;
@@ -102,20 +96,73 @@ public class Message {
 	}
 
 	/**
-	 * Gets the raw command part of this Message.
+	 * Gets the raw Command part of this Message.
+	 * It may be an IRC Command or an IRC Reply code.
 	 *
 	 * @return the command of this Message
 	 */
-	public String getRawCommand() {
+	public String getRawCommandString() {
 		return this.command;
 	}
 
+	/**
+	 * Checks if the Command part of this Message is a
+	 * valid IRC Command.
+	 *
+	 * @return true if the Command part of this Message is a valid Command,
+	 * false otherwise
+	 */
 	public boolean isValidCommand() {
 		try {
 			Command.valueOf(this.command);
 			return true;
 		} catch (final IllegalArgumentException e) {
 			return false;
+		}
+	}
+
+	/**
+	 * Gets this Message's Command part as a Command Enum value.
+	 *
+	 * @return this Message's Command Enum value
+	 *
+	 * @throws IllegalStateException if the Command part of this
+	 *                               Message is not a valid Command
+	 *                               Enum value.
+	 */
+	public Command getCommandAsCommand() {
+		if (!isValidCommand()) {
+			throw new IllegalStateException("Not a valid Command!");
+		} else {
+			return Command.valueOf(this.command);
+		}
+	}
+
+	/**
+	 * Checks if the Command part of this Message is a
+	 * valid IRC Reply code.
+	 *
+	 * @return true if the Command part of this Message is a valid Reply
+	 * code, false otherwise
+	 */
+	public boolean isValidReply() {
+		return Reply.getFromCode(this.command) != null;
+	}
+
+	/**
+	 * Gets this Message's Command part as a Reply Enum value.
+	 *
+	 * @return this Message's Command Reply Enum value
+	 *
+	 * @throws IllegalStateException if the Command part of this
+	 *                               Message is not a valid Reply
+	 *                               Enum value.
+	 */
+	public Reply getCommandAsReply() {
+		if (!isValidReply()) {
+			throw new IllegalStateException("Not a valid Reply code!");
+		} else {
+			return Reply.getFromCode(this.command);
 		}
 	}
 
@@ -177,5 +224,41 @@ public class Message {
 	@Override
 	public String toString() {
 		return this.getRawMessage();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof Message)) {
+			return false;
+		}
+
+		Message message = (Message) o;
+
+		if (!command.equals(message.command)) {
+			return false;
+		}
+		if (!Arrays.equals(parameters, message.parameters)) {
+			return false;
+		}
+		if (prefix != null ? !prefix.equals(message.prefix) : message.prefix != null) {
+			return false;
+		}
+		if (trail != null ? !trail.equals(message.trail) : message.trail != null) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = prefix != null ? prefix.hashCode() : 0;
+		result = 31 * result + command.hashCode();
+		result = 31 * result + (parameters != null ? Arrays.hashCode(parameters) : 0);
+		result = 31 * result + (trail != null ? trail.hashCode() : 0);
+		return result;
 	}
 }
