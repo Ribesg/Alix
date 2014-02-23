@@ -25,3 +25,6 @@ How to maven:
 	</dependencies>
 	...
 ```
+
+Then just read the [fr.ribesg.alix.api.Client](https://github.com/Ribesg/Alix/blob/master/src/main/java/fr/ribesg/alix/api/Client.java) class, and extend it !  
+There's an example client: [fr.ribesg.alix.TestClient](https://github.com/Ribesg/Alix/blob/master/src/main/java/fr/ribesg/alix/TestClient.java)
