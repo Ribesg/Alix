@@ -64,12 +64,12 @@
 
 	<distributionManagement>
 		<repository>
-			<id>ribesg-releases</id>
+			<id>ribesg-repo</id>
 			<name>Ribesg's Release Repository</name>
 			<url>http://repo.ribesg.fr/content/repositories/releases</url>
 		</repository>
 		<snapshotRepository>
-			<id>ribesg-snapshot</id>
+			<id>ribesg-repo</id>
 			<name>Ribesg's Snapshot Repository</name>
 			<url>http://repo.ribesg.fr/content/repositories/snapshots</url>
 		</snapshotRepository>
