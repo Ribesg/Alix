@@ -18,12 +18,13 @@ public abstract class Client {
 	private final String name;
 
 	/**
-	 * Servers this Client will join
+	 * Servers this Client will join or has joined
 	 */
 	private final Set<Server> servers;
 
 	/**
-	 * Constructs an IRC Client.
+	 * Constructs an IRC Client, call the {@link #load()} method then the
+	 * {@link #connectToServers()} method.
 	 *
 	 * @param name the name of the Client
 	 */
@@ -45,6 +46,12 @@ public abstract class Client {
 		return this.name;
 	}
 
+	/**
+	 * Gets the servers this Client will connect to
+	 * or is connected to.
+	 *
+	 * @return the servers this Client will connect to or is connected to
+	 */
 	public final Set<Server> getServers() {
 		return this.servers;
 	}
@@ -57,11 +64,17 @@ public abstract class Client {
 	 * <p/>
 	 * After calling this method, the Client will try to
 	 * connect to all servers ({@link #connectToServers()})
+	 *
+	 * @see fr.ribesg.alix.TestClient for example
 	 */
 	protected abstract void load();
 
 	/**
-	 * Connects to all configured servers.
+	 * Initialize connection with all configured servers.
+	 * Once sockets are opened and everything's fine, the Client
+	 * will automagically try to join known channels.
+	 *
+	 * @see Server#joinChannels()
 	 */
 	private void connectToServers() {
 		for (final Server server : this.servers) {
@@ -69,15 +82,24 @@ public abstract class Client {
 		}
 	}
 
+	// ************************************************************************* //
+	// ** Below this comment are methods supposed to be overridden by the API ** //
+	// ** user for him to be able to do stuff. That's kind of Events, yes!    ** //
+	// ************************************************************************* //
+
 	/**
 	 * Executed once the Client successfully connects to a Server.
 	 * To be more precise, this is triggered once the Client receive
 	 * the welcome message
 	 * ({@link fr.ribesg.alix.api.enums.Reply#RPL_WELCOME}) from the Server.
+	 * At this point the Client asked to joined defined Channels, but has not
+	 * joined them yet.
 	 * <p/>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param server the Server the Client just joined
+	 *
+	 * @see #onChannelJoined(Channel)
 	 */
 	public void onServerJoined(final Server server) {}
 
@@ -85,7 +107,8 @@ public abstract class Client {
 	 * Executed once the Client successfully joins a Channel.
 	 * To be more precise, this is triggered once the Client receive an
 	 * echo of the {@link fr.ribesg.alix.api.enums.Command#JOIN} command
-	 * from the Server.
+	 * from the Server that confirms that the Client has successfully joined
+	 * the Channel.
 	 * <p/>
 	 * This method does not do anything and should be overridden.
 	 *
@@ -115,12 +138,16 @@ public abstract class Client {
 	public void onChannelMessage(final Channel channel, final String author, final String message) {}
 
 	/**
-	 * Executed every time the Client receive an IRC message.
+	 * Executed every time the Client receives an IRC message.
+	 * This is where you can do what's not yet in this API as an "Event".
+	 * Please ask for features, or make a Pull Request on Github!
 	 * <p/>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param server  the Server that sent the IRC Message
 	 * @param message the IRC Message sent by the Server
+	 *
+	 * @see
 	 */
 	public void onRawIrcMessage(final Server server, final Message message) {}
 }
