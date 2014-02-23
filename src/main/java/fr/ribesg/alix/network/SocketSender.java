@@ -29,28 +29,28 @@ public class SocketSender implements Runnable {
 		this.stopped = true;
 	}
 
-	public void write(final String message) {
-		this.buffer.offer(message);
-	}
-
 	@Override
 	public void run() {
 		this.stopped = false;
 		String mes;
-		while (!stopAsked) {
-			Tools.pause(SocketHandler.CHECK_DELAY);
+		while (!this.stopAsked) {
+			Tools.pause(100);
 			try {
-				while ((mes = buffer.poll()) != null) {
-					Tools.pause(SocketHandler.SEND_LIMIT);
+				while ((mes = this.buffer.poll()) != null) {
+					Tools.pause(50);
 					LOGGER.debug("SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
-					writer.write(mes);
+					this.writer.write(mes);
 				}
-				writer.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
+				this.writer.flush();
+			} catch (final IOException e) {
+				LOGGER.error("Failed to send Message", e);
 			}
 		}
 		this.kill();
+	}
+
+	public void write(final String message) {
+		this.buffer.offer(message);
 	}
 
 	/* package */ boolean hasAnythingToWrite() {
@@ -68,8 +68,9 @@ public class SocketSender implements Runnable {
 	/* package */ void kill() {
 		try {
 			this.writer.close();
-			this.stopped = true;
-		} catch (IOException ignored) {
+		} catch (final IOException e) {
+			LOGGER.error("Failed to close Writer stream", e);
 		}
+		this.stopped = true;
 	}
 }

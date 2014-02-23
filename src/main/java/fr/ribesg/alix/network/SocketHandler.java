@@ -1,6 +1,9 @@
 package fr.ribesg.alix.network;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.Message;
+import fr.ribesg.alix.network.ssl.SSLHandler;
+import fr.ribesg.alix.network.ssl.SSLType;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,11 +20,11 @@ import java.net.Socket;
  */
 public class SocketHandler {
 
-	/* package */ static final int CHECK_DELAY = 100;
-	/* package */ static final int SEND_LIMIT  = 50;
+	private final Logger LOGGER = Logger.getLogger(SocketHandler.class.getName());
 
-	private final String url;
-	private final int    port;
+	private final String  url;
+	private final int     port;
+	private final SSLType sslType;
 
 	private final Server server;
 
@@ -33,24 +36,43 @@ public class SocketHandler {
 	private Thread receiverThread;
 
 	public SocketHandler(final Server server, final String url, final int port) {
+		this(server, url, port, SSLType.NONE);
+	}
+
+	public SocketHandler(final Server server, final String url, final int port, final SSLType sslType) {
 		this.url = url;
 		this.port = port;
 		this.server = server;
+		this.sslType = sslType;
 	}
 
 	public void connect() throws IOException {
-		this.socket = new Socket(this.url, this.port);
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		switch (this.sslType) {
+			case NONE:
+				this.socket = new Socket(this.url, this.port);
+				break;
+			case TRUSTING:
+				this.socket = SSLHandler.getTrustingSSLSocket(this.url, this.port);
+				break;
+			case SECURED:
+				this.socket = SSLHandler.getSecuredSSLSocket(this.url, this.port);
+				break;
+		}
+
+		// Prevent infinite lock on reader.readLine() in SocketReceiver
+		this.socket.setSoTimeout(1000);
+
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+		final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
 
 		this.socketSender = new SocketSender(writer);
-		this.socketReceiver = new SocketReceiver(server, reader);
+		this.socketReceiver = new SocketReceiver(this.server, reader);
 
-		senderThread = new Thread(socketSender);
-		receiverThread = new Thread(socketReceiver);
+		this.senderThread = new Thread(this.socketSender);
+		this.receiverThread = new Thread(this.socketReceiver);
 
-		senderThread.start();
-		receiverThread.start();
+		this.senderThread.start();
+		this.receiverThread.start();
 	}
 
 	public boolean hasAnythingToWrite() {
@@ -75,23 +97,22 @@ public class SocketHandler {
 	}
 
 	public void kill() {
-		this.socketReceiver.kill();
 		try {
 			this.receiverThread.join();
 		} catch (final InterruptedException e) {
-			e.printStackTrace();
+			LOGGER.error("Failed to join on ReceiverThread", e);
 		}
 
-		this.socketSender.kill();
 		try {
 			this.senderThread.join();
 		} catch (final InterruptedException e) {
-			e.printStackTrace();
+			LOGGER.error("Failed to join on SenderThread", e);
 		}
 
 		try {
 			this.socket.close();
-		} catch (IOException ignored) {
+		} catch (final IOException e) {
+			LOGGER.error("Failed to close Socket", e);
 		}
 	}
 }

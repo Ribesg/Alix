@@ -1,5 +1,4 @@
 package fr.ribesg.alix.network;
-import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.Server;
 import org.apache.log4j.Logger;
 
@@ -36,15 +35,14 @@ public class SocketReceiver implements Runnable {
 	public void run() {
 		this.stopped = false;
 		String mes;
-		while (!stopAsked) {
-			Tools.pause(SocketHandler.CHECK_DELAY);
+		while (!this.stopAsked) {
 			try {
 				while ((mes = this.reader.readLine()) != null) {
 					LOGGER.debug("RECEIVED MESSAGE: '" + mes + "'");
-					handler.handleMessage(server, mes);
+					this.handler.handleMessage(this.server, mes);
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (final IOException ignored) {
+				// readLine() Timeout
 			}
 		}
 		this.kill();
@@ -61,8 +59,9 @@ public class SocketReceiver implements Runnable {
 	/* package */ void kill() {
 		try {
 			this.reader.close();
-			this.stopped = true;
-		} catch (IOException ignored) {
+		} catch (final IOException e) {
+			LOGGER.error("Failed to close Reader stream", e);
 		}
+		this.stopped = true;
 	}
 }

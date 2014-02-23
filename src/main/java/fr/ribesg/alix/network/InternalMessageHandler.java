@@ -46,6 +46,24 @@ public class InternalMessageHandler {
 	 * @param messageString the raw IRC message to handle
 	 */
 	/* package */ void handleMessage(final Server server, final String messageString) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				handleMessageAsync(server, messageString);
+			}
+		}).start();
+
+	}
+
+	/**
+	 * Handles received messages asynchronously.
+	 * Used to prevent locking the SocketReceiver.
+	 *
+	 * @param server        the Server the message come from
+	 * @param messageString the raw IRC message to handle
+	 */
+	private void handleMessageAsync(final Server server, final String messageString) {
 		// Parse the Message
 		final Message m = Message.parseMessage(messageString);
 
