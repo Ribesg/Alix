@@ -1,11 +1,14 @@
 package fr.ribesg.alix.api;
 
+import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.message.JoinMessage;
 import fr.ribesg.alix.api.message.Message;
 import fr.ribesg.alix.api.message.NickMessage;
 import fr.ribesg.alix.api.message.QuitMessage;
 import fr.ribesg.alix.api.message.UserMessage;
 import fr.ribesg.alix.network.SocketHandler;
+import fr.ribesg.alix.network.ssl.SSLType;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -15,6 +18,8 @@ import java.util.Map;
  * @author Ribesg
  */
 public class Server {
+
+	private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
 
 	/**
 	 * A useful reference to the Client
@@ -32,6 +37,12 @@ public class Server {
 	 * Default: 6667
 	 */
 	private final int port;
+
+	/**
+	 * If this Server should be joined with secured SSL, trusting SSL
+	 * or no SSL
+	 */
+	private final SSLType sslType;
 
 	/**
 	 * Channels on which the Client is connected or
@@ -52,25 +63,31 @@ public class Server {
 	/**
 	 * Main constructor.
 	 *
-	 * @param url  the url of this Server (IP or FQDN)
-	 * @param port the port of this Server
+	 * @param client  the Client this Server is / will be connected to
+	 * @param url     the url of this Server (IP or FQDN)
+	 * @param port    the port of this Server
+	 * @param sslType If this connection should use secured SSL, trusting SSL
+	 *                or no SSL
 	 */
-	public Server(final Client client, final String url, final int port) {
+	public Server(final Client client, final String url, final int port, final SSLType sslType) {
 		this.client = client;
 		this.url = url;
 		this.port = port;
+		this.sslType = sslType;
 		this.channels = new HashMap<>();
 		this.socket = null;
 		this.connected = false;
 	}
 
 	/**
-	 * Constructor with default port 6667
+	 * Convenient constructor for SSL-free connection.
 	 *
-	 * @param url the url of this Server (IP or FQDN)
+	 * @param client the Client this Server is / will be connected to
+	 * @param url    the url of this Server (IP or FQDN)
+	 * @param port   the port of this Server
 	 */
-	public Server(final Client client, final String url) {
-		this(client, url, 6667);
+	public Server(final Client client, final String url, final int port) {
+		this(client, url, port, SSLType.NONE);
 	}
 
 	/**
@@ -147,6 +164,17 @@ public class Server {
 	}
 
 	/**
+	 * Gets if this connection should use secured SSL,
+	 * trusting SSL or no SSL.
+	 *
+	 * @return if this connection should use secured SSL,
+	 * trusting SSL or no SSL
+	 */
+	public SSLType getSslType() {
+		return sslType;
+	}
+
+	/**
 	 * @return true if the Client is connected to this Server,
 	 * false otherwise
 	 */
@@ -176,18 +204,23 @@ public class Server {
 	 * Note: The Client is <strong>not</strong> connected directly after this method call.
 	 */
 	public void connect() {
+		LOGGER.info("Connecting to " + this.url + ":" + this.port + "...");
+
 		if (connected) {
 			throw new IllegalStateException("Already Connected!");
 		} else {
-			this.socket = new SocketHandler(this, this.url, this.port);
+			this.socket = new SocketHandler(this, this.url, this.port, this.sslType);
 			try {
 				this.socket.connect();
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (final IOException e) {
+				LOGGER.error("Failed to connect to Server", e);
 				return;
 			}
 			this.socket.write(new NickMessage(client.getName()));
 			this.socket.write(new UserMessage(client.getName()));
+
+			LOGGER.info("Successfully connected to " + this.url + ":" + this.port);
+			LOGGER.info("Waiting for Welcome message...");
 		}
 	}
 
@@ -198,14 +231,30 @@ public class Server {
 	 * Note: The Client is disconnected directly after this method call.
 	 */
 	public void disconnect() {
+		LOGGER.info("Disconnecting from " + this.url + ":" + this.port + "...");
+
 		if (!connected) {
 			throw new IllegalStateException("Not Connected!");
 		} else {
+			// Sending quit message
 			this.socket.write(new QuitMessage("Working on the future"));
+
+			// Waiting for everything that has to be sent
 			while (this.socket.hasAnythingToWrite()) {}
+
+			// Asking stop
 			this.socket.askStop();
-			while (!this.socket.isStopped()) {}
+
+			// Waiting maximum of 5 seconds
+			int i = 0;
+			while (!this.socket.isStopped() && i++ < 50) {
+				Tools.pause(100);
+			}
+
+			// Killing the SocketHandler
 			this.socket.kill();
+
+			LOGGER.info("Successfully disconnected from " + this.url + ":" + this.port);
 		}
 	}
 

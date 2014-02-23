@@ -3,6 +3,7 @@ import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.PrivMsgMessage;
+import fr.ribesg.alix.network.ssl.SSLType;
 
 /**
  * Example usage of the Alix IRC API.
@@ -13,11 +14,11 @@ import fr.ribesg.alix.api.message.PrivMsgMessage;
 public class TestClient {
 
 	public static void main(final String args[]) {
-		new Client("SomeBot") {
+		new Client("SSLBot") {
 
 			@Override
 			protected void load() {
-				final Server server = new Server(this, "irc.esper.net", 5555);
+				final Server server = new Server(this, "irc.esper.net", 6697, SSLType.TRUSTING);
 				server.addChannel("#ribesg");
 				this.getServers().add(server);
 			}
