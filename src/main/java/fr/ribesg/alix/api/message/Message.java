@@ -48,7 +48,7 @@ public class Message {
 			final String command = matcher.group("command");
 			final String paramsString = matcher.group("params");
 			final String trail = matcher.group("trail");
-			final String[] params = paramsString == null ? new String[0] : paramsString.split(" ");
+			final String[] params = paramsString == null ? new String[0] : paramsString.replaceAll("\\s+", Codes.SP.toString()).split(Codes.SP.toString());
 			return new Message(prefix, command, trail, params);
 		}
 	}

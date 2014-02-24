@@ -1,6 +1,7 @@
 package fr.ribesg.alix.message;
 
 import fr.ribesg.alix.api.enums.Command;
+import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.Message;
 import fr.ribesg.alix.api.message.PongMessage;
 import org.junit.Assert;
@@ -46,6 +47,10 @@ public class TestMessageParser {
 		data.add(new Object[] {
 				new Message("Ribesg", Command.USER.name(), "Ribesg", "Ribesg", "0", "*"),
 				":Ribesg USER Ribesg 0 * :Ribesg"
+		});
+		data.add(new Object[] {
+				new Message("irc.xxxx.fr", Reply.RPL_NAMREPLY.getIntCodeAsString(), "BooBot @boozaa", "BooBot", "=", "#boozaa"),
+				":irc.xxxx.fr 353 BooBot =   #boozaa :BooBot @boozaa"
 		});
 		return data;
 	}
