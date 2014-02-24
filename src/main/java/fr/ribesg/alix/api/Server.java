@@ -231,13 +231,25 @@ public class Server {
 	 * Note: The Client is disconnected directly after this method call.
 	 */
 	public void disconnect() {
+		disconnect("Working on the future");
+	}
+
+	/**
+	 * Disconnects the Client from the Server.
+	 * This is a blocking method.
+	 * <p/>
+	 * Note: The Client is disconnected directly after this method call.
+	 *
+	 * @param message the quit message to send to the server
+	 */
+	public void disconnect(String message) {
 		LOGGER.info("Disconnecting from " + this.url + ":" + this.port + "...");
 
 		if (!connected) {
 			throw new IllegalStateException("Not Connected!");
 		} else {
 			// Sending quit message
-			this.socket.write(new QuitMessage("Working on the future"));
+			this.socket.write(new QuitMessage(message));
 
 			// Waiting for everything that has to be sent
 			while (this.socket.hasAnythingToWrite()) {}
