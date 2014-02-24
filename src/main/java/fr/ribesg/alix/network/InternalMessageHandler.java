@@ -79,7 +79,9 @@ public class InternalMessageHandler {
 					server.send(new PongMessage(m.getTrail()));
 					break;
 				case JOIN:
-					client.onChannelJoined(server.getChannel(m.getParameters()[0]));
+					// Workaround for IRCds using the trail as parameter (Unreal)
+					final String channelName = m.getParameters().length > 0 ? m.getParameters()[0] : m.getTrail();
+					client.onChannelJoined(server.getChannel(channelName));
 					break;
 				case PRIVMSG:
 					final String fromUser = m.getPrefix().substring(0, m.getPrefix().indexOf('!'));
