@@ -1,5 +1,6 @@
 package fr.ribesg.alix.network;
 
+import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
@@ -80,9 +81,24 @@ public class InternalMessageHandler {
 					server.send(new PongMessage(m.getTrail()));
 					break;
 				case JOIN:
+				case PART:
 					// Workaround for IRCds using the trail as parameter (Unreal)
 					final String channelName = m.getParameters().length > 0 ? m.getParameters()[0] : m.getTrail();
-					client.onChannelJoined(server.getChannel(channelName));
+					final Channel channel = server.getChannel(channelName);
+					if (m.getPrefix() == null) {
+						if (cmd == Command.JOIN) {
+							client.onAlixJoinChannel(channel);
+						} else {
+							client.onAlixPartChannel(channel);
+						}
+					} else {
+						final Source source = m.getPrefixAsSource(server);
+						if (cmd == Command.JOIN) {
+							client.onUserJoinChannel(source, channel);
+						} else {
+							client.onUserPartChannel(source, channel);
+						}
+					}
 					break;
 				case PRIVMSG:
 					final Source source = m.getPrefixAsSource(server);

@@ -99,7 +99,7 @@ public abstract class Client {
 	 *
 	 * @param server the Server the Client just joined
 	 *
-	 * @see #onChannelJoined(Channel)
+	 * @see #onAlixJoinChannel(Channel)
 	 */
 	public void onServerJoined(final Server server) {}
 
@@ -114,7 +114,44 @@ public abstract class Client {
 	 *
 	 * @param channel the Channel the Client just joined
 	 */
-	public void onChannelJoined(final Channel channel) {}
+	public void onAlixJoinChannel(final Channel channel) {}
+
+	/**
+	 * Executed once the Client parts a Channel.
+	 * To be more precise, this is triggered once the Client receive an
+	 * echo of the {@link fr.ribesg.alix.api.enums.Command#PART} command
+	 * from the Server that confirms that the Client has successfully parted
+	 * the Channel.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param channel the Channel the Client just left
+	 */
+	public void onAlixPartChannel(final Channel channel) {}
+
+	/**
+	 * Executed when a User successfully joins a Channel.
+	 * To be more precise, this is triggered once the Client receive a
+	 * {@link fr.ribesg.alix.api.enums.Command#JOIN} command
+	 * from the Server with a User set as Prefix.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param channel the Channel the User just joined
+	 */
+	public void onUserJoinChannel(final Source source, final Channel channel) {}
+
+	/**
+	 * Executed once the Client parts a Channel.
+	 * To be more precise, this is triggered once the Client receive a
+	 * {@link fr.ribesg.alix.api.enums.Command#PART} command
+	 * from the Server with a User set as Prefix.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param channel the Channel the User just left
+	 */
+	public void onUserPartChannel(final Source source, final Channel channel) {}
 
 	/**
 	 * Executed when the Client receive a Private Message.
@@ -122,7 +159,7 @@ public abstract class Client {
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param fromSource the Source that sent the Private Message to the Client
-	 * @param message  the message sent to the Client
+	 * @param message    the message sent to the Client
 	 */
 	public void onPrivateMessage(final Server server, final Source fromSource, final String message) {}
 
@@ -131,9 +168,9 @@ public abstract class Client {
 	 * <p/>
 	 * This method does not do anything and should be overridden.
 	 *
-	 * @param channel  the Channel the message was sent in
+	 * @param channel    the Channel the message was sent in
 	 * @param fromSource the Source that sent the message
-	 * @param message  the message sent in the Channel
+	 * @param message    the message sent in the Channel
 	 */
 	public void onChannelMessage(final Channel channel, final Source fromSource, final String message) {}
 
