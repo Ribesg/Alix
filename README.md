@@ -53,3 +53,14 @@ And if you want to play with Snapshot versions, you can just use the Snapshot re
 
 Then just read the [fr.ribesg.alix.api.Client](https://github.com/Ribesg/Alix/blob/master/src/main/java/fr/ribesg/alix/api/Client.java) class, and extend it !  
 There's an example client: [fr.ribesg.alix.TestClient](https://github.com/Ribesg/Alix/blob/master/src/main/java/fr/ribesg/alix/TestClient.java)
+
+FAQ
+===
+
+Hey something is not in the API, what do I do?
+----------------------------------------------
+There are 2 solutions:
+  1. Fork the repository on Github, do it yourself in a cool way and create a Pull Request! Also add some links to documentation/specifications about what you implemented.
+  2. Create an Issue with tons of details about what you want, why you want it, links to RFCs or other documentations, etc. Then wait for somebody to implement it in the previously stated cool way!
+
+In both cases, you can make a workaround using [Client#onRawIrcMessage(Server, Message)](https://github.com/Ribesg/Alix/blob/master/src/main/java/fr/ribesg/alix/api/Client.java#L178) while waiting for your feature to be merged/implemented in the project!
