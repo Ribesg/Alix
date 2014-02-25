@@ -85,14 +85,14 @@ public class InternalMessageHandler {
 					// Workaround for IRCds using the trail as parameter (Unreal)
 					final String channelName = m.getParameters().length > 0 ? m.getParameters()[0] : m.getTrail();
 					final Channel channel = server.getChannel(channelName);
-					if (m.getPrefix() == null) {
+					Source source = m.getPrefix() == null ? null : m.getPrefixAsSource(server);
+					if (source == null || source.getName().equals(client.getName())) {
 						if (cmd == Command.JOIN) {
 							client.onAlixJoinChannel(channel);
 						} else {
 							client.onAlixPartChannel(channel);
 						}
 					} else {
-						final Source source = m.getPrefixAsSource(server);
 						if (cmd == Command.JOIN) {
 							client.onUserJoinChannel(source, channel);
 						} else {
@@ -101,7 +101,7 @@ public class InternalMessageHandler {
 					}
 					break;
 				case PRIVMSG:
-					final Source source = m.getPrefixAsSource(server);
+					source = m.getPrefixAsSource(server);
 					final String dest = m.getParameters()[0];
 					if (dest.startsWith("#")) {
 						client.onChannelMessage(server.getChannel(dest), source, m.getTrail());
