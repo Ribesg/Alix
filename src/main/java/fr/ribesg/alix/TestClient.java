@@ -38,6 +38,11 @@ public class TestClient {
 			}
 
 			@Override
+			public void onUserJoinChannel(final Source source, final Channel channel) {
+				channel.sendMessage(source.getName() + ", Hi!");
+			}
+
+			@Override
 			public void onPrivateMessage(final Server server, final Source fromSource, final String message) {
 				server.send(new PrivMsgMessage(fromSource.getName(), "Hi!"));
 				if (message.equalsIgnoreCase(getName() + ", quit")) {
