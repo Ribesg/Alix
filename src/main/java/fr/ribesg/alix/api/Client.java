@@ -121,21 +121,21 @@ public abstract class Client {
 	 * <p/>
 	 * This method does not do anything and should be overridden.
 	 *
-	 * @param fromUser the User that sent the Private Message to the Client
+	 * @param fromSource the Source that sent the Private Message to the Client
 	 * @param message  the message sent to the Client
 	 */
-	public void onPrivateMessage(final Server server, final String fromUser, final String message) {}
+	public void onPrivateMessage(final Server server, final Source fromSource, final String message) {}
 
 	/**
 	 * Executed when the Client sees a message sent in a Channel.
 	 * <p/>
 	 * This method does not do anything and should be overridden.
 	 *
-	 * @param channel the Channel the message was sent in
-	 * @param author  the User that sent the message
-	 * @param message the message sent in the Channel
+	 * @param channel  the Channel the message was sent in
+	 * @param fromSource the Source that sent the message
+	 * @param message  the message sent in the Channel
 	 */
-	public void onChannelMessage(final Channel channel, final String author, final String message) {}
+	public void onChannelMessage(final Channel channel, final Source fromSource, final String message) {}
 
 	/**
 	 * Executed every time the Client receives an IRC message.

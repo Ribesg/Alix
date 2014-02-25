@@ -2,6 +2,7 @@ package fr.ribesg.alix;
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
+import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.message.PrivMsgMessage;
 import fr.ribesg.alix.network.ssl.SSLType;
 
@@ -14,7 +15,7 @@ import fr.ribesg.alix.network.ssl.SSLType;
 public class TestClient {
 
 	public static void main(final String args[]) {
-		new Client("SSLBot") {
+		new Client("Ribot") {
 
 			@Override
 			protected void load() {
@@ -37,8 +38,8 @@ public class TestClient {
 			}
 
 			@Override
-			public void onPrivateMessage(final Server server, final String fromUser, final String message) {
-				server.send(new PrivMsgMessage(fromUser, "Hi!"));
+			public void onPrivateMessage(final Server server, final Source fromSource, final String message) {
+				server.send(new PrivMsgMessage(fromSource.getName(), "Hi!"));
 				if (message.equalsIgnoreCase(getName() + ", quit")) {
 					// Disconnect from server
 					server.disconnect();
@@ -51,13 +52,13 @@ public class TestClient {
 			}
 
 			@Override
-			public void onChannelMessage(final Channel channel, final String author, final String message) {
+			public void onChannelMessage(final Channel channel, final Source fromSource, final String message) {
 				if (message.equalsIgnoreCase(getName() + ", quit")) {
 					// Disconnect from server
 					channel.getServer().disconnect();
 				} else if (message.startsWith(getName() + ", ")) {
 					// Repeat message
-					channel.sendMessage(author + message.substring(getName().length()));
+					channel.sendMessage(fromSource.getName() + message.substring(getName().length()));
 				}
 			}
 		};

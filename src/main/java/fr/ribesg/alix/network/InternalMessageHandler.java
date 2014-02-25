@@ -2,6 +2,7 @@ package fr.ribesg.alix.network;
 
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
+import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.Message;
@@ -84,12 +85,12 @@ public class InternalMessageHandler {
 					client.onChannelJoined(server.getChannel(channelName));
 					break;
 				case PRIVMSG:
-					final String fromUser = m.getPrefix().substring(0, m.getPrefix().indexOf('!'));
+					final Source source = m.getPrefixAsSource(server);
 					final String dest = m.getParameters()[0];
 					if (dest.startsWith("#")) {
-						client.onChannelMessage(server.getChannel(dest), fromUser, m.getTrail());
+						client.onChannelMessage(server.getChannel(dest), source, m.getTrail());
 					} else {
-						client.onPrivateMessage(server, fromUser, m.getTrail());
+						client.onPrivateMessage(server, source, m.getTrail());
 					}
 					break;
 				default:
