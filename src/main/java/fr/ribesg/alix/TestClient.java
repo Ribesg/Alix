@@ -3,6 +3,7 @@ import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
+import fr.ribesg.alix.api.bot.commands.Command;
 import fr.ribesg.alix.api.message.PrivMsgMessage;
 import fr.ribesg.alix.network.ssl.SSLType;
 
@@ -15,13 +16,27 @@ import fr.ribesg.alix.network.ssl.SSLType;
 public class TestClient {
 
 	public static void main(final String args[]) {
-		new Client("Ribot") {
+		new Client("AlixTestBot") {
 
 			@Override
 			protected void load() {
 				final Server server = new Server(this, "irc.esper.net", 6697, SSLType.TRUSTING);
-				server.addChannel("#ribesg");
+				server.addChannel("#alix");
 				this.getServers().add(server);
+
+				this.createCommandManager("!", null);
+
+				this.getCommandManager().registerCommand(new Command("test") {
+
+					@Override
+					public void exec(final Server server, final Channel channel, final Source user) {
+						if (channel == null) {
+							user.sendMessage("Use the !test command in a Channel!");
+						} else {
+							channel.sendMessage("So " + user.getName() + " used the command " + this.getName() + " in the Channel " + channel.getName() + "!");
+						}
+					}
+				});
 			}
 
 			@Override

@@ -84,7 +84,7 @@ public class InternalMessageHandler {
 				case PART:
 					// Workaround for IRCds using the trail as parameter (Unreal)
 					final String channelName = m.getParameters().length > 0 ? m.getParameters()[0] : m.getTrail();
-					final Channel channel = server.getChannel(channelName);
+					Channel channel = server.getChannel(channelName);
 					Source source = m.getPrefix() == null ? null : m.getPrefixAsSource(server);
 					if (source == null || source.getName().equals(client.getName())) {
 						if (cmd == Command.JOIN) {
@@ -103,10 +103,20 @@ public class InternalMessageHandler {
 				case PRIVMSG:
 					source = m.getPrefixAsSource(server);
 					final String dest = m.getParameters()[0];
+					final boolean isBotCommand = client.getCommandManager() != null && client.getCommandManager().isCommand(m.getTrail());
 					if (dest.startsWith("#")) {
-						client.onChannelMessage(server.getChannel(dest), source, m.getTrail());
+						channel = server.getChannel(dest);
+						if (isBotCommand) {
+							client.getCommandManager().exec(server, channel, source, m.getTrail());
+						} else {
+							client.onChannelMessage(channel, source, m.getTrail());
+						}
 					} else {
-						client.onPrivateMessage(server, source, m.getTrail());
+						if (isBotCommand) {
+							client.getCommandManager().exec(server, null, source, m.getTrail());
+						} else {
+							client.onPrivateMessage(server, source, m.getTrail());
+						}
 					}
 					break;
 				default:

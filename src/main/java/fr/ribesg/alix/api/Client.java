@@ -1,4 +1,5 @@
 package fr.ribesg.alix.api;
+import fr.ribesg.alix.api.bot.commands.CommandManager;
 import fr.ribesg.alix.api.message.Message;
 
 import java.util.HashSet;
@@ -21,6 +22,8 @@ public abstract class Client {
 	 * Servers this Client will join or has joined
 	 */
 	private final Set<Server> servers;
+
+	private CommandManager commandManager = null;
 
 	/**
 	 * Constructs an IRC Client, call the {@link #load()} method then the
@@ -62,12 +65,40 @@ public abstract class Client {
 	 * config files or ask for user input to populate
 	 * the {@link #servers} Set.
 	 * <p/>
+	 * If you want to make a bot and you want to use the
+	 * CommandManager, you need to call
+	 * {@link #createCommandManager(String, Set)} then you can start
+	 * registering your Commands with {@link #getCommandManager()} and
+	 * {@link CommandManager#registerCommand(fr.ribesg.alix.api.bot.commands.Command)}.
+	 * <p/>
 	 * After calling this method, the Client will try to
 	 * connect to all servers ({@link #connectToServers()})
 	 *
 	 * @see fr.ribesg.alix.TestClient for example
 	 */
 	protected abstract void load();
+
+	/**
+	 * Creates a new CommandManager for this Client.
+	 * After calling this, please use
+	 * {@link CommandManager#registerCommand(fr.ribesg.alix.api.bot.commands.Command)}
+	 * to register your Commands.
+	 *
+	 * @param commandPrefix the prefix of every Commands in this
+	 *                      CommandManager
+	 * @param botAdmins     a Set of nicknames which have to be considered
+	 *                      as Admins
+	 */
+	protected void createCommandManager(final String commandPrefix, final Set<String> botAdmins) {
+		this.commandManager = new CommandManager(commandPrefix, botAdmins);
+	}
+
+	/**
+	 * @return the CommandManager of this Client, or null if there's none
+	 */
+	public CommandManager getCommandManager() {
+		return this.commandManager;
+	}
 
 	/**
 	 * Initialize connection with all configured servers.
