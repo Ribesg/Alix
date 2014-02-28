@@ -1,7 +1,7 @@
 package fr.ribesg.alix.network;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.Message;
-import fr.ribesg.alix.network.ssl.SSLHandler;
+import fr.ribesg.alix.network.ssl.SSLSocketFactory;
 import fr.ribesg.alix.network.ssl.SSLType;
 import org.apache.log4j.Logger;
 
@@ -52,10 +52,10 @@ public class SocketHandler {
 				this.socket = new Socket(this.url, this.port);
 				break;
 			case TRUSTING:
-				this.socket = SSLHandler.getTrustingSSLSocket(this.url, this.port);
+				this.socket = SSLSocketFactory.getTrustingSSLSocket(this.url, this.port);
 				break;
 			case SECURED:
-				this.socket = SSLHandler.getSecuredSSLSocket(this.url, this.port);
+				this.socket = SSLSocketFactory.getSecuredSSLSocket(this.url, this.port);
 				break;
 		}
 

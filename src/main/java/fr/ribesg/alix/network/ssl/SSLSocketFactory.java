@@ -2,7 +2,6 @@ package fr.ribesg.alix.network.ssl;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.net.Socket;
@@ -11,7 +10,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SSLHandler {
+public class SSLSocketFactory {
 
 	/**
 	 * Creates a Trusting SSL Socket: accepts any certificate.
@@ -46,7 +45,7 @@ public class SSLHandler {
 						}
 					}
 			}, null);
-			final SSLSocketFactory factory = sslContext.getSocketFactory();
+			final javax.net.ssl.SSLSocketFactory factory = sslContext.getSocketFactory();
 			final SSLSocket resultSocket = (SSLSocket) factory.createSocket(url, port);
 
 			// Disable DHE because it doesn't work for some reason
