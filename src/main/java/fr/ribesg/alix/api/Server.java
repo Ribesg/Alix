@@ -1,11 +1,11 @@
 package fr.ribesg.alix.api;
 
 import fr.ribesg.alix.Tools;
-import fr.ribesg.alix.api.message.JoinMessage;
-import fr.ribesg.alix.api.message.Message;
-import fr.ribesg.alix.api.message.NickMessage;
-import fr.ribesg.alix.api.message.QuitMessage;
-import fr.ribesg.alix.api.message.UserMessage;
+import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.api.message.JoinIrcPacket;
+import fr.ribesg.alix.api.message.NickIrcPacket;
+import fr.ribesg.alix.api.message.QuitIrcPacket;
+import fr.ribesg.alix.api.message.UserIrcPacket;
 import fr.ribesg.alix.network.SocketHandler;
 import fr.ribesg.alix.network.ssl.SSLType;
 import org.apache.log4j.Logger;
@@ -137,9 +137,9 @@ public class Server {
 		}
 		for (final Channel channel : channels.values()) {
 			if (channel.hasPassword()) {
-				send(new JoinMessage(channel.getName(), channel.getPassword()));
+				send(new JoinIrcPacket(channel.getName(), channel.getPassword()));
 			} else {
-				send(new JoinMessage(channel.getName()));
+				send(new JoinIrcPacket(channel.getName()));
 			}
 		}
 	}
@@ -216,8 +216,8 @@ public class Server {
 				LOGGER.error("Failed to connect to Server", e);
 				return;
 			}
-			this.socket.write(new NickMessage(client.getName()));
-			this.socket.write(new UserMessage(client.getName()));
+			this.socket.write(new NickIrcPacket(client.getName()));
+			this.socket.write(new UserIrcPacket(client.getName()));
 
 			LOGGER.info("Successfully connected to " + this.url + ":" + this.port);
 			LOGGER.info("Waiting for Welcome message...");
@@ -249,7 +249,7 @@ public class Server {
 			throw new IllegalStateException("Not Connected!");
 		} else {
 			// Sending quit message
-			this.socket.write(new QuitMessage(message));
+			this.socket.write(new QuitIrcPacket(message));
 
 			// Waiting for everything that has to be sent
 			while (this.socket.hasAnythingToWrite()) {}
@@ -284,11 +284,11 @@ public class Server {
 	}
 
 	/**
-	 * Sends a message to this Server.
+	 * Sends an IRC Packet to this Server.
 	 *
-	 * @param message the message to be sent
+	 * @param ircPacket the IRC Packet to be sent
 	 */
-	public void send(final Message message) {
-		this.sendRaw(message.getRawMessage());
+	public void send(final IrcPacket ircPacket) {
+		this.sendRaw(ircPacket.getRawMessage());
 	}
 }

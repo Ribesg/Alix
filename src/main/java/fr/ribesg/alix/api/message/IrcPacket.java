@@ -10,11 +10,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represents an IRC Message.
+ * Represents an IRC Packet.
  * <p/>
- * An IRC Message may contain a prefix followed by a command and up to
+ * An IRC Packet may contain a prefix followed by a command and up to
  * 15 parameters.
- * Here is an example IRC Message:
+ * Here is an example IRC Packet:
  * <p/>
  * <strong>:PREFIX COMMAND PARAM1 PARAM2 PARAM3 :TRAIL</strong>
  * <p/>
@@ -29,32 +29,32 @@ import java.util.regex.Pattern;
  *
  * @author Ribesg
  */
-public class Message {
+public class IrcPacket {
 
-	private static final Pattern IRC_MESSAGE_REGEX = Pattern.compile("^(?:[:](?<prefix>\\S+) )?(?<command>\\S+)(?: (?!:)(?<params>.+?))?(?: [:](?<trail>.+))?$");
+	private static final Pattern IRC_PACKET_REGEX = Pattern.compile("^(?:[:](?<prefix>\\S+) )?(?<command>\\S+)(?: (?!:)(?<params>.+?))?(?: [:](?<trail>.+))?$");
 
 	private static final Pattern PREFIX_REGEX = Pattern.compile("^(?<name>[^\\s!@]+)(?:!(?<userName>[^\\s@]+))?(?:@(?<hostName>\\S+))?$");
 
 	private static final Pattern SERVER_NAME_REGEX = Pattern.compile("^(?:\\w+\\.)+(?:\\w+)$");
 
 	/**
-	 * Parse a Message object from a String.
+	 * Parse an IrcPacket object from a String.
 	 *
-	 * @param stringMessage the String to parse
+	 * @param stringPacket the String to parse
 	 *
-	 * @return a Message object
+	 * @return an IrcPacket object
 	 */
-	public static Message parseMessage(final String stringMessage) {
-		final Matcher matcher = IRC_MESSAGE_REGEX.matcher(stringMessage);
+	public static IrcPacket parseMessage(final String stringPacket) {
+		final Matcher matcher = IRC_PACKET_REGEX.matcher(stringPacket);
 		if (!matcher.matches()) {
-			throw new IllegalArgumentException("Malformed IRC Message: '" + stringMessage + "'. Please report this so it can get fixed!");
+			throw new IllegalArgumentException("Malformed IRC Packet: '" + stringPacket + "'. Please report this so it can get handled!");
 		} else {
 			final String prefix = matcher.group("prefix");
 			final String command = matcher.group("command");
 			final String paramsString = matcher.group("params");
 			final String trail = matcher.group("trail");
 			final String[] params = paramsString == null ? new String[0] : paramsString.replaceAll("\\s+", Codes.SP.toString()).split(Codes.SP.toString());
-			return new Message(prefix, command, trail, params);
+			return new IrcPacket(prefix, command, trail, params);
 		}
 	}
 
@@ -99,9 +99,9 @@ public class Message {
 	/**
 	 * Minimal constructor
 	 *
-	 * @param command the command of this Message
+	 * @param command the command of this IrcPacket
 	 */
-	public Message(final String command) {
+	public IrcPacket(final String command) {
 		this.prefix = null;
 		this.command = command;
 		this.parameters = null;
@@ -111,12 +111,12 @@ public class Message {
 	/**
 	 * Complete constructor
 	 *
-	 * @param prefix     the prefix of this Message
-	 * @param command    the command of this Message
-	 * @param trail      the trail of this Message
-	 * @param parameters the parameters of this Message
+	 * @param prefix     the prefix of this IrcPacket
+	 * @param command    the command of this IrcPacket
+	 * @param trail      the trail of this IrcPacket
+	 * @param parameters the parameters of this IrcPacket
 	 */
-	public Message(final String prefix, final String command, final String trail, final String... parameters) {
+	public IrcPacket(final String prefix, final String command, final String trail, final String... parameters) {
 		this.prefix = prefix;
 		this.command = command;
 		this.parameters = parameters;
@@ -128,12 +128,12 @@ public class Message {
 	// ################### //
 
 	/**
-	 * Gets the raw Message String in the following format:
+	 * Gets the raw IRC Packet String in the following format:
 	 * <p/>
 	 * <strong>:PREFIX COMMAND PARAM1 PARAM2 PARAM3 :TRAIL\n</strong>
 	 * <p/>
 	 *
-	 * @return the raw Message String of this Message
+	 * @return the raw IRC Packet String representing this IRC Packet
 	 */
 	public String getRawMessage() {
 		final StringBuilder result = new StringBuilder(Codes.COLON.toString());
@@ -156,42 +156,42 @@ public class Message {
 	}
 
 	/**
-	 * Gets the prefix of this Message. May be null if this Message has no
-	 * prefix.
+	 * Gets the prefix of this IRC Packet. May be null if this IRC Packet
+	 * has no prefix.
 	 *
-	 * @return the prefix of this Message or null if not present
+	 * @return the prefix of this IRC Packet or null if not present
 	 */
 	public String getPrefix() {
 		return this.prefix;
 	}
 
 	/**
-	 * Gets the raw Command part of this Message.
+	 * Gets the raw Command part of this IRC Packet.
 	 * It may be an IRC Command or an IRC Reply code.
 	 *
-	 * @return the command of this Message
+	 * @return the command of this IRC Packet
 	 */
 	public String getRawCommandString() {
 		return this.command;
 	}
 
 	/**
-	 * Gets the parameters of this Message. This array should not contain
+	 * Gets the parameters of this IrcPacket. This array should not contain
 	 * more than 15 elements, but the API is not secured on this side, so
 	 * don't rely on it being in the 0-15 range.
 	 *
-	 * @return the parameters of this Message
+	 * @return the parameters of this IrcPacket
 	 */
 	public String[] getParameters() {
 		return this.parameters;
 	}
 
 	/**
-	 * Gets the trail, which is the last parameter of the message.
+	 * Gets the trail, which is the last parameter of the IRC Packet.
 	 * This parameter is the only one that can contain spaces. For example,
-	 * it is this parameter which contains the actual message in a PRIVMSG.
+	 * it's this parameter which contains the actual message in a PRIVMSG.
 	 *
-	 * @return the trail of this Message
+	 * @return the trail of this IRC Packet
 	 */
 	public String getTrail() {
 		return this.trail;
@@ -202,14 +202,15 @@ public class Message {
 	// ################################### //
 
 	/**
-	 * Parse the prefix of this Message as a Source.
+	 * Parse the prefix of this IRC Packet as a Source.
 	 *
-	 * @param server the Server linked to this Message, required to build
+	 * @param server the Server linked to this IRC Packet, required to build
 	 *               the Source object
 	 *
-	 * @return the Source related to this Message's prefix
+	 * @return the Source related to this IrcPacket's prefix
 	 *
-	 * @throws IllegalStateException    if called on a Message without prefix
+	 * @throws IllegalStateException    if called on a IrcPacket without
+	 *                                  prefix
 	 * @throws IllegalArgumentException if it fails to parse the prefix
 	 * @see #parsePrefix(fr.ribesg.alix.api.Server, String)
 	 */
@@ -217,15 +218,15 @@ public class Message {
 		try {
 			return parsePrefix(server, this.prefix);
 		} catch (final NullPointerException e) {
-			throw new IllegalStateException("This Message's prefix is null. Please check before calling this.", e);
+			throw new IllegalStateException("This IRC Packet's prefix is null. Please check before calling this.", e);
 		}
 	}
 
 	/**
-	 * Checks if the Command part of this Message is a
+	 * Checks if the Command part of this IRC Packet is a
 	 * valid IRC Command.
 	 *
-	 * @return true if the Command part of this Message is a valid Command,
+	 * @return true if the Command part of this IRC Packet is a valid Command,
 	 * false otherwise
 	 */
 	public boolean isValidCommand() {
@@ -238,12 +239,12 @@ public class Message {
 	}
 
 	/**
-	 * Gets this Message's Command part as a Command Enum value.
+	 * Gets this IRC Packet's Command part as a Command Enum value.
 	 *
-	 * @return this Message's Command Enum value
+	 * @return this IRC Packet's Command Enum value
 	 *
 	 * @throws IllegalStateException if the Command part of this
-	 *                               Message is not a valid Command
+	 *                               IRC Packet is not a valid Command
 	 *                               Enum value.
 	 */
 	public Command getCommandAsCommand() {
@@ -255,10 +256,10 @@ public class Message {
 	}
 
 	/**
-	 * Checks if the Command part of this Message is a
+	 * Checks if the Command part of this IRC Packet is a
 	 * valid IRC Reply code.
 	 *
-	 * @return true if the Command part of this Message is a valid Reply
+	 * @return true if the Command part of this IRC Packet is a valid Reply
 	 * code, false otherwise
 	 */
 	public boolean isValidReply() {
@@ -266,12 +267,12 @@ public class Message {
 	}
 
 	/**
-	 * Gets this Message's Command part as a Reply Enum value.
+	 * Gets this IRC Packet's Command part as a Reply Enum value.
 	 *
-	 * @return this Message's Command Reply Enum value
+	 * @return this IRC Packet's Command Reply Enum value
 	 *
 	 * @throws IllegalStateException if the Command part of this
-	 *                               Message is not a valid Reply
+	 *                               IRC Packet is not a valid Reply
 	 *                               Enum value.
 	 */
 	public Reply getCommandAsReply() {
@@ -285,7 +286,7 @@ public class Message {
 	/**
 	 * Convenient method.
 	 *
-	 * @return the raw Message String of this Message
+	 * @return the raw IRC Packet String representing this IRC Packet
 	 */
 	@Override
 	public String toString() {
@@ -297,22 +298,22 @@ public class Message {
 		if (this == o) {
 			return true;
 		}
-		if (!(o instanceof Message)) {
+		if (!(o instanceof IrcPacket)) {
 			return false;
 		}
 
-		Message message = (Message) o;
+		IrcPacket ircPacket = (IrcPacket) o;
 
-		if (!command.equals(message.command)) {
+		if (!command.equals(ircPacket.command)) {
 			return false;
 		}
-		if (!Arrays.equals(parameters, message.parameters)) {
+		if (!Arrays.equals(parameters, ircPacket.parameters)) {
 			return false;
 		}
-		if (prefix != null ? !prefix.equals(message.prefix) : message.prefix != null) {
+		if (prefix != null ? !prefix.equals(ircPacket.prefix) : ircPacket.prefix != null) {
 			return false;
 		}
-		if (trail != null ? !trail.equals(message.trail) : message.trail != null) {
+		if (trail != null ? !trail.equals(ircPacket.trail) : ircPacket.trail != null) {
 			return false;
 		}
 

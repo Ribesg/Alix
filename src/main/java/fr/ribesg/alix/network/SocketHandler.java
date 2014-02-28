@@ -1,6 +1,6 @@
 package fr.ribesg.alix.network;
 import fr.ribesg.alix.api.Server;
-import fr.ribesg.alix.api.message.Message;
+import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.network.ssl.SSLSocketFactory;
 import fr.ribesg.alix.network.ssl.SSLType;
 import org.apache.log4j.Logger;
@@ -83,8 +83,8 @@ public class SocketHandler {
 		this.socketSender.write(message);
 	}
 
-	public void write(final Message message) {
-		this.writeRaw(message.getRawMessage());
+	public void write(final IrcPacket ircPacket) {
+		this.writeRaw(ircPacket.getRawMessage());
 	}
 
 	public void askStop() {

@@ -1,6 +1,6 @@
 package fr.ribesg.alix.api;
 import fr.ribesg.alix.api.bot.commands.CommandManager;
-import fr.ribesg.alix.api.message.Message;
+import fr.ribesg.alix.api.message.IrcPacket;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -206,16 +206,16 @@ public abstract class Client {
 	public void onChannelMessage(final Channel channel, final Source fromSource, final String message) {}
 
 	/**
-	 * Executed every time the Client receives an IRC message.
+	 * Executed every time the Client receives an IRC Packet.
 	 * This is where you can do what's not yet in this API as an "Event".
 	 * Please ask for features, or make a Pull Request on Github!
 	 * <p/>
 	 * This method does not do anything and should be overridden.
 	 *
-	 * @param server  the Server that sent the IRC Message
-	 * @param message the IRC Message sent by the Server
+	 * @param server    the Server that sent the IRC Packet
+	 * @param ircPacket the IRC Packet sent by the Server
 	 *
 	 * @see
 	 */
-	public void onRawIrcMessage(final Server server, final Message message) {}
+	public void onRawIrcMessage(final Server server, final IrcPacket ircPacket) {}
 }

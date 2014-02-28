@@ -43,7 +43,7 @@ public class SocketSender implements Runnable {
 				}
 				this.writer.flush();
 			} catch (final IOException e) {
-				LOGGER.error("Failed to send Message", e);
+				LOGGER.error("Failed to send IRC Packet", e);
 			}
 		}
 		this.kill();

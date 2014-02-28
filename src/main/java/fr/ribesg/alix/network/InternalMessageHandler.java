@@ -6,8 +6,8 @@ import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.enums.Reply;
-import fr.ribesg.alix.api.message.Message;
-import fr.ribesg.alix.api.message.PongMessage;
+import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.api.message.PongIrcPacket;
 import org.apache.log4j.Logger;
 
 /**
@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
  * user" here), then the handler will make appropriate calls to the Client.
  * <p/>
  * Note that every message will still produce a call to
- * {@link Client#onRawIrcMessage(Server, Message)}.
+ * {@link Client#onRawIrcMessage(Server, IrcPacket)}.
  *
  * @author Ribesg
  */
@@ -62,14 +62,14 @@ public class InternalMessageHandler {
 	 * Handles received messages asynchronously.
 	 * Used to prevent locking the SocketReceiver.
 	 *
-	 * @param server        the Server the message come from
-	 * @param messageString the raw IRC message to handle
+	 * @param server       the Server the message come from
+	 * @param packetString the raw IRC Packet to handle
 	 */
-	private void handleMessageAsync(final Server server, final String messageString) {
-		// Parse the Message
-		final Message m = Message.parseMessage(messageString);
+	private void handleMessageAsync(final Server server, final String packetString) {
+		// Parse the IRC Packet
+		final IrcPacket m = IrcPacket.parseMessage(packetString);
 
-		// Raw IRC Message
+		// Raw IRC Packet
 		client.onRawIrcMessage(server, m);
 
 		// Command?
@@ -78,7 +78,7 @@ public class InternalMessageHandler {
 			final Command cmd = m.getCommandAsCommand();
 			switch (cmd) {
 				case PING:
-					server.send(new PongMessage(m.getTrail()));
+					server.send(new PongIrcPacket(m.getTrail()));
 					break;
 				case JOIN:
 				case PART:

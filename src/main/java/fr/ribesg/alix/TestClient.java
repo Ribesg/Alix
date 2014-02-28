@@ -4,7 +4,7 @@ import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.bot.commands.Command;
-import fr.ribesg.alix.api.message.PrivMsgMessage;
+import fr.ribesg.alix.api.message.PrivMsgIrcPacket;
 import fr.ribesg.alix.network.ssl.SSLType;
 
 /**
@@ -42,8 +42,8 @@ public class TestClient {
 			@Override
 			public void onServerJoined(final Server server) {
 				/* Here you can register with NickServ for example
-				server.send(new PrivMsgMessage("NickServ", "REGISTER SomePassword some@email"));
-				server.send(new PrivMsgMessage("NickServ", "IDENTIFY SomePassword"));
+				server.send(new PrivMsgIrcPacket("NickServ", "REGISTER SomePassword some@email"));
+				server.send(new PrivMsgIrcPacket("NickServ", "IDENTIFY SomePassword"));
 				*/
 			}
 
@@ -59,7 +59,7 @@ public class TestClient {
 
 			@Override
 			public void onPrivateMessage(final Server server, final Source fromSource, final String message) {
-				server.send(new PrivMsgMessage(fromSource.getName(), "Hi!"));
+				server.send(new PrivMsgIrcPacket(fromSource.getName(), "Hi!"));
 				if (message.equalsIgnoreCase(getName() + ", quit")) {
 					// Disconnect from server
 					server.disconnect();
@@ -67,7 +67,7 @@ public class TestClient {
 					// Simple command to ask to SomeBot to send a pm to someone
 					final String dest = message.split(" ")[1];
 					final String mes = message.substring("!pm ".length() + dest.length() + 1);
-					server.send(new PrivMsgMessage(dest, mes));
+					server.send(new PrivMsgIrcPacket(dest, mes));
 				}
 			}
 

@@ -2,7 +2,7 @@ package fr.ribesg.alix.network;
 
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
-import fr.ribesg.alix.api.message.Message;
+import fr.ribesg.alix.api.message.IrcPacket;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +26,7 @@ public class TestPrefixParser {
 
 	@Test
 	public void testParseMessage() {
-		final Source result = Message.parsePrefix(DUMMY_SERVER, this.prefix);
+		final Source result = IrcPacket.parsePrefix(DUMMY_SERVER, this.prefix);
 		Assert.assertEquals("Name doesn't match", awaitedSource.getName(), result.getName());
 		Assert.assertEquals("Username doesn't match", awaitedSource.getUserName(), result.getUserName());
 		Assert.assertEquals("Hostname doesn't match", awaitedSource.getHostName(), result.getHostName());

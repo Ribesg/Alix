@@ -1,5 +1,5 @@
 package fr.ribesg.alix.api;
-import fr.ribesg.alix.api.message.PrivMsgMessage;
+import fr.ribesg.alix.api.message.PrivMsgIrcPacket;
 
 /**
  * Represents an entity that can receive Messages on a Server.
@@ -49,7 +49,7 @@ public abstract class Receiver {
 	 * @param message the message to send
 	 */
 	public void sendMessage(final String message) {
-		this.server.send(new PrivMsgMessage(this.getName(), message));
+		this.server.send(new PrivMsgIrcPacket(this.getName(), message));
 	}
 
 }
