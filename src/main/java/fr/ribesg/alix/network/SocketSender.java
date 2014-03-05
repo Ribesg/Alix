@@ -34,10 +34,10 @@ public class SocketSender implements Runnable {
 		this.stopped = false;
 		String mes;
 		while (!this.stopAsked) {
-			Tools.pause(100);
+			Tools.pause(1000);
 			try {
 				while ((mes = this.buffer.poll()) != null) {
-					Tools.pause(50);
+					Tools.pause(250);
 					LOGGER.debug("SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
 					this.writer.write(mes);
 				}
