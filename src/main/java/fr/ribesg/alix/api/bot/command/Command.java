@@ -1,4 +1,4 @@
-package fr.ribesg.alix.api.bot.commands;
+package fr.ribesg.alix.api.bot.command;
 
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Server;

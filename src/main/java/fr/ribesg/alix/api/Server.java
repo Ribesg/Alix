@@ -1,6 +1,6 @@
 package fr.ribesg.alix.api;
 
-import fr.ribesg.alix.Tools;
+import fr.ribesg.alix.network.Tools;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;

@@ -1,5 +1,4 @@
 package fr.ribesg.alix.network;
-import fr.ribesg.alix.Tools;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedWriter;

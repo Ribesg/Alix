@@ -1,4 +1,4 @@
-package fr.ribesg.alix;
+package fr.ribesg.alix.network;
 
 import org.apache.log4j.Logger;
 

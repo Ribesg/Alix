@@ -1,5 +1,5 @@
 package fr.ribesg.alix.api;
-import fr.ribesg.alix.api.bot.commands.CommandManager;
+import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.IrcPacket;
 
 import java.util.HashSet;
@@ -69,7 +69,7 @@ public abstract class Client {
 	 * CommandManager, you need to call
 	 * {@link #createCommandManager(String, Set)} then you can start
 	 * registering your Commands with {@link #getCommandManager()} and
-	 * {@link CommandManager#registerCommand(fr.ribesg.alix.api.bot.commands.Command)}.
+	 * {@link CommandManager#registerCommand(fr.ribesg.alix.api.bot.command.Command)}.
 	 * <p/>
 	 * After calling this method, the Client will try to
 	 * connect to all servers ({@link #connectToServers()})
@@ -81,7 +81,7 @@ public abstract class Client {
 	/**
 	 * Creates a new CommandManager for this Client.
 	 * After calling this, please use
-	 * {@link CommandManager#registerCommand(fr.ribesg.alix.api.bot.commands.Command)}
+	 * {@link CommandManager#registerCommand(fr.ribesg.alix.api.bot.command.Command)}
 	 * to register your Commands.
 	 *
 	 * @param commandPrefix the prefix of every Commands in this
