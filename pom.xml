@@ -7,7 +7,7 @@
 	<artifactId>alix</artifactId>
 	<packaging>jar</packaging>
 
-	<version>0.3-SNAPSHOT</version>
+	<version>0.3</version>
 
 	<name>Alix</name>
 	<url>https://github.com/Ribesg/Alix</url>
