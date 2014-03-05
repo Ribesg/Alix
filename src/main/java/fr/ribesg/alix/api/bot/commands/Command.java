@@ -142,6 +142,7 @@ public abstract class Command {
 	 * @param channel the Channel this Command has been called in, or
 	 *                null if there's none (i.e. if it's a private message)
 	 * @param user    the User that wrote the Command
+	 * @param args    arguments passed the the Command
 	 */
-	public abstract void exec(final Server server, final Channel channel, final Source user);
+	public abstract void exec(final Server server, final Channel channel, final Source user, final String[] args);
 }

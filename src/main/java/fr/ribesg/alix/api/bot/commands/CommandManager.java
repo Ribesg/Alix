@@ -3,6 +3,7 @@ import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -129,7 +130,8 @@ public class CommandManager {
 		}
 
 		// Get the provided command name
-		final String cmd = message.split("\\s")[0].substring(this.commandPrefix.length()).toLowerCase();
+		final String[] messageSplit = message.split("\\s");
+		final String cmd = messageSplit[0].substring(this.commandPrefix.length()).toLowerCase();
 
 		// Find the Command
 		Command command = this.commands.get(cmd);
@@ -165,8 +167,11 @@ public class CommandManager {
 			return;
 		}
 
+		// Get args
+		final String[] args = Arrays.copyOfRange(messageSplit, 1, messageSplit.length);
+
 		// Execute the Command
-		command.exec(server, channel, user);
+		command.exec(server, channel, user, args);
 	}
 
 	/**

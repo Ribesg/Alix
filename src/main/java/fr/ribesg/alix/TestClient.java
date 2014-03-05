@@ -29,7 +29,7 @@ public class TestClient {
 				this.getCommandManager().registerCommand(new Command("test") {
 
 					@Override
-					public void exec(final Server server, final Channel channel, final Source user) {
+					public void exec(final Server server, final Channel channel, final Source user, final String[] args) {
 						if (channel == null) {
 							user.sendMessage("Use the !test command in a Channel!");
 						} else {
