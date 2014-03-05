@@ -53,7 +53,7 @@ public class IrcPacket {
 			final String command = matcher.group("command");
 			final String paramsString = matcher.group("params");
 			final String trail = matcher.group("trail");
-			final String[] params = paramsString == null ? new String[0] : paramsString.replaceAll("\\s+", Codes.SP.toString()).split(Codes.SP.toString());
+			final String[] params = paramsString == null ? new String[0] : paramsString.replaceAll("\\s+", Codes.SP).split(Codes.SP);
 			return new IrcPacket(prefix, command, trail, params);
 		}
 	}
@@ -136,7 +136,7 @@ public class IrcPacket {
 	 * @return the raw IRC Packet String representing this IRC Packet
 	 */
 	public String getRawMessage() {
-		final StringBuilder result = new StringBuilder(Codes.COLON.toString());
+		final StringBuilder result = new StringBuilder(Codes.COLON);
 		if (this.prefix != null) {
 			result.append(this.prefix);
 		}
