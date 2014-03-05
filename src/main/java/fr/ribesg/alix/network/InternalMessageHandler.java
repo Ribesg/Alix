@@ -48,6 +48,7 @@ public class InternalMessageHandler {
 	 * @param messageString the raw IRC message to handle
 	 */
 	/* package */ void handleMessage(final Server server, final String messageString) {
+		server.setJoined(true);
 		new Thread(new Runnable() {
 
 			@Override
@@ -132,6 +133,10 @@ public class InternalMessageHandler {
 					server.setConnected(true);
 					server.joinChannels();
 					client.onServerJoined(server);
+					break;
+				case ERR_NICKNAMEINUSE:
+				case ERR_NICKCOLLISION:
+					client.switchToBackupName();
 					break;
 				default:
 					break;

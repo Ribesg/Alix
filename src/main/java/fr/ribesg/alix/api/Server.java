@@ -1,12 +1,12 @@
 package fr.ribesg.alix.api;
 
-import fr.ribesg.alix.network.Tools;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
 import fr.ribesg.alix.api.message.QuitIrcPacket;
 import fr.ribesg.alix.api.message.UserIrcPacket;
 import fr.ribesg.alix.network.SocketHandler;
+import fr.ribesg.alix.network.Tools;
 import fr.ribesg.alix.network.ssl.SSLType;
 import org.apache.log4j.Logger;
 
@@ -54,6 +54,12 @@ public class Server {
 	 * The SocketHandler dedicated to this Server
 	 */
 	private SocketHandler socket;
+
+	/**
+	 * Store if this Client has already received a message from this
+	 * Server or not. Set to true before {@link #connected}.
+	 */
+	private boolean joined;
 
 	/**
 	 * Store if the Client is connected to this Server or not
@@ -172,6 +178,30 @@ public class Server {
 	 */
 	public SSLType getSslType() {
 		return sslType;
+	}
+
+	/**
+	 * @return true if the Client has joined this Server, i.e. if the Client
+	 * received at least one message from this Server (and is still connected
+	 * of course), false otherwise
+	 */
+	public boolean hasJoined() {
+		return joined;
+	}
+
+	/**
+	 * Modifies the joined state of this Server.
+	 * This is called by the
+	 * {@link fr.ribesg.alix.network.InternalMessageHandler}, please
+	 * do not use it.
+	 * <p/>
+	 * This is nothing more than a Setter for {@link #joined}, please
+	 * use {@link #connect()} and {@link #disconnect()}.
+	 *
+	 * @param joined the value wanted for the connected state
+	 */
+	public void setJoined(final boolean joined) {
+		this.joined = joined;
 	}
 
 	/**

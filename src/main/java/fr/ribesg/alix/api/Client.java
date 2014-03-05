@@ -1,6 +1,7 @@
 package fr.ribesg.alix.api;
 import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.api.message.NickIrcPacket;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +17,7 @@ public abstract class Client {
 	/**
 	 * Name of this Client, used as Nick
 	 */
-	private final String name;
+	private String name;
 
 	/**
 	 * Servers this Client will join or has joined
@@ -47,6 +48,22 @@ public abstract class Client {
 	 */
 	public final String getName() {
 		return this.name;
+	}
+
+	/**
+	 * Switch to a backup name.
+	 * The default behaviour is to add "Bot" to the current name until
+	 * it gets accepted.
+	 * <p/>
+	 * This can be overriden to define custom secondary nicknames.
+	 */
+	public void switchToBackupName() {
+		this.name += "Bot";
+		for (final Server server : this.servers) {
+			if (server.hasJoined()) {
+				server.send(new NickIrcPacket(this.name));
+			}
+		}
 	}
 
 	/**
@@ -89,14 +106,14 @@ public abstract class Client {
 	 * @param botAdmins     a Set of nicknames which have to be considered
 	 *                      as Admins
 	 */
-	protected void createCommandManager(final String commandPrefix, final Set<String> botAdmins) {
+	protected final void createCommandManager(final String commandPrefix, final Set<String> botAdmins) {
 		this.commandManager = new CommandManager(commandPrefix, botAdmins);
 	}
 
 	/**
 	 * @return the CommandManager of this Client, or null if there's none
 	 */
-	public CommandManager getCommandManager() {
+	public final CommandManager getCommandManager() {
 		return this.commandManager;
 	}
 
@@ -107,7 +124,7 @@ public abstract class Client {
 	 *
 	 * @see Server#joinChannels()
 	 */
-	private void connectToServers() {
+	private final void connectToServers() {
 		for (final Server server : this.servers) {
 			server.connect();
 		}
