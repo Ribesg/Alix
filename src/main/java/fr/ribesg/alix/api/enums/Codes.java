@@ -42,8 +42,8 @@ public enum Codes {
 	LIGHT_CYAN(Color.CODE + Color.LIGHT_CYAN),
 	LIGHT_BLUE(Color.CODE + Color.LIGHT_BLUE),
 	PINK(Color.CODE + Color.PINK),
-	GREY(Color.CODE + Color.GREY),
-	LIGHT_GREY(Color.CODE + Color.LIGHT_GREY),
+	GRAY(Color.CODE + Color.GRAY),
+	LIGHT_GRAY(Color.CODE + Color.LIGHT_GRAY),
 
 	// ##################### //
 	// Reset colors & format //
@@ -120,8 +120,8 @@ public enum Codes {
 		LIGHT_CYAN,
 		LIGHT_BLUE,
 		PINK,
-		GREY,
-		LIGHT_GREY;
+		GRAY,
+		LIGHT_GRAY;
 
 		/**
 		 * Code used in color codes. A valid color code is composed of this code
