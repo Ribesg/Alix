@@ -124,7 +124,7 @@ public abstract class Client {
 	 *
 	 * @see Server#joinChannels()
 	 */
-	private final void connectToServers() {
+	private void connectToServers() {
 		for (final Server server : this.servers) {
 			server.connect();
 		}
