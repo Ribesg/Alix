@@ -1,4 +1,5 @@
 package fr.ribesg.alix.network;
+import fr.ribesg.alix.api.Server;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedWriter;
@@ -18,12 +19,15 @@ public class SocketSender implements Runnable {
 	private final BufferedWriter                writer;
 	private final ConcurrentLinkedQueue<String> buffer;
 
+	private final Server server;
+
 	private boolean stopAsked;
 	private boolean stopped;
 
-	/* package */ SocketSender(final BufferedWriter writer) {
+	/* package */ SocketSender(final Server server, final BufferedWriter writer) {
 		this.writer = writer;
 		this.buffer = new ConcurrentLinkedQueue<>();
+		this.server = server;
 		this.stopAsked = false;
 		this.stopped = true;
 	}
@@ -36,7 +40,8 @@ public class SocketSender implements Runnable {
 			Tools.pause(50);
 			try {
 				while ((mes = this.buffer.poll()) != null) {
-					LOGGER.debug("SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
+					LOGGER.debug(server.getUrl() + ':' + server.getPort() +
+					             " - SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
 					this.writer.write(mes);
 					Tools.pause(250);
 				}

@@ -38,7 +38,7 @@ public class SocketReceiver implements Runnable {
 		while (!this.stopAsked) {
 			try {
 				while ((mes = this.reader.readLine()) != null) {
-					LOGGER.debug("RECEIVED MESSAGE: '" + mes + "'");
+					LOGGER.debug(server.getUrl() + ':' + server.getPort() + " - RECEIVED MESSAGE: '" + mes + "'");
 					this.handler.handleMessage(this.server, mes);
 				}
 			} catch (final IOException ignored) {
