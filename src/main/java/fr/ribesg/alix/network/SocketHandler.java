@@ -65,7 +65,7 @@ public class SocketHandler {
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 		final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
 
-		this.socketSender = new SocketSender(writer);
+		this.socketSender = new SocketSender(this.server, writer);
 		this.socketReceiver = new SocketReceiver(this.server, reader);
 
 		this.senderThread = new Thread(this.socketSender);
