@@ -1,4 +1,5 @@
 package fr.ribesg.alix.api.bot.util;
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -12,6 +13,8 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class WebUtil {
+
+	private final static Logger LOG = Logger.getLogger(WebUtil.class.getName());
 
 	private static final String URL_SHORTENER_URL = "http://is.gd/create.php?format=simple&url=";
 
@@ -111,6 +114,8 @@ public class WebUtil {
 	 * @throws IOException if something fails
 	 */
 	public static String getString(final String urlString, final int timeOut) throws IOException {
+		LOG.debug("Getting page " + urlString + " ...");
+
 		final URL url = new URL(urlString);
 
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -126,6 +131,8 @@ public class WebUtil {
 				buffer.append(line);
 				buffer.append('\n');
 			}
+
+			LOG.debug("Done getting page " + urlString + " !");
 			return buffer.toString();
 		}
 	}
