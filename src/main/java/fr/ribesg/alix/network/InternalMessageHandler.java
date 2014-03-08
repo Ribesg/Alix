@@ -89,9 +89,9 @@ public class InternalMessageHandler {
 					Source source = m.getPrefix() == null ? null : m.getPrefixAsSource(server);
 					if (source == null || source.getName().equals(client.getName())) {
 						if (cmd == Command.JOIN) {
-							client.onAlixJoinChannel(channel);
+							client.onClientJoinChannel(channel);
 						} else {
-							client.onAlixPartChannel(channel);
+							client.onClientPartChannel(channel);
 						}
 					} else {
 						if (cmd == Command.JOIN) {

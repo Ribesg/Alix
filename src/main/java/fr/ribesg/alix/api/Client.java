@@ -147,7 +147,7 @@ public abstract class Client {
 	 *
 	 * @param server the Server the Client just joined
 	 *
-	 * @see #onAlixJoinChannel(Channel)
+	 * @see #onClientJoinChannel(Channel)
 	 */
 	public void onServerJoined(final Server server) {}
 
@@ -162,7 +162,7 @@ public abstract class Client {
 	 *
 	 * @param channel the Channel the Client just joined
 	 */
-	public void onAlixJoinChannel(final Channel channel) {}
+	public void onClientJoinChannel(final Channel channel) {}
 
 	/**
 	 * Executed once the Client parts a Channel.
@@ -175,7 +175,7 @@ public abstract class Client {
 	 *
 	 * @param channel the Channel the Client just left
 	 */
-	public void onAlixPartChannel(final Channel channel) {}
+	public void onClientPartChannel(final Channel channel) {}
 
 	/**
 	 * Executed when a User successfully joins a Channel.

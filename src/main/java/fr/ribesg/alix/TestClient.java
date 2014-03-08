@@ -48,7 +48,7 @@ public class TestClient {
 			}
 
 			@Override
-			public void onAlixJoinChannel(final Channel channel) {
+			public void onClientJoinChannel(final Channel channel) {
 				channel.sendMessage("Hi!");
 			}
 
