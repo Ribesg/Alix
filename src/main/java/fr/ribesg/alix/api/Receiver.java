@@ -44,12 +44,14 @@ public abstract class Receiver {
 	}
 
 	/**
-	 * Sends a message to this Receiver.
+	 * Sends one or multiple messages to this Receiver.
 	 *
-	 * @param message the message to send
+	 * @param messages messages to send
 	 */
-	public void sendMessage(final String message) {
-		this.server.send(new PrivMsgIrcPacket(this.getName(), message));
+	public void sendMessage(final String... messages) {
+		for (final String message : messages) {
+			this.server.send(new PrivMsgIrcPacket(this.getName(), message));
+		}
 	}
 
 }

@@ -231,8 +231,6 @@ public abstract class Client {
 	 *
 	 * @param server    the Server that sent the IRC Packet
 	 * @param ircPacket the IRC Packet sent by the Server
-	 *
-	 * @see
 	 */
 	public void onRawIrcMessage(final Server server, final IrcPacket ircPacket) {}
 }
