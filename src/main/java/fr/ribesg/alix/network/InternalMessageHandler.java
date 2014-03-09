@@ -79,7 +79,7 @@ public class InternalMessageHandler {
 			final Command cmd = m.getCommandAsCommand();
 			switch (cmd) {
 				case PING:
-					server.send(new PongIrcPacket(m.getTrail()));
+					server.sendPrioritized(new PongIrcPacket(m.getTrail()));
 					break;
 				case JOIN:
 				case PART:

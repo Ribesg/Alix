@@ -301,7 +301,7 @@ public class Server {
 	}
 
 	/**
-	 * Sends a RAW message to this Receiver.
+	 * Sends a RAW message to this Server.
 	 *
 	 * @param message the String message to be sent
 	 */
@@ -320,5 +320,27 @@ public class Server {
 	 */
 	public void send(final IrcPacket ircPacket) {
 		this.sendRaw(ircPacket.getRawMessage());
+	}
+
+	/**
+	 * Sends a RAW message to this Server as fast as possible.
+	 *
+	 * @param message the String message to be sent
+	 */
+	public void sendRawPrioritized(final String message) {
+		if (this.socket == null) {
+			throw new IllegalStateException("Not connected!");
+		} else {
+			this.socket.writeRawFirst(message);
+		}
+	}
+
+	/**
+	 * Sends an IRC Packet to this Server as fast as possible.
+	 *
+	 * @param ircPacket the IRC Packet to be sent
+	 */
+	public void sendPrioritized(final IrcPacket ircPacket) {
+		this.sendRawPrioritized(ircPacket.getRawMessage());
 	}
 }

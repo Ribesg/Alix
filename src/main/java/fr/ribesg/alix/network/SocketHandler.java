@@ -87,6 +87,14 @@ public class SocketHandler {
 		this.writeRaw(ircPacket.getRawMessage());
 	}
 
+	public void writeRawFirst(final String message) {
+		this.socketSender.writeFirst(message);
+	}
+
+	public void writeFirst(final IrcPacket ircPacket) {
+		this.writeRawFirst(ircPacket.getRawMessage());
+	}
+
 	public void askStop() {
 		this.socketSender.askStop();
 		this.socketReceiver.askStop();
