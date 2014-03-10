@@ -1,10 +1,13 @@
 package fr.ribesg.alix.api;
+import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Represents an IRC Client that can connect to IRC servers,
@@ -13,6 +16,12 @@ import java.util.Set;
  * @author Ribesg
  */
 public abstract class Client {
+
+	private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
+
+	public static ExecutorService getThreadPool() {
+		return THREAD_POOL;
+	}
 
 	/**
 	 * Name of this Client, used as Nick
@@ -159,6 +168,15 @@ public abstract class Client {
 	 * the Channel.
 	 * <p/>
 	 * This method does not do anything and should be overridden.
+	 * <p/>
+	 * Note: If you need to interact with the list of users or with the
+	 * topic of the Channel here, please wait before doing it. At this point,
+	 * those are not set. If they are not set in the next 2 seconds, Alix
+	 * will send the appropriate TOPIC and NAMES commands to the server.
+	 * So you can either use {@link fr.ribesg.alix.Tools#pause(int)} for
+	 * around 3-4 seconds or just make a loop waiting for it to be set,
+	 * as everything is async. Please use the pause(int) method in your
+	 * waiting loop to prevent surcharging the bot.
 	 *
 	 * @param channel the Channel the Client just joined
 	 */
@@ -178,6 +196,41 @@ public abstract class Client {
 	public void onClientPartChannel(final Channel channel) {}
 
 	/**
+	 * Executed once the Client gets kicked from a Channel.
+	 * To be more precise, this is triggered once the Client receive a
+	 * {@link fr.ribesg.alix.api.enums.Command#KICK} command with the
+	 * Client's name as second parameter.
+	 * <p/>
+	 * This method tries to rejoin the Channel by default and could be
+	 * overridden.
+	 *
+	 * @param channel the Channel the Client just got kicked from
+	 * @param by      the Source of the kick
+	 * @param reason  the reason for the kick
+	 */
+	public void onClientKickedFromChannel(final Channel channel, final Source by, final String reason) {
+		Tools.pause(2_500);
+		channel.join();
+	}
+
+	/**
+	 * Executed once the Client gets kicked from a Server.
+	 * To be more precise, this is triggered once the Client receive a
+	 * {@link fr.ribesg.alix.api.enums.Command#QUIT} command with the
+	 * Client's name as prefix.
+	 * <p/>
+	 * This method tries to rejoin the Server and all Channels by default
+	 * and could be overridden.
+	 *
+	 * @param server the Server the Client just got kicked from
+	 * @param reason the reason for the kick
+	 */
+	public void onClientKickedFromServer(final Server server, final String reason) {
+		Tools.pause(2_500);
+		server.connect();
+	}
+
+	/**
 	 * Executed when a User successfully joins a Channel.
 	 * To be more precise, this is triggered once the Client receive a
 	 * {@link fr.ribesg.alix.api.enums.Command#JOIN} command
@@ -190,7 +243,7 @@ public abstract class Client {
 	public void onUserJoinChannel(final Source source, final Channel channel) {}
 
 	/**
-	 * Executed once the Client parts a Channel.
+	 * Executed once a User parts a Channel.
 	 * To be more precise, this is triggered once the Client receive a
 	 * {@link fr.ribesg.alix.api.enums.Command#PART} command
 	 * from the Server with a User set as Prefix.
@@ -200,6 +253,32 @@ public abstract class Client {
 	 * @param channel the Channel the User just left
 	 */
 	public void onUserPartChannel(final Source source, final Channel channel) {}
+
+	/**
+	 * Executed once a User gets kicked from a Channel.
+	 * To be more precise, this is triggered once the Client receive a
+	 * {@link fr.ribesg.alix.api.enums.Command#KICK} command with another
+	 * name than the Client's name as second parameter.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param channel the Channel a User just got kicked from
+	 * @param by      the Source of the kick
+	 */
+	public void onUserKickedFromChannel(final Channel channel, final Source by, final String reason) {}
+
+	/**
+	 * Executed once a User quits a Server or get kicked from a Server.
+	 * To be more precise, this is triggered once the Client receive a
+	 * {@link fr.ribesg.alix.api.enums.Command#QUIT} command with another
+	 * name than the Client's name as prefix.
+	 * <p/>
+	 * This method does not do anything and should be overridden.
+	 *
+	 * @param server the Server a User just quited or got kicked from
+	 * @param reason the reason for the quit/kick
+	 */
+	public void onUserQuitServer(final Server server, final String reason) {}
 
 	/**
 	 * Executed when the Client receive a Private Message.

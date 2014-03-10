@@ -1,4 +1,12 @@
 package fr.ribesg.alix.api;
+import fr.ribesg.alix.api.message.JoinIrcPacket;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Represents an IRC Channel.
  *
@@ -10,6 +18,10 @@ public class Channel extends Receiver {
 	 * The password of this Channel, if any
 	 */
 	private final String password;
+
+	private String topic;
+
+	private Set<String> users;
 
 	/**
 	 * Channel constructor.
@@ -46,5 +58,122 @@ public class Channel extends Receiver {
 	 */
 	public String getPassword() {
 		return this.password;
+	}
+
+	/**
+	 * @return the topic of this Channel
+	 */
+	public String getTopic() {
+		return topic;
+	}
+
+	/**
+	 * @param topic the topic of this Channel
+	 */
+	public void setTopic(final String topic) {
+		this.topic = topic;
+	}
+
+	/**
+	 * @return the users of this Channel, op being represented as @user
+	 * and voices as +user
+	 */
+	public Set<String> getUsers() {
+		return users;
+	}
+
+	/**
+	 * @return the OP users of this Channel, without the @
+	 */
+	public Set<String> getOps() {
+		final Set<String> result = new HashSet<>();
+		for (final String user : this.users) {
+			if (user.startsWith("@")) {
+				result.add(user.substring(1));
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @return the Voices users of this Channel, without the @
+	 */
+	public Set<String> getVoiced() {
+		final Set<String> result = new HashSet<>();
+		for (final String user : this.users) {
+			if (user.startsWith("+")) {
+				result.add(user.substring(1));
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @param user the user name in any format ('user', '@user', '+user')
+	 *
+	 * @return true if the String '@user' is contained in this Channel's
+	 * user list
+	 */
+	public boolean isOp(final String user) {
+		if (user.startsWith("@") || user.startsWith("+")) {
+			return this.users.contains("@" + user.substring(1));
+		} else {
+			return this.users.contains("@" + user);
+		}
+	}
+
+	/**
+	 * @param user the user name in any format ('user', '@user', '+user')
+	 *
+	 * @return true if the String '+user' is contained in this Channel's
+	 * user list
+	 */
+	public boolean isVoiced(final String user) {
+		if (user.startsWith("@") || user.startsWith("+")) {
+			return this.users.contains("+" + user.substring(1));
+		} else {
+			return this.users.contains("+" + user);
+		}
+	}
+
+	/**
+	 * @param user the user name in any format ('user', '@user', '+user')
+	 *
+	 * @return true if the String '@user' or '+user' is contained in this
+	 * Channel's user list
+	 */
+	public boolean isOpOrVoices(final String user) {
+		if (user.startsWith("@") || user.startsWith("+")) {
+			final String realUser = user.substring(1);
+			return this.users.contains("@" + realUser) || this.users.contains("+" + realUser);
+		} else {
+			return this.users.contains("@" + user) || this.users.contains("+" + user);
+		}
+	}
+
+	/**
+	 * @param users the array of Users found on this Channel
+	 */
+	public void setUsers(final String[] users) {
+		this.users = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+		this.users.addAll(Arrays.asList(users));
+	}
+
+	/**
+	 * Attempt to join this Channel.
+	 *
+	 * @throws IllegalStateException if the Client is not connected
+	 *                               to this Channel's Server
+	 */
+	public void join() {
+		if (getServer().isConnected()) {
+			if (this.hasPassword()) {
+				this.server.send(new JoinIrcPacket(this.getName(), this.getPassword()));
+			} else {
+				this.server.send(new JoinIrcPacket(this.getName()));
+			}
+		} else {
+			throw new IllegalStateException("Not connected!");
+		}
 	}
 }

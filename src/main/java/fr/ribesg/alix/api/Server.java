@@ -1,12 +1,11 @@
 package fr.ribesg.alix.api;
 
+import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
 import fr.ribesg.alix.api.message.QuitIrcPacket;
 import fr.ribesg.alix.api.message.UserIrcPacket;
 import fr.ribesg.alix.network.SocketHandler;
-import fr.ribesg.alix.network.Tools;
 import fr.ribesg.alix.network.ssl.SSLType;
 import org.apache.log4j.Logger;
 
@@ -142,11 +141,7 @@ public class Server {
 			throw new IllegalStateException("Not Connected!");
 		}
 		for (final Channel channel : channels.values()) {
-			if (channel.hasPassword()) {
-				send(new JoinIrcPacket(channel.getName(), channel.getPassword()));
-			} else {
-				send(new JoinIrcPacket(channel.getName()));
-			}
+			channel.join();
 		}
 	}
 

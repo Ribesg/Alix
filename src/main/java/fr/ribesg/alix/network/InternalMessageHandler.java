@@ -1,13 +1,17 @@
 package fr.ribesg.alix.network;
 
+import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
+import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.api.message.PongIrcPacket;
+import fr.ribesg.alix.api.message.TopicIrcPacket;
 import org.apache.log4j.Logger;
 
 /**
@@ -49,13 +53,13 @@ public class InternalMessageHandler {
 	 */
 	/* package */ void handleMessage(final Server server, final String messageString) {
 		server.setJoined(true);
-		new Thread(new Runnable() {
+		Client.getThreadPool().execute(new Runnable() {
 
 			@Override
 			public void run() {
 				handleMessageAsync(server, messageString);
 			}
-		}).start();
+		});
 
 	}
 
@@ -84,12 +88,19 @@ public class InternalMessageHandler {
 				case JOIN:
 				case PART:
 					// Workaround for IRCds using the trail as parameter (Unreal)
-					final String channelName = m.getParameters().length > 0 ? m.getParameters()[0] : m.getTrail();
+					String channelName = m.getParameters().length > 0 ? m.getParameters()[0] : m.getTrail();
 					Channel channel = server.getChannel(channelName);
 					Source source = m.getPrefix() == null ? null : m.getPrefixAsSource(server);
 					if (source == null || source.getName().equals(client.getName())) {
 						if (cmd == Command.JOIN) {
 							client.onClientJoinChannel(channel);
+							Tools.pause(2_000);
+							if (channel.getUsers() == null) {
+								server.send(new NamesIrcPacket(channelName));
+							}
+							if (channel.getTopic() == null) {
+								server.send(new TopicIrcPacket(channelName));
+							}
 						} else {
 							client.onClientPartChannel(channel);
 						}
@@ -98,6 +109,32 @@ public class InternalMessageHandler {
 							client.onUserJoinChannel(source, channel);
 						} else {
 							client.onUserPartChannel(source, channel);
+						}
+					}
+					break;
+				case KICK:
+					channelName = m.getParameters()[0];
+					String who = m.getParameters()[1];
+					channel = server.getChannel(channelName);
+					source = m.getPrefix() == null ? null : m.getPrefixAsSource(server);
+					String reason = m.getTrail();
+					if (client.getName().equals(who)) {
+						client.onClientKickedFromChannel(channel, source, reason);
+					} else {
+						client.onUserKickedFromChannel(channel, source, reason);
+					}
+					break;
+				case QUIT:
+					source = m.getPrefix() == null ? null : m.getPrefixAsSource(server);
+					if (source != null) {
+						who = source.getName();
+						reason = m.getTrail();
+						if (client.getName().equals(who)) {
+							client.onClientKickedFromServer(server, reason);
+							server.setJoined(false);
+							server.setConnected(false);
+						} else {
+							client.onUserQuitServer(server, reason);
 						}
 					}
 					break;
@@ -133,6 +170,17 @@ public class InternalMessageHandler {
 					server.setConnected(true);
 					server.joinChannels();
 					client.onServerJoined(server);
+					break;
+				case RPL_TOPIC:
+					String channelName = m.getParameters()[1];
+					Channel channel = server.getChannel(channelName);
+					channel.setTopic(m.getTrail());
+					break;
+				case RPL_NAMREPLY:
+					channelName = m.getParameters()[2];
+					channel = server.getChannel(channelName);
+					final String[] users = m.getTrail().split(Codes.SP);
+					channel.setUsers(users);
 					break;
 				case ERR_NICKNAMEINUSE:
 				case ERR_NICKCOLLISION:
