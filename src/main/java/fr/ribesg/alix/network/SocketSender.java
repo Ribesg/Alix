@@ -47,7 +47,9 @@ public class SocketSender implements Runnable {
 					Tools.pause(1_000);
 				}
 			} catch (final IOException e) {
-				LOGGER.error("Failed to send IRC Packet", e);
+				if (!this.stopAsked && !this.stopped) {
+					LOGGER.error("Failed to send IRC Packet", e);
+				}
 			}
 			Tools.pause(50);
 		}
