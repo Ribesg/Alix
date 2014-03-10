@@ -4,6 +4,7 @@ import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.bot.command.Command;
+import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.PrivMsgIrcPacket;
 import fr.ribesg.alix.network.ssl.SSLType;
 
@@ -26,7 +27,8 @@ public class TestClient {
 
 				this.createCommandManager("!", null);
 
-				this.getCommandManager().registerCommand(new Command("test") {
+				final CommandManager manager = this.getCommandManager();
+				manager.registerCommand(new Command(manager, "test") {
 
 					@Override
 					public void exec(final Server server, final Channel channel, final Source user, final String[] args) {
