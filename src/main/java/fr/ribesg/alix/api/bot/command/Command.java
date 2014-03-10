@@ -12,6 +12,11 @@ import java.util.Set;
 public abstract class Command {
 
 	/**
+	 * The CommandManager this Command belongs to.
+	 */
+	private final CommandManager manager;
+
+	/**
 	 * The name of this Command, the main String that has to be written for
 	 * the command to be used, without prefix.
 	 */
@@ -40,33 +45,36 @@ public abstract class Command {
 
 	/**
 	 * Public Command constructor.
-	 * Calls {@link #Command(String, boolean, Set, String...)}.
+	 * Calls {@link #Command(CommandManager, String, boolean, Set, String...)}.
 	 *
-	 * @param name the name of this Command
+	 * @param manager the CommandManager this Command belongs to
+	 * @param name    the name of this Command
 	 *
-	 * @see #Command(String, boolean, Set, String...) for non-public Command
+	 * @see #Command(CommandManager, String, boolean, Set, String...) for non-public Command
 	 */
-	public Command(final String name) {
-		this(name, false, null);
+	public Command(final CommandManager manager, final String name) {
+		this(manager, name, false, null);
 	}
 
 	/**
 	 * Public Command with aliases constructor.
-	 * Calls {@link #Command(String, boolean, Set, String...)}.
+	 * Calls {@link #Command(CommandManager, String, boolean, Set, String...)}.
 	 *
+	 * @param manager the CommandManager this Command belongs to
 	 * @param name    the name of this Command
 	 * @param aliases possible aliases for this Command
 	 *
-	 * @see #Command(String, boolean, Set, String...) for non-public Command
+	 * @see #Command(CommandManager, String, boolean, Set, String...) for non-public Command
 	 */
-	public Command(final String name, final String... aliases) {
-		this(name, false, null, aliases);
+	public Command(final CommandManager manager, final String name, final String... aliases) {
+		this(manager, name, false, null, aliases);
 	}
 
 	/**
 	 * Complete Command constructor.
 	 * Should be used for restricted Commands.
 	 *
+	 * @param manager          the CommandManager this Command belongs to
 	 * @param name             the name of this Command
 	 * @param restricted       if this Command is restricted or public
 	 * @param allowedNickNames a Set of allowed nicknames, all registered
@@ -76,10 +84,15 @@ public abstract class Command {
 	 * @throws IllegalArgumentException if the Command is public and a Set
 	 *                                  of allowedNickNames was provided
 	 */
-	public Command(final String name, final boolean restricted, final Set<String> allowedNickNames, final String... aliases) {
+	public Command(final CommandManager manager,
+	               final String name,
+	               final boolean restricted,
+	               final Set<String> allowedNickNames,
+	               final String... aliases) {
 		if (!restricted && allowedNickNames != null) {
 			throw new IllegalArgumentException("A public Command should not have allowedNickNames, did you do something wrong?");
 		}
+		this.manager = manager;
 		this.name = name.toLowerCase();
 		this.aliases = aliases;
 		this.restricted = restricted;
@@ -145,4 +158,8 @@ public abstract class Command {
 	 * @param args    arguments passed the the Command
 	 */
 	public abstract void exec(final Server server, final Channel channel, final Source user, final String[] args);
+
+	public String toString() {
+		return this.manager.getCommandPrefix() + getName();
+	}
 }

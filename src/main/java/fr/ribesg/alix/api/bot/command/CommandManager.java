@@ -80,15 +80,35 @@ public class CommandManager {
 
 		// Check for collisions
 		if (this.commands.containsKey(name)) {
-			throw new IllegalArgumentException("Failed to register Command '" + name + "': a Command with name '" + name + "' already exists!");
+			throw new IllegalArgumentException("Failed to register Command '" +
+			                                   name +
+			                                   "': a Command with name '" +
+			                                   name +
+			                                   "' already exists!");
 		} else if (this.aliases.containsKey(name)) {
-			throw new IllegalArgumentException("Failed to register Command '" + name + "': the command '" + this.aliases.get(name) + "' already has '" + name + "' as an alias!");
+			throw new IllegalArgumentException("Failed to register Command '" +
+			                                   name +
+			                                   "': the command '" +
+			                                   this.aliases.get(name) +
+			                                   "' already has '" +
+			                                   name +
+			                                   "' as an alias!");
 		} else {
 			for (final String alias : aliases) {
 				if (this.commands.containsKey(alias)) {
-					throw new IllegalArgumentException("Failed to register Command '" + name + "': a Command with name '" + alias + "' already exists!");
+					throw new IllegalArgumentException("Failed to register Command '" +
+					                                   name +
+					                                   "': a Command with name '" +
+					                                   alias +
+					                                   "' already exists!");
 				} else if (this.aliases.containsKey(alias)) {
-					throw new IllegalArgumentException("Failed to register Command '" + name + "': the command '" + this.aliases.get(alias) + "' already has '" + alias + "' as an alias!");
+					throw new IllegalArgumentException("Failed to register Command '" +
+					                                   name +
+					                                   "': the command '" +
+					                                   this.aliases.get(alias) +
+					                                   "' already has '" +
+					                                   alias +
+					                                   "' as an alias!");
 				}
 			}
 		}
@@ -172,6 +192,13 @@ public class CommandManager {
 
 		// Execute the Command
 		command.exec(server, channel, user, args);
+	}
+
+	/**
+	 * @return the prefix used for this CommandManager
+	 */
+	public String getCommandPrefix() {
+		return commandPrefix;
 	}
 
 	/**
