@@ -49,7 +49,7 @@ public class SocketSender implements Runnable {
 			} catch (final IOException e) {
 				LOGGER.error("Failed to send IRC Packet", e);
 			}
-			Tools.pause(100);
+			Tools.pause(50);
 		}
 		this.kill();
 	}
