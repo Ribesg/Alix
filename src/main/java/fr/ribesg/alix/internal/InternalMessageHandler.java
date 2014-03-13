@@ -91,7 +91,7 @@ public class InternalMessageHandler {
 		client.onRawIrcMessage(server, m);
 
 		// Callback Handler
-		if (this.callbackHandler != null && this.callbackHandler.handle(server, m)) {
+		if (this.callbackHandler != null && this.callbackHandler.handle(m)) {
 			return;
 		}
 
