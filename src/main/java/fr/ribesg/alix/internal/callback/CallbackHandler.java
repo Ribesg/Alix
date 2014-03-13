@@ -88,6 +88,7 @@ public class CallbackHandler {
 				} else if (callback.listensTo(code)) {
 					if (callback.onIrcPacket(packet)) {
 						result = true;
+						it.remove();
 					}
 				}
 			}
