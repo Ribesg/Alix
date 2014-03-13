@@ -292,6 +292,9 @@ public class Server {
 			// Killing the SocketHandler
 			this.socket.kill();
 
+			this.connected = false;
+			this.joined = false;
+
 			LOGGER.info("Successfully disconnected from " + this.url + ":" + this.port);
 		}
 	}
