@@ -52,8 +52,7 @@ public class PingPongTask extends Thread {
 
 		@Override
 		public boolean onIrcPacket(final IrcPacket packet) {
-			final String firstParameter = packet.getParameters().length > 0 ? packet.getParameters()[0] : packet.getTrail();
-			return this.value.equals(firstParameter);
+			return this.value.equals(packet.getTrail());
 		}
 
 		@Override
