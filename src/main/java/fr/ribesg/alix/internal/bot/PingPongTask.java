@@ -56,7 +56,7 @@ public class PingPongTask extends Thread {
 		}
 
 		@Override
-		public void timeout() {
+		public void onTimeout() {
 			this.server.disconnect();
 			this.server.getClient().onClientLostConnection(this.server);
 		}

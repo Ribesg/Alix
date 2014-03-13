@@ -83,7 +83,7 @@ public class CallbackHandler {
 			while (it.hasNext() && !result) {
 				final Callback callback = it.next();
 				if (callback.getTimeoutDate() < now) {
-					callback.timeout();
+					callback.onTimeout();
 					it.remove();
 				} else if (callback.listensTo(code)) {
 					if (callback.onIrcPacket(packet)) {
@@ -136,7 +136,7 @@ public class CallbackHandler {
 							removedCallback = false;
 							final Callback callback = it.next();
 							if (callback.getTimeoutDate() < now) {
-								callback.timeout();
+								callback.onTimeout();
 								it.remove();
 								removedCallback = true;
 							}

@@ -28,13 +28,13 @@ public abstract class Callback {
 	protected final Set<String> listenedCodes;
 
 	/**
-	 * Time after which this Callback should call {@link #timeout} and be
+	 * Time after which this Callback should call {@link #onTimeout} and be
 	 * destroyed.
 	 */
 	protected final long timeoutDuration;
 
 	/**
-	 * Date at which this Callback should call {@link #timeout} and be
+	 * Date at which this Callback should call {@link #onTimeout} and be
 	 * destroyed.
 	 */
 	protected final long timeoutDate;
@@ -71,7 +71,7 @@ public abstract class Callback {
 	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
 	 *
 	 * @param timeoutDuration the time after which this Callback should call
-	 *                        {@link #timeout} and be destroyed, in
+	 *                        {@link #onTimeout} and be destroyed, in
 	 *                        milliseconds
 	 * @param listenedCodes   listened Commands and Reply codes, can be empty
 	 *                        to listen to everything
@@ -117,14 +117,14 @@ public abstract class Callback {
 
 	/**
 	 * @return the time after which this Callback should call
-	 * {@link #timeout} and be destroyed.
+	 * {@link #onTimeout} and be destroyed.
 	 */
 	public long getTimeoutDuration() {
 		return timeoutDuration;
 	}
 
 	/**
-	 * @return the date at which this Callback should call {@link #timeout}
+	 * @return the date at which this Callback should call {@link #onTimeout}
 	 * and be destroyed.
 	 */
 	public long getTimeoutDate() {
@@ -184,7 +184,7 @@ public abstract class Callback {
 	 * {@link IrcPacket} is the awaited one. The Callback will stop receiving
 	 * {@link IrcPacket} and will be destroyed.
 	 * <p/>
-	 * Please @see #timeout()
+	 * Please @see #onTimeout()
 	 *
 	 * @param packet a received IrcPacket matching {@link #listenedCodes} if
 	 *               defined, any received IrcPacket otherwise
@@ -199,7 +199,7 @@ public abstract class Callback {
 	 * <p/>
 	 * The default implementation is to log a warning message.
 	 */
-	public void timeout() {
+	public void onTimeout() {
 		LOGGER.warn("A Callback timed out! It had a timeout of " + format.format(getTimeoutDuration() / 1000.0) +
 		            " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
 	}
