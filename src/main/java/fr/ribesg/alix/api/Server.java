@@ -5,8 +5,8 @@ import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
 import fr.ribesg.alix.api.message.QuitIrcPacket;
 import fr.ribesg.alix.api.message.UserIrcPacket;
-import fr.ribesg.alix.network.SocketHandler;
-import fr.ribesg.alix.network.ssl.SSLType;
+import fr.ribesg.alix.internal.network.SocketHandler;
+import fr.ribesg.alix.internal.network.ssl.SSLType;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -187,7 +187,7 @@ public class Server {
 	/**
 	 * Modifies the joined state of this Server.
 	 * This is called by the
-	 * {@link fr.ribesg.alix.network.InternalMessageHandler}, please
+	 * {@link fr.ribesg.alix.internal.InternalMessageHandler}, please
 	 * do not use it.
 	 * <p/>
 	 * This is nothing more than a Setter for {@link #joined}, please
@@ -210,7 +210,7 @@ public class Server {
 	/**
 	 * Modifies the connected state of this Server.
 	 * This is called by the
-	 * {@link fr.ribesg.alix.network.InternalMessageHandler}, please
+	 * {@link fr.ribesg.alix.internal.InternalMessageHandler}, please
 	 * do not use it.
 	 * <p/>
 	 * This is nothing more than a Setter for {@link #connected}, please
@@ -298,11 +298,15 @@ public class Server {
 	/**
 	 * Sends a RAW message to this Server.
 	 *
-	 * @param message the String message to be sent
+	 * @param message     the String message to be sent
+	 * @param prioritized if this IRC Packet should be sent before other
+	 *                    already queued packets
 	 */
-	public void sendRaw(final String message) {
+	public void sendRaw(final String message, final boolean prioritized) {
 		if (this.socket == null) {
 			throw new IllegalStateException("Not connected!");
+		} else if (prioritized) {
+			this.socket.writeRawFirst(message);
 		} else {
 			this.socket.writeRaw(message);
 		}
@@ -311,31 +315,29 @@ public class Server {
 	/**
 	 * Sends an IRC Packet to this Server.
 	 *
-	 * @param ircPacket the IRC Packet to be sent
+	 * @param ircPacket   the IRC Packet to be sent
+	 * @param prioritized if this IRC Packet should be sent before other
+	 *                    already queued packets
 	 */
-	public void send(final IrcPacket ircPacket) {
-		this.sendRaw(ircPacket.getRawMessage());
+	public void send(final IrcPacket ircPacket, final boolean prioritized) {
+		this.sendRaw(ircPacket.getRawMessage(), prioritized);
 	}
 
 	/**
-	 * Sends a RAW message to this Server as fast as possible.
+	 * Sends a RAW message to this Server.
 	 *
 	 * @param message the String message to be sent
 	 */
-	public void sendRawPrioritized(final String message) {
-		if (this.socket == null) {
-			throw new IllegalStateException("Not connected!");
-		} else {
-			this.socket.writeRawFirst(message);
-		}
+	public void sendRaw(final String message) {
+		this.sendRaw(message, false);
 	}
 
 	/**
-	 * Sends an IRC Packet to this Server as fast as possible.
+	 * Sends an IRC Packet to this Server.
 	 *
 	 * @param ircPacket the IRC Packet to be sent
 	 */
-	public void sendPrioritized(final IrcPacket ircPacket) {
-		this.sendRawPrioritized(ircPacket.getRawMessage());
+	public void send(final IrcPacket ircPacket) {
+		this.send(ircPacket, false);
 	}
 }

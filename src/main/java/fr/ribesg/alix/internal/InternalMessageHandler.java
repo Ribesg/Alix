@@ -1,4 +1,4 @@
-package fr.ribesg.alix.network;
+package fr.ribesg.alix.internal;
 
 import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.Channel;
@@ -41,7 +41,7 @@ public class InternalMessageHandler {
 	 *
 	 * @param client the Client this Handler relates to
 	 */
-	/* package */ InternalMessageHandler(final Client client) {
+	public InternalMessageHandler(final Client client) {
 		this.client = client;
 	}
 
@@ -51,7 +51,7 @@ public class InternalMessageHandler {
 	 * @param server        the Server the message come from
 	 * @param messageString the raw IRC message to handle
 	 */
-	/* package */ void handleMessage(final Server server, final String messageString) {
+	public void handleMessage(final Server server, final String messageString) {
 		server.setJoined(true);
 		Client.getThreadPool().execute(new Runnable() {
 
@@ -83,7 +83,7 @@ public class InternalMessageHandler {
 			final Command cmd = m.getCommandAsCommand();
 			switch (cmd) {
 				case PING:
-					server.sendPrioritized(new PongIrcPacket(m.getTrail()));
+					server.send(new PongIrcPacket(m.getTrail()), true);
 					break;
 				case JOIN:
 				case PART:

@@ -1,8 +1,8 @@
-package fr.ribesg.alix.network;
+package fr.ribesg.alix.internal.network;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.network.ssl.SSLSocketFactory;
-import fr.ribesg.alix.network.ssl.SSLType;
+import fr.ribesg.alix.internal.network.ssl.SSLSocketFactory;
+import fr.ribesg.alix.internal.network.ssl.SSLType;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;

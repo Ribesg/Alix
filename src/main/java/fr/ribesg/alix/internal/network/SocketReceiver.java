@@ -1,5 +1,6 @@
-package fr.ribesg.alix.network;
+package fr.ribesg.alix.internal.network;
 import fr.ribesg.alix.api.Server;
+import fr.ribesg.alix.internal.InternalMessageHandler;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;

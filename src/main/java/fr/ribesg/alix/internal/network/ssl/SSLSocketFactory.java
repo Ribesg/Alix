@@ -1,4 +1,4 @@
-package fr.ribesg.alix.network.ssl;
+package fr.ribesg.alix.internal.network.ssl;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocket;
