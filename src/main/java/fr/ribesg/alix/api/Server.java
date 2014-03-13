@@ -7,7 +7,7 @@ import fr.ribesg.alix.api.message.NickIrcPacket;
 import fr.ribesg.alix.api.message.QuitIrcPacket;
 import fr.ribesg.alix.api.message.UserIrcPacket;
 import fr.ribesg.alix.internal.network.SocketHandler;
-import fr.ribesg.alix.internal.network.ssl.SSLType;
+import fr.ribesg.alix.api.network.ssl.SSLType;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;

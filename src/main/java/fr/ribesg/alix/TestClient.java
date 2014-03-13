@@ -6,7 +6,7 @@ import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.bot.command.Command;
 import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.PrivMsgIrcPacket;
-import fr.ribesg.alix.internal.network.ssl.SSLType;
+import fr.ribesg.alix.api.network.ssl.SSLType;
 
 /**
  * Example usage of the Alix IRC API.

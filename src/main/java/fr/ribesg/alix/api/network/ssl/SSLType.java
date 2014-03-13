@@ -1,4 +1,4 @@
-package fr.ribesg.alix.internal.network.ssl;
+package fr.ribesg.alix.api.network.ssl;
 /**
  * Represents a type of SSL handling.
  *
