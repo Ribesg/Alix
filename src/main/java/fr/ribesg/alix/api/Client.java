@@ -53,6 +53,20 @@ public abstract class Client {
 		connectToServers();
 	}
 
+	public void kill() {
+		for (final Server server : servers) {
+			if (server.isConnected()) {
+				server.disconnect();
+			}
+		}
+		Tools.pause(1_000);
+		this.pingPongTask.kill();
+		try {
+			this.pingPongTask.join();
+		} catch (final InterruptedException ignored) {}
+		System.exit(0);
+	}
+
 	/**
 	 * Gets the name of this Client.
 	 *
