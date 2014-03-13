@@ -20,24 +20,24 @@ public abstract class Callback {
 	/**
 	 * Default Timeout, in milliseconds: 30 seconds
 	 */
-	private static final long DEFAULT_TIMEOUT = 30 * 1_000;
+	protected static final long DEFAULT_TIMEOUT = 30 * 1_000;
 
 	/**
 	 * Set of listened Commands and Reply codes
 	 */
-	private final Set<String> listenedCodes;
+	protected final Set<String> listenedCodes;
 
 	/**
 	 * Time after which this Callback should call {@link #timeout} and be
 	 * destroyed.
 	 */
-	private final long timeoutDuration;
+	protected final long timeoutDuration;
 
 	/**
 	 * Date at which this Callback should call {@link #timeout} and be
 	 * destroyed.
 	 */
-	private final long timeoutDate;
+	protected final long timeoutDate;
 
 	/**
 	 * The Original IRC Packet for which the Callback was set up.
@@ -46,7 +46,7 @@ public abstract class Callback {
 	 * the User having to repeat the original IRC Packet twice in the method
 	 * call.
 	 */
-	private IrcPacket originalIrcPacket;
+	protected IrcPacket originalIrcPacket;
 
 	/**
 	 * The Server the Original IRC Packet was sent to.
@@ -55,7 +55,7 @@ public abstract class Callback {
 	 * the User having to repeat the Server twice in the method
 	 * call.
 	 */
-	private Server server;
+	protected Server server;
 
 	/**
 	 * Main Callback constructor.
