@@ -3,6 +3,7 @@ import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
+import fr.ribesg.alix.internal.bot.PingPongTask;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,6 +35,8 @@ public abstract class Client {
 	private final Set<Server> servers;
 
 	private CommandManager commandManager = null;
+
+	private PingPongTask pingPongTask = null;
 
 	/**
 	 * Constructs an IRC Client, call the {@link #load()} method then the
@@ -137,6 +140,9 @@ public abstract class Client {
 		for (final Server server : this.servers) {
 			server.connect();
 		}
+
+		this.pingPongTask = new PingPongTask(this);
+		this.pingPongTask.start();
 	}
 
 	// ************************************************************************* //
@@ -226,6 +232,23 @@ public abstract class Client {
 	 * @param reason the reason for the kick
 	 */
 	public void onClientKickedFromServer(final Server server, final String reason) {
+		Tools.pause(2_500);
+		server.connect();
+	}
+
+	/**
+	 * Executed once the Client loose the connection to the Server.
+	 * To be more precise, this is triggered if the Client doesn't receive a
+	 * {@link fr.ribesg.alix.api.enums.Command#PONG} command within 5 seconds
+	 * after sending a {@link fr.ribesg.alix.api.enums.Command#PING} command
+	 * to this Server.
+	 * <p/>
+	 * This method tries to rejoin the Server and all Channels by default
+	 * and could be overridden.
+	 *
+	 * @param server the Server the Client lost the connection to
+	 */
+	public void onClientLostConnection(final Server server) {
 		Tools.pause(2_500);
 		server.connect();
 	}
