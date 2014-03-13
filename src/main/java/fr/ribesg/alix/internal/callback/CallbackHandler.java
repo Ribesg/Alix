@@ -49,7 +49,7 @@ public class CallbackHandler {
 	/**
 	 * Kill this CallbackHandler
 	 */
-	public void destroy() {
+	public void kill() {
 		this.cleanerThread.stopAsked = true;
 		try {
 			this.cleanerThread.join();
