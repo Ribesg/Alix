@@ -161,17 +161,6 @@ public abstract class Callback {
 	}
 
 	/**
-	 * Check that the provided Server is this Callback's Server.
-	 *
-	 * @param server some Server
-	 *
-	 * @return true if the provided Server is this Callback's Server
-	 */
-	public boolean isServer(final Server server) {
-		return this.server.equals(server);
-	}
-
-	/**
 	 * Check that the provided code is listened by this Callback
 	 *
 	 * @param code some Command or Reply code

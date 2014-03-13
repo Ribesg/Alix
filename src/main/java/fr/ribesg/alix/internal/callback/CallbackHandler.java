@@ -1,6 +1,5 @@
 package fr.ribesg.alix.internal.callback;
 import fr.ribesg.alix.Tools;
-import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.message.IrcPacket;
 import org.apache.log4j.Logger;
@@ -75,7 +74,7 @@ public class CallbackHandler {
 	 * @return true if the IRC packet was handled by a Callback, false
 	 * otherwise
 	 */
-	public boolean handle(final Server server, final IrcPacket packet) {
+	public boolean handle(final IrcPacket packet) {
 		boolean result = false;
 		final String code = packet.getRawCommandString().toUpperCase();
 		synchronized (this.callbacks) {
@@ -86,7 +85,7 @@ public class CallbackHandler {
 				if (callback.getTimeoutDate() < now) {
 					callback.timeout();
 					it.remove();
-				} else if (callback.isServer(server) && callback.listensTo(code)) {
+				} else if (callback.listensTo(code)) {
 					if (callback.onIrcPacket(packet)) {
 						result = true;
 					}
