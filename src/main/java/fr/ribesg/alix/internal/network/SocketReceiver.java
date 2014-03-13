@@ -24,10 +24,10 @@ public class SocketReceiver implements Runnable {
 	private boolean stopAsked;
 	private boolean stopped;
 
-	/* package */ SocketReceiver(final Server server, final BufferedReader reader) {
+	/* package */ SocketReceiver(final Server server, final BufferedReader reader, final InternalMessageHandler handler) {
 		this.reader = reader;
 		this.server = server;
-		this.handler = new InternalMessageHandler(server.getClient());
+		this.handler = handler;
 		this.stopAsked = false;
 		this.stopped = true;
 	}

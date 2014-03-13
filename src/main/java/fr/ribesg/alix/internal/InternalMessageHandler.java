@@ -12,6 +12,7 @@ import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.api.message.PongIrcPacket;
 import fr.ribesg.alix.api.message.TopicIrcPacket;
+import fr.ribesg.alix.internal.callback.CallbackHandler;
 import org.apache.log4j.Logger;
 
 /**
@@ -37,12 +38,24 @@ public class InternalMessageHandler {
 	private final Client client;
 
 	/**
+	 * The Callback handler
+	 */
+	private CallbackHandler callbackHandler;
+
+	/**
 	 * Constructor
 	 *
 	 * @param client the Client this Handler relates to
 	 */
 	public InternalMessageHandler(final Client client) {
 		this.client = client;
+	}
+
+	public CallbackHandler getCallbackHandler() {
+		if (this.callbackHandler == null) {
+			this.callbackHandler = new CallbackHandler();
+		}
+		return callbackHandler;
 	}
 
 	/**
@@ -76,6 +89,11 @@ public class InternalMessageHandler {
 
 		// Raw IRC Packet
 		client.onRawIrcMessage(server, m);
+
+		// Callback Handler
+		if (this.callbackHandler != null && this.callbackHandler.handle(server, m)) {
+			return;
+		}
 
 		// Command?
 		final boolean isCommand = m.isValidCommand();

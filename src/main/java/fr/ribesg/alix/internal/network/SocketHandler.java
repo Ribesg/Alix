@@ -1,6 +1,7 @@
 package fr.ribesg.alix.internal.network;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.internal.InternalMessageHandler;
 import fr.ribesg.alix.internal.network.ssl.SSLSocketFactory;
 import fr.ribesg.alix.internal.network.ssl.SSLType;
 import org.apache.log4j.Logger;
@@ -35,6 +36,8 @@ public class SocketHandler {
 	private Thread senderThread;
 	private Thread receiverThread;
 
+	private InternalMessageHandler handler;
+
 	public SocketHandler(final Server server, final String url, final int port) {
 		this(server, url, port, SSLType.NONE);
 	}
@@ -44,6 +47,10 @@ public class SocketHandler {
 		this.port = port;
 		this.server = server;
 		this.sslType = sslType;
+	}
+
+	public InternalMessageHandler getHandler() {
+		return handler;
 	}
 
 	public void connect() throws IOException {
@@ -65,8 +72,10 @@ public class SocketHandler {
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
 		final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
 
+		this.handler = new InternalMessageHandler(this.server.getClient());
+
 		this.socketSender = new SocketSender(this.server, writer);
-		this.socketReceiver = new SocketReceiver(this.server, reader);
+		this.socketReceiver = new SocketReceiver(this.server, reader, this.handler);
 
 		this.senderThread = new Thread(this.socketSender);
 		this.receiverThread = new Thread(this.socketReceiver);

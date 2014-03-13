@@ -1,6 +1,7 @@
 package fr.ribesg.alix.api;
 
 import fr.ribesg.alix.Tools;
+import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
 import fr.ribesg.alix.api.message.QuitIrcPacket;
@@ -296,20 +297,12 @@ public class Server {
 	}
 
 	/**
-	 * Sends a RAW message to this Server.
+	 * Sends an IRC Packet to this Server.
 	 *
-	 * @param message     the String message to be sent
-	 * @param prioritized if this IRC Packet should be sent before other
-	 *                    already queued packets
+	 * @param ircPacket the IRC Packet to be sent
 	 */
-	public void sendRaw(final String message, final boolean prioritized) {
-		if (this.socket == null) {
-			throw new IllegalStateException("Not connected!");
-		} else if (prioritized) {
-			this.socket.writeRawFirst(message);
-		} else {
-			this.socket.writeRaw(message);
-		}
+	public void send(final IrcPacket ircPacket) {
+		this.send(ircPacket, false, null);
 	}
 
 	/**
@@ -320,24 +313,52 @@ public class Server {
 	 *                    already queued packets
 	 */
 	public void send(final IrcPacket ircPacket, final boolean prioritized) {
-		this.sendRaw(ircPacket.getRawMessage(), prioritized);
-	}
-
-	/**
-	 * Sends a RAW message to this Server.
-	 *
-	 * @param message the String message to be sent
-	 */
-	public void sendRaw(final String message) {
-		this.sendRaw(message, false);
+		this.send(ircPacket, prioritized, null);
 	}
 
 	/**
 	 * Sends an IRC Packet to this Server.
 	 *
 	 * @param ircPacket the IRC Packet to be sent
+	 *                  already queued packets
+	 * @param callback  a Callback for this IRC Packet
 	 */
-	public void send(final IrcPacket ircPacket) {
-		this.send(ircPacket, false);
+	public void send(final IrcPacket ircPacket, final Callback callback) {
+		this.send(ircPacket, false, callback);
+	}
+
+	/**
+	 * Sends an IRC Packet to this Server.
+	 *
+	 * @param ircPacket   the IRC Packet to be sent
+	 * @param prioritized if this IRC Packet should be sent before other
+	 *                    already queued packets
+	 * @param callback    a Callback for this IRC Packet
+	 */
+	public void send(final IrcPacket ircPacket, final boolean prioritized, final Callback callback) {
+		this.sendRaw(ircPacket.getRawMessage(), prioritized);
+
+		if (callback != null) {
+			callback.setServer(this);
+			callback.setOriginalIrcPacket(ircPacket);
+			this.socket.getHandler().getCallbackHandler().registerCallback(callback);
+		}
+	}
+
+	/**
+	 * Sends a RAW message to this Server.
+	 *
+	 * @param message     the String message to be sent
+	 * @param prioritized if this IRC Packet should be sent before other
+	 *                    already queued packets
+	 */
+	private void sendRaw(final String message, final boolean prioritized) {
+		if (this.socket == null) {
+			throw new IllegalStateException("Not connected!");
+		} else if (prioritized) {
+			this.socket.writeRawFirst(message);
+		} else {
+			this.socket.writeRaw(message);
+		}
 	}
 }
