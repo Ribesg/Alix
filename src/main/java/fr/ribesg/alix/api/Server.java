@@ -130,7 +130,7 @@ public class Server {
 	}
 
 	/**
-	 * Adds a Channel to the Set of Channels for this Server
+	 * Adds a Channel to the Set of Channels for this Server.
 	 *
 	 * @param channelName the name of the Channel to add
 	 */
@@ -140,13 +140,24 @@ public class Server {
 
 	/**
 	 * Adds a password-protected Channel to the Set of Channels for
-	 * this Server
+	 * this Server.
 	 *
 	 * @param channelName the name of the Channel to add
 	 * @param password    the password of the Channel to add
 	 */
 	public void addChannel(final String channelName, final String password) {
 		this.channels.put(channelName, new Channel(this, channelName, password));
+	}
+
+	/**
+	 * Removes a Channel from the Set of Channels for this Server.
+	 * Note: Doesn't part from this Channel nor do anything, use with
+	 * caution.
+	 *
+	 * @param channelName the Channel to remove from the Set
+	 */
+	public void removeChannel(final String channelName) {
+		this.channels.remove(channelName);
 	}
 
 	/**
