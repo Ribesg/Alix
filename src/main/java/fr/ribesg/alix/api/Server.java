@@ -68,6 +68,11 @@ public class Server {
 	private boolean connected;
 
 	/**
+	 * Store if the Client started a Server quit action
+	 */
+	private boolean leaving;
+
+	/**
 	 * Main constructor.
 	 *
 	 * @param client  the Client this Server is / will be connected to
@@ -234,6 +239,14 @@ public class Server {
 	}
 
 	/**
+	 * @return true if the Client started a Server quitting procedure,
+	 * false otherwise
+	 */
+	public boolean isLeaving() {
+		return leaving;
+	}
+
+	/**
 	 * Connects the Client to the Server.
 	 * This is a non-blocking method.
 	 * <p/>
@@ -284,6 +297,8 @@ public class Server {
 		if (!connected) {
 			throw new IllegalStateException("Not Connected!");
 		} else {
+			this.leaving = true;
+
 			// Sending quit message
 			this.socket.write(new QuitIrcPacket(message));
 
@@ -304,6 +319,7 @@ public class Server {
 
 			this.connected = false;
 			this.joined = false;
+			this.leaving = false;
 
 			LOGGER.info("Successfully disconnected from " + this.url + ":" + this.port);
 		}

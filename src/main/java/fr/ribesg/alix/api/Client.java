@@ -246,8 +246,10 @@ public abstract class Client {
 	 * @param reason the reason for the kick
 	 */
 	public void onClientKickedFromServer(final Server server, final String reason) {
-		Tools.pause(2_500);
-		server.connect();
+		if (!server.isLeaving()) {
+			Tools.pause(2_500);
+			server.connect();
+		}
 	}
 
 	/**
@@ -263,8 +265,10 @@ public abstract class Client {
 	 * @param server the Server the Client lost the connection to
 	 */
 	public void onClientLostConnection(final Server server) {
-		Tools.pause(2_500);
-		server.connect();
+		if (!server.isLeaving()) {
+			Tools.pause(2_500);
+			server.connect();
+		}
 	}
 
 	/**
