@@ -6,11 +6,12 @@ import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
 import fr.ribesg.alix.api.message.QuitIrcPacket;
 import fr.ribesg.alix.api.message.UserIrcPacket;
-import fr.ribesg.alix.internal.network.SocketHandler;
 import fr.ribesg.alix.api.network.ssl.SSLType;
+import fr.ribesg.alix.internal.network.SocketHandler;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,6 +113,15 @@ public class Server {
 	 */
 	public Channel getChannel(final String channelName) {
 		return this.channels.get(channelName);
+	}
+
+	/**
+	 * Gets all known Channels for this Server.
+	 *
+	 * @return all known Channels for this Server
+	 */
+	public Collection<Channel> getChannels() {
+		return channels.values();
 	}
 
 	/**
