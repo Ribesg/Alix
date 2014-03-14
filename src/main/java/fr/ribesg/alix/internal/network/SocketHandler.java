@@ -69,8 +69,8 @@ public class SocketHandler {
 		// Prevent infinite lock on reader.readLine() in SocketReceiver
 		this.socket.setSoTimeout(1000);
 
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-		final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), "UTF-8"));
+		final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream(), "UTF-8"));
 
 		this.handler = new InternalMessageHandler(this.server.getClient());
 
