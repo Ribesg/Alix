@@ -4,6 +4,7 @@ import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
 import fr.ribesg.alix.internal.bot.PingPongTask;
+import org.apache.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,8 @@ import java.util.concurrent.Executors;
  * @author Ribesg
  */
 public abstract class Client {
+
+	private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
 
 	private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
@@ -51,19 +54,37 @@ public abstract class Client {
 		load();
 
 		connectToServers();
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+
+			@Override
+			public void run() {
+				Client.this.kill();
+			}
+		});
 	}
 
 	public void kill() {
+		LOGGER.debug("Killing Client...");
 		for (final Server server : servers) {
 			if (server.isConnected()) {
+				LOGGER.debug("- Disconnecting from " + server.getUrl() + ":" + server.getPort() + "...");
 				server.disconnect();
 			}
 		}
-		Tools.pause(1_000);
+		for (final Server server : servers) {
+			while (server.isConnected()) {
+				Tools.pause(50);
+			}
+			LOGGER.debug("- Disconnected from " + server.getUrl() + ":" + server.getPort() + "!");
+		}
 		this.pingPongTask.kill();
 		try {
+			LOGGER.debug("Stopping PingPongTask Thread...");
 			this.pingPongTask.join();
 		} catch (final InterruptedException ignored) {}
+
+		LOGGER.info("Exiting.");
 		System.exit(0);
 	}
 

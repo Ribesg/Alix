@@ -1,9 +1,9 @@
 package fr.ribesg.alix.internal.network;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.api.network.ssl.SSLType;
 import fr.ribesg.alix.internal.InternalMessageHandler;
 import fr.ribesg.alix.internal.network.ssl.SSLSocketFactory;
-import fr.ribesg.alix.api.network.ssl.SSLType;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -107,6 +107,7 @@ public class SocketHandler {
 	public void askStop() {
 		this.socketSender.askStop();
 		this.socketReceiver.askStop();
+		this.handler.kill();
 	}
 
 	public boolean isStopped() {

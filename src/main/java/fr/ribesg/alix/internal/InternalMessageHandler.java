@@ -51,6 +51,12 @@ public class InternalMessageHandler {
 		this.client = client;
 	}
 
+	public void kill() {
+		if (this.callbackHandler != null) {
+			this.callbackHandler.kill();
+		}
+	}
+
 	public CallbackHandler getCallbackHandler() {
 		if (this.callbackHandler == null) {
 			this.callbackHandler = new CallbackHandler();
