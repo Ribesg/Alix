@@ -33,7 +33,7 @@ public class PingPongTask extends Thread {
 					server.send(new PingIrcPacket(value), new PingPongCallback(value));
 				}
 			}
-			Tools.pause(30_000);
+			Tools.pause(120_000);
 		}
 	}
 
@@ -46,7 +46,7 @@ public class PingPongTask extends Thread {
 		private String value;
 
 		private PingPongCallback(final String value) {
-			super(5_000, "PONG");
+			super(60_000, "PONG");
 			this.value = value;
 		}
 
