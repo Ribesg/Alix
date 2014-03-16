@@ -83,6 +83,21 @@ public class Channel extends Receiver {
 	}
 
 	/**
+	 * @return the users of this Channel, without op or voiced prefix
+	 */
+	public Set<String> getUserNames() {
+		final Set<String> res = new HashSet<>();
+		for (final String userName : this.users) {
+			if (userName.startsWith("@") || userName.startsWith("+")) {
+				res.add(userName.substring(1));
+			} else {
+				res.add(userName);
+			}
+		}
+		return res;
+	}
+
+	/**
 	 * @return the OP users of this Channel, without the @
 	 */
 	public Set<String> getOps() {
