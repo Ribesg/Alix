@@ -30,7 +30,7 @@ public abstract class Client {
 	/**
 	 * Name of this Client, used as Nick
 	 */
-	private String name;
+	protected String name;
 
 	/**
 	 * Servers this Client will join or has joined
