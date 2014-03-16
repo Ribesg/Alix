@@ -16,12 +16,12 @@ public class CommandManager {
 	/**
 	 * A Map of Command names to Commands
 	 */
-	private final Map<String, Command> commands;
+	final Map<String, Command> commands;
 
 	/**
 	 * A Map of Command aliases to Command names
 	 */
-	private final Map<String, String> aliases;
+	final Map<String, String> aliases;
 
 	/**
 	 * Admins of this Bot
@@ -63,6 +63,8 @@ public class CommandManager {
 		this.aliases = new HashMap<>();
 		this.botAdmins = botAdmins;
 		this.commandPrefix = commandPrefix;
+
+		this.registerCommand(new HelpCommand(this));
 	}
 
 	/**

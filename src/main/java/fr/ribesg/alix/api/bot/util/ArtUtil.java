@@ -48,6 +48,17 @@ public class ArtUtil {
 	}
 
 	/**
+	 * Build a String of the provided size containing only spaces.
+	 *
+	 * @param size the required size
+	 *
+	 * @return a String containing size spaces
+	 */
+	public static String spaces(final int size) {
+		return extendRight("", size);
+	}
+
+	/**
 	 * Help grow a String to the correct size with spaces on the left.
 	 *
 	 * @param toExtend    the String to extend

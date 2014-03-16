@@ -28,7 +28,7 @@ public class TestClient {
 				this.createCommandManager("!", null);
 
 				final CommandManager manager = this.getCommandManager();
-				manager.registerCommand(new Command(manager, "test") {
+				manager.registerCommand(new Command(manager, "test", new String[] {"- Just a test command"}) {
 
 					@Override
 					public void exec(final Server server, final Channel channel, final Source user, final String[] args) {

@@ -1,8 +1,11 @@
 package fr.ribesg.alix.api.bot.command;
 
 import fr.ribesg.alix.api.Channel;
+import fr.ribesg.alix.api.Receiver;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
+import fr.ribesg.alix.api.bot.util.ArtUtil;
+import fr.ribesg.alix.api.enums.Codes;
 
 import java.util.Set;
 
@@ -14,26 +17,37 @@ public abstract class Command {
 	/**
 	 * The CommandManager this Command belongs to.
 	 */
-	private final CommandManager manager;
+	protected final CommandManager manager;
 
 	/**
 	 * The name of this Command, the main String that has to be written for
 	 * the command to be used, without prefix.
 	 */
-	private final String name;
+	protected final String name;
 
 	/**
 	 * Aliases of this Command, some Strings you can use instead of this
 	 * Command's name.
 	 */
-	private final String[] aliases;
+	protected final String[] aliases;
+
+	/**
+	 * Usage Strings, used by the help command.
+	 * You can also use them to send error messages.
+	 * <p/>
+	 * Note that the first line will be prepended with the
+	 * Command prefix, followed by the command name and a space.
+	 * All other lines are prepended by enough spaces to match the first line
+	 * prefix length.
+	 */
+	protected final String[] usage;
 
 	/**
 	 * If this Command is a restricted Command or not.
 	 * A restricted Command cannot be ran by everybody, the nickname has to be
 	 * a bot admin or in the {@link #allowedNickNames} Set.
 	 */
-	private final boolean restricted;
+	protected final boolean restricted;
 
 	/**
 	 * Set of Nicknames allowed to use this Command.
@@ -41,33 +55,35 @@ public abstract class Command {
 	 * to be effective.
 	 * This is not considered if {@link #restricted} is false.
 	 */
-	private final Set<String> allowedNickNames;
+	protected final Set<String> allowedNickNames;
 
 	/**
 	 * Public Command constructor.
-	 * Calls {@link #Command(CommandManager, String, boolean, Set, String...)}.
+	 * Calls {@link #Command(CommandManager, String, String[], boolean, Set, String...)}.
 	 *
 	 * @param manager the CommandManager this Command belongs to
 	 * @param name    the name of this Command
+	 * @param usage   usage of this Command
 	 *
-	 * @see #Command(CommandManager, String, boolean, Set, String...) for non-public Command
+	 * @see #Command(CommandManager, String, String[], boolean, Set, String...) for non-public Command
 	 */
-	public Command(final CommandManager manager, final String name) {
-		this(manager, name, false, null);
+	public Command(final CommandManager manager, final String name, final String[] usage) {
+		this(manager, name, usage, false, null);
 	}
 
 	/**
 	 * Public Command with aliases constructor.
-	 * Calls {@link #Command(CommandManager, String, boolean, Set, String...)}.
+	 * Calls {@link #Command(CommandManager, String, String[], boolean, Set, String...)}.
 	 *
 	 * @param manager the CommandManager this Command belongs to
 	 * @param name    the name of this Command
+	 * @param usage   usage of this Command
 	 * @param aliases possible aliases for this Command
 	 *
-	 * @see #Command(CommandManager, String, boolean, Set, String...) for non-public Command
+	 * @see #Command(CommandManager, String, String[], boolean, Set, String...) for non-public Command
 	 */
-	public Command(final CommandManager manager, final String name, final String... aliases) {
-		this(manager, name, false, null, aliases);
+	public Command(final CommandManager manager, final String name, final String[] usage, final String... aliases) {
+		this(manager, name, usage, false, null, aliases);
 	}
 
 	/**
@@ -76,6 +92,7 @@ public abstract class Command {
 	 *
 	 * @param manager          the CommandManager this Command belongs to
 	 * @param name             the name of this Command
+	 * @param usage            usage of this Command
 	 * @param restricted       if this Command is restricted or public
 	 * @param allowedNickNames a Set of allowed nicknames, all registered
 	 *                         with the NickServ Service
@@ -86,6 +103,7 @@ public abstract class Command {
 	 */
 	public Command(final CommandManager manager,
 	               final String name,
+	               final String[] usage,
 	               final boolean restricted,
 	               final Set<String> allowedNickNames,
 	               final String... aliases) {
@@ -94,6 +112,19 @@ public abstract class Command {
 		}
 		this.manager = manager;
 		this.name = name.toLowerCase();
+		if (usage == null) {
+			this.usage = null;
+		} else {
+			final String prefix = this.toString() + ' ';
+			final String spacePrefix = ArtUtil.spaces(prefix.length());
+			this.usage = new String[usage.length];
+			if (usage.length > 0) {
+				this.usage[0] = Codes.RED + prefix + usage[0];
+				for (int i = 1; i < usage.length; i++) {
+					this.usage[i] = Codes.RED + spacePrefix + usage[i];
+				}
+			}
+		}
 		this.aliases = aliases;
 		this.restricted = restricted;
 		this.allowedNickNames = allowedNickNames;
@@ -159,6 +190,18 @@ public abstract class Command {
 	 */
 	public abstract void exec(final Server server, final Channel channel, final Source user, final String[] args);
 
+	/**
+	 * Sends the usage of this Command to a Receiver.
+	 *
+	 * @param receiver the receiver to send the usage to
+	 */
+	public void sendUsage(final Receiver receiver) {
+		receiver.sendMessage(this.usage);
+	}
+
+	/**
+	 * @return commandPrefix + commandName
+	 */
 	public String toString() {
 		return this.manager.getCommandPrefix() + getName();
 	}
