@@ -190,20 +190,17 @@ public class InternalMessageHandler {
 				case PRIVMSG:
 					source = m.getPrefixAsSource(server);
 					final String dest = m.getParameters()[0];
-					final boolean isBotCommand = client.getCommandManager() != null && client.getCommandManager().isCommand(m.getTrail());
 					if (dest.startsWith("#")) {
+						final boolean isBotCommand = client.getCommandManager() != null &&
+						                             client.getCommandManager().isCommand(m.getTrail());
 						channel = server.getChannel(dest);
 						if (isBotCommand) {
-							client.getCommandManager().exec(server, channel, source, m.getTrail());
+							client.getCommandManager().exec(server, channel, source, m.getTrail(), false);
 						} else {
 							client.onChannelMessage(channel, source, m.getTrail());
 						}
 					} else {
-						if (isBotCommand) {
-							client.getCommandManager().exec(server, null, source, m.getTrail());
-						} else {
-							client.onPrivateMessage(server, source, m.getTrail());
-						}
+						client.getCommandManager().exec(server, null, source, m.getTrail(), true);
 					}
 					break;
 				default:

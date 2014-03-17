@@ -146,14 +146,19 @@ public class CommandManager {
 	 * @throws IllegalArgumentException if the provided message doesn't start
 	 *                                  with a Command call
 	 */
-	public void exec(final Server server, final Channel channel, final Source user, final String message) {
-		if (!isCommand(message)) {
+	public void exec(final Server server, final Channel channel, final Source user, final String message, final boolean privateMessage) {
+		if (!privateMessage && !isCommand(message)) {
 			throw new IllegalArgumentException("Provided message is not a Command, please use isCommand(...) before calling exec(...)");
 		}
 
 		// Get the provided command name
 		final String[] messageSplit = message.split("\\s");
-		final String cmd = messageSplit[0].substring(this.commandPrefix.length()).toLowerCase();
+		final String cmd;
+		if (messageSplit[0].startsWith(this.commandPrefix)) {
+			cmd = messageSplit[0].substring(this.commandPrefix.length()).toLowerCase();
+		} else {
+			cmd = messageSplit[0];
+		}
 
 		// Find the Command
 		Command command = this.commands.get(cmd);
