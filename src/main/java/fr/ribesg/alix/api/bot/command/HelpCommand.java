@@ -12,14 +12,14 @@ public class HelpCommand extends Command {
 
 	@Override
 	public void exec(final Server server, final Channel channel, final Source user, final String primaryArgument, final String[] args) {
-		if (args.length == 0 && primaryArgument == null || args.length == 1 && primaryArgument != null || args.length > 1) {
+		if (args.length == 1 && primaryArgument != null || args.length > 1) {
 			sendUsage(user);
 			return;
 		}
 
-		final String arg = primaryArgument == null ? args[0] : primaryArgument;
+		final String arg = args.length == 1 ? args[0] : primaryArgument;
 
-		if (args.length == 1) {
+		if (arg != null) {
 			final String cmdName = arg.toLowerCase();
 			final String realCmd = manager.aliases.get(cmdName) == null ? cmdName : manager.aliases.get(cmdName);
 			final Command cmd = manager.commands.get(realCmd);
