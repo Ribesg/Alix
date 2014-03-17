@@ -6,6 +6,8 @@ import fr.ribesg.alix.api.enums.Command;
  */
 public class PartIrcPacket extends IrcPacket {
 
+	private final String channelName;
+
 	/**
 	 * Main constructor.
 	 *
@@ -13,15 +15,13 @@ public class PartIrcPacket extends IrcPacket {
 	 */
 	public PartIrcPacket(final String channelName) {
 		super(null, Command.PART.name(), null, channelName);
+		this.channelName = channelName;
 	}
 
 	/**
-	 * Password-protected Channel constructor.
-	 *
-	 * @param channelName the Channel name
-	 * @param password    the password for this Channel
+	 * @return this Part packet Channel name
 	 */
-	public PartIrcPacket(final String channelName, final String password) {
-		super(null, Command.PART.name(), null, channelName, password);
+	public String getChannelName() {
+		return this.channelName;
 	}
 }

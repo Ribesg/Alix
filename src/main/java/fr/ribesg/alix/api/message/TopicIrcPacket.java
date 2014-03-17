@@ -6,11 +6,14 @@ import fr.ribesg.alix.api.enums.Command;
  */
 public class TopicIrcPacket extends IrcPacket {
 
+	private final String channelName;
+	private final String newTopic;
+
 	/**
 	 * Just get TOPIC.
 	 */
 	public TopicIrcPacket(final String channelName) {
-		super(null, Command.TOPIC.name(), null, channelName);
+		this(channelName, null);
 	}
 
 	/**
@@ -18,5 +21,28 @@ public class TopicIrcPacket extends IrcPacket {
 	 */
 	public TopicIrcPacket(final String channelName, final String newTopic) {
 		super(null, Command.TOPIC.name(), newTopic, channelName);
+		this.channelName = channelName;
+		this.newTopic = newTopic;
+	}
+
+	/**
+	 * @return this Topic packet Channel name
+	 */
+	public String getChannelName() {
+		return channelName;
+	}
+
+	/**
+	 * @return true if this Topic packet holds a new Topic, false otherwise
+	 */
+	public boolean isNewTopic() {
+		return this.newTopic != null;
+	}
+
+	/**
+	 * @return this Topic packet new Topic if any, null otherwise
+	 */
+	public String getNewTopic() {
+		return newTopic;
 	}
 }
