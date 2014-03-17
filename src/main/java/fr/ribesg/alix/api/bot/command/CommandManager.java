@@ -153,11 +153,22 @@ public class CommandManager {
 
 		// Get the provided command name
 		final String[] messageSplit = message.split("\\s");
-		final String cmd;
+		final String cmdAndPrimaryArgument;
 		if (messageSplit[0].startsWith(this.commandPrefix)) {
-			cmd = messageSplit[0].substring(this.commandPrefix.length()).toLowerCase();
+			cmdAndPrimaryArgument = messageSplit[0].substring(this.commandPrefix.length()).toLowerCase();
 		} else {
-			cmd = messageSplit[0];
+			cmdAndPrimaryArgument = messageSplit[0];
+		}
+
+		final String cmd;
+		final String primaryArgument;
+		if (cmdAndPrimaryArgument.contains(".")) {
+			final String[] split = cmdAndPrimaryArgument.split("\\.");
+			cmd = split[0];
+			primaryArgument = split[1];
+		} else {
+			cmd = cmdAndPrimaryArgument;
+			primaryArgument = null;
 		}
 
 		// Find the Command
@@ -198,7 +209,7 @@ public class CommandManager {
 		final String[] args = Arrays.copyOfRange(messageSplit, 1, messageSplit.length);
 
 		// Execute the Command
-		command.exec(server, channel, user, args);
+		command.exec(server, channel, user, primaryArgument, args);
 	}
 
 	/**

@@ -31,11 +31,21 @@ public class TestClient {
 				manager.registerCommand(new Command(manager, "test", new String[] {"- Just a test command"}) {
 
 					@Override
-					public void exec(final Server server, final Channel channel, final Source user, final String[] args) {
+					public void exec(final Server server,
+					                 final Channel channel,
+					                 final Source user,
+					                 final String primaryArgument,
+					                 final String[] args) {
 						if (channel == null) {
 							user.sendMessage("Use the !test command in a Channel!");
 						} else {
-							channel.sendMessage("So " + user.getName() + " used the command " + this.getName() + " in the Channel " + channel.getName() + "!");
+							channel.sendMessage("So " +
+							                    user.getName() +
+							                    " used the command " +
+							                    this.getName() +
+							                    " in the Channel " +
+							                    channel.getName() +
+							                    "!");
 						}
 					}
 				});

@@ -182,13 +182,18 @@ public abstract class Command {
 	/**
 	 * Executes this Command.
 	 *
-	 * @param server  the Server this Command has been called from
-	 * @param channel the Channel this Command has been called in, or
-	 *                null if there's none (i.e. if it's a private message)
-	 * @param user    the User that wrote the Command
-	 * @param args    arguments passed the the Command
+	 * @param server          the Server this Command has been called from
+	 * @param channel         the Channel this Command has been called in, or
+	 *                        null if there's none (i.e. if it's a private message)
+	 * @param user            the User that wrote the Command
+	 * @param primaryArgument argument passed as commandPrefix.primaryArgument
+	 * @param args            arguments passed the the Command
 	 */
-	public abstract void exec(final Server server, final Channel channel, final Source user, final String[] args);
+	public abstract void exec(final Server server,
+	                          final Channel channel,
+	                          final Source user,
+	                          final String primaryArgument,
+	                          final String[] args);
 
 	/**
 	 * Sends the usage of this Command to a Receiver.
