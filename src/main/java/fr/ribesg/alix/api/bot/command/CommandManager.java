@@ -163,9 +163,9 @@ public class CommandManager {
 		final String cmd;
 		final String primaryArgument;
 		if (cmdAndPrimaryArgument.contains(".")) {
-			final String[] split = cmdAndPrimaryArgument.split("\\.");
-			cmd = split[0];
-			primaryArgument = split[1];
+			final int dotLocation = cmdAndPrimaryArgument.indexOf('.');
+			cmd = cmdAndPrimaryArgument.substring(0, dotLocation);
+			primaryArgument = cmdAndPrimaryArgument.substring(dotLocation + 1, cmdAndPrimaryArgument.length());
 		} else {
 			cmd = cmdAndPrimaryArgument;
 			primaryArgument = null;
