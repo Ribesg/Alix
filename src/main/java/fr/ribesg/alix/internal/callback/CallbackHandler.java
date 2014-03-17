@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * This class handles Callbacks.
@@ -39,7 +39,7 @@ public class CallbackHandler {
 	 * Main CallbackHandler constructor.
 	 */
 	public CallbackHandler() {
-		this.callbacks = new TreeSet<>(callbackTimeoutComparator);
+		this.callbacks = new ConcurrentSkipListSet<>(callbackTimeoutComparator);
 		this.cleanerThread = new CallbacksCleanerThread(this.callbacks);
 
 		this.cleanerThread.start();
