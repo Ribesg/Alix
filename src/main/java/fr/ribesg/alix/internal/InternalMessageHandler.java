@@ -204,7 +204,7 @@ public class InternalMessageHandler {
 					channelName = m.getParameters()[2];
 					channel = server.getChannel(channelName);
 					final String[] users = m.getTrail().split(Codes.SP);
-					channel.setUsers(users);
+					channel.addUsers(users);
 					break;
 				case ERR_NICKNAMEINUSE:
 				case ERR_NICKCOLLISION:

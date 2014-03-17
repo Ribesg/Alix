@@ -169,8 +169,10 @@ public class Channel extends Receiver {
 	/**
 	 * @param users the array of Users found on this Channel
 	 */
-	public void setUsers(final String[] users) {
-		this.users = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+	public void addUsers(final String[] users) {
+		if (this.users == null) {
+			this.users = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+		}
 		this.users.addAll(Arrays.asList(users));
 	}
 
