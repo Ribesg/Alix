@@ -68,6 +68,9 @@ public class Channel extends Receiver {
 	}
 
 	/**
+	 * You should not use this. This is used internally, this doesn't change
+	 * the Server's Channel topic.
+	 *
 	 * @param topic the topic of this Channel
 	 */
 	public void setTopic(final String topic) {
@@ -167,6 +170,9 @@ public class Channel extends Receiver {
 	}
 
 	/**
+	 * You should not use this. This is used internally to add known users to
+	 * the Channel object.
+	 *
 	 * @param users the array of Users found on this Channel
 	 */
 	public void addUsers(final String[] users) {
@@ -174,6 +180,14 @@ public class Channel extends Receiver {
 			this.users = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 		}
 		this.users.addAll(Arrays.asList(users));
+	}
+
+	/**
+	 * You should not used this. This is used internally to update the list
+	 * of users in this Channel.
+	 */
+	public void clearUsers() {
+		this.users.clear();
 	}
 
 	/**

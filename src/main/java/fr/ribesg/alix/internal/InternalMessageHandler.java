@@ -5,6 +5,7 @@ import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
+import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.enums.Reply;
@@ -134,6 +135,30 @@ public class InternalMessageHandler {
 						} else {
 							client.onUserPartChannel(source, channel);
 						}
+
+						// Update channel users
+						server.send(new NamesIrcPacket(channel.getName()), new Callback(Reply.RPL_NAMREPLY.toString()) {
+
+							@Override
+							public boolean onIrcPacket(final IrcPacket packet) {
+								// On FIRST received Names reply
+								final NamesIrcPacket original = (NamesIrcPacket) this.originalIrcPacket;
+								final Channel channel = this.server.getChannel(original.getChannelName());
+								if (channel == null || !original.getChannelName().equals(packet.getParameters()[0])) {
+									return false;
+								}
+
+								// Clear existing users list
+								channel.clearUsers();
+								handleNamesReply(this.server, packet);
+								return true;
+
+								// Eventual following Names reply will add users normally
+							}
+
+							@Override
+							public void onTimeout() { /* Ignore */ }
+						});
 					}
 					break;
 				case KICK:
@@ -201,10 +226,7 @@ public class InternalMessageHandler {
 					channel.setTopic(m.getTrail());
 					break;
 				case RPL_NAMREPLY:
-					channelName = m.getParameters()[2];
-					channel = server.getChannel(channelName);
-					final String[] users = m.getTrail().split(Codes.SP);
-					channel.addUsers(users);
+					handleNamesReply(server, m);
 					break;
 				case ERR_NICKNAMEINUSE:
 				case ERR_NICKCOLLISION:
@@ -217,5 +239,12 @@ public class InternalMessageHandler {
 			// Reply code not defined by the RFCs
 			LOGGER.warn("Unknown command/reply code: " + m.getRawCommandString());
 		}
+	}
+
+	private void handleNamesReply(final Server server, final IrcPacket packet) {
+		final String channelName = packet.getParameters()[2];
+		final Channel channel = server.getChannel(channelName);
+		final String[] users = packet.getTrail().split(Codes.SP);
+		channel.addUsers(users);
 	}
 }
