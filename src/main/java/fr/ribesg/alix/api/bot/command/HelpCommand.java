@@ -30,7 +30,7 @@ public class HelpCommand extends Command {
 				receiver.sendMessage(Codes.RED + "Unknown command: " + cmdName);
 				return;
 			}
-			cmd.sendUsage(user);
+			cmd.sendUsage(receiver);
 		} else {
 			if (channel != null) {
 				channel.sendMessage(Codes.RED + user.getName() + ", check your private messages");
