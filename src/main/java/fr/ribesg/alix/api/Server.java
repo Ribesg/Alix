@@ -376,13 +376,13 @@ public class Server {
 	 * @param callback    a Callback for this IRC Packet
 	 */
 	public void send(final IrcPacket ircPacket, final boolean prioritized, final Callback callback) {
-		this.sendRaw(ircPacket.getRawMessage(), prioritized);
-
 		if (callback != null) {
 			callback.setServer(this);
 			callback.setOriginalIrcPacket(ircPacket);
 			this.socket.getHandler().getCallbackHandler().registerCallback(callback);
 		}
+
+		this.sendRaw(ircPacket.getRawMessage(), prioritized);
 	}
 
 	/**
