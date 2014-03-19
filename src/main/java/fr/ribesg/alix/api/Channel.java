@@ -244,20 +244,24 @@ public class Channel extends Receiver {
 			updatingUsers = true;
 			if (block) {
 				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, updatingUsers));
-				try {
-					updatingUsers.wait();
-				} catch (final InterruptedException e) {
-					LOGGER.error(e);
+				synchronized (updatingUsers) {
+					try {
+						updatingUsers.wait();
+					} catch (final InterruptedException e) {
+						LOGGER.error(e);
+					}
 				}
 			} else {
 				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this));
 			}
 			updatingUsers = false;
 		} else if (block) {
-			try {
-				updatingUsers.wait();
-			} catch (final InterruptedException e) {
-				LOGGER.error(e);
+			synchronized (updatingUsers) {
+				try {
+					updatingUsers.wait();
+				} catch (final InterruptedException e) {
+					LOGGER.error(e);
+				}
 			}
 		}
 	}
