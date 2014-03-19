@@ -184,7 +184,9 @@ public class Channel extends Receiver {
 	 * of users in this Channel.
 	 */
 	public void clearUsers() {
-		this.users.clear();
+		if (this.users != null) {
+			this.users.clear();
+		}
 	}
 
 	/**
