@@ -3,7 +3,7 @@ package fr.ribesg.alix.api;
 /**
  * Represents the Source of a Message, most of the time
  * written in the Prefix part of the Message.
- * <p/>
+ * <p>
  * This can be either a Server or a User.
  */
 public class Source extends Receiver {
@@ -47,7 +47,7 @@ public class Source extends Receiver {
 
 	/**
 	 * <strong>Please do not use this constructor</strong>
-	 * <p/>
+	 * <p>
 	 * Mainly user for testing the Prefix parser.
 	 *
 	 * @param server   the Server this Source belongs to

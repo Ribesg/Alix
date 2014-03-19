@@ -41,7 +41,7 @@ public abstract class Callback {
 
 	/**
 	 * The Original IRC Packet for which the Callback was set up.
-	 * <p/>
+	 * <p>
 	 * Should be set by the send-like methods to be more user-friendly than
 	 * the User having to repeat the original IRC Packet twice in the method
 	 * call.
@@ -50,7 +50,7 @@ public abstract class Callback {
 
 	/**
 	 * The Server the Original IRC Packet was sent to.
-	 * <p/>
+	 * <p>
 	 * Should be set by the send-like methods to be more user-friendly than
 	 * the User having to repeat the Server twice in the method
 	 * call.
@@ -59,15 +59,15 @@ public abstract class Callback {
 
 	/**
 	 * Main Callback constructor.
-	 * <p/>
+	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
 	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
-	 * <p/>
+	 * <p>
 	 * If no argument is passed, {@link #onIrcPacket(IrcPacket)} will be
 	 * called for every incoming {@link IrcPacket} until the method
 	 * returns true.
-	 * <p/>
+	 * <p>
 	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
 	 *
 	 * @param timeoutDuration the time after which this Callback should call
@@ -89,15 +89,15 @@ public abstract class Callback {
 
 	/**
 	 * Callback constructor with default timeout of 30 seconds.
-	 * <p/>
+	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
 	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
-	 * <p/>
+	 * <p>
 	 * If no argument is passed, {@link #onIrcPacket(IrcPacket)} will be
 	 * called for every incoming {@link IrcPacket} until the method
 	 * returns true.
-	 * <p/>
+	 * <p>
 	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
 	 *
 	 * @param listenedCodes listened Commands and Reply codes, can be empty
@@ -140,7 +140,7 @@ public abstract class Callback {
 
 	/**
 	 * You should not call this.
-	 * <p/>
+	 * <p>
 	 * This should only be called by the Server's send-like methods to link
 	 * the original IrcPacket to its Callback, for the user not to have to
 	 * do it.
@@ -151,7 +151,7 @@ public abstract class Callback {
 
 	/**
 	 * You should not call this.
-	 * <p/>
+	 * <p>
 	 * This should only be called by the Server's send-like methods to link
 	 * the original IrcPacket to its Callback, for the user not to have to
 	 * do it.
@@ -175,15 +175,15 @@ public abstract class Callback {
 	 * This method will be called for every received {@link IrcPacket} that
 	 * this Callback listens to, or everyone of them if
 	 * {@link #listenedCodes} is null.
-	 * <p/>
+	 * <p>
 	 * If the method returns false, this means that the passed
 	 * {@link IrcPacket} is not the one which was awaited. The Callback will
 	 * continue to receive {@link IrcPacket}s to handle.
-	 * <p/>
+	 * <p>
 	 * If the method returns true, this means that the passed
 	 * {@link IrcPacket} is the awaited one. The Callback will stop receiving
 	 * {@link IrcPacket} and will be destroyed.
-	 * <p/>
+	 * <p>
 	 * Please @see #onTimeout()
 	 *
 	 * @param packet a received IrcPacket matching {@link #listenedCodes} if
@@ -196,7 +196,7 @@ public abstract class Callback {
 
 	/**
 	 * This method will be called when this Callback times out.
-	 * <p/>
+	 * <p>
 	 * The default implementation is to log a warning message.
 	 */
 	public void onTimeout() {

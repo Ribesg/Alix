@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 /**
  * This Class provides convenient access to all IRC special Strings,
  * like Color codes, formatting codes, and others.
- * <p/>
+ * <p>
  * Color codes and formatting codes are not defined by any real convention,
  * and may not work on all clients.
  * This API is based on the mIRC character codes for colors and formatting.

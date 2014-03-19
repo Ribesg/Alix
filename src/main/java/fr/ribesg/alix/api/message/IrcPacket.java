@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
 
 /**
  * Represents an IRC Packet.
- * <p/>
+ * <p>
  * An IRC Packet may contain a prefix followed by a command and up to
  * 15 parameters.
  * Here is an example IRC Packet:
- * <p/>
+ * <p>
  * <strong>:PREFIX COMMAND PARAM1 PARAM2 PARAM3 :TRAIL</strong>
- * <p/>
+ * <p>
  * Notes:
  * <ul>
  * <li>The message starts with a ':' followed by the prefix, which can be empty.
@@ -129,9 +129,9 @@ public class IrcPacket {
 
 	/**
 	 * Gets the raw IRC Packet String in the following format:
-	 * <p/>
+	 * <p>
 	 * <strong>:PREFIX COMMAND PARAM1 PARAM2 PARAM3 :TRAIL\n</strong>
-	 * <p/>
+	 * <p>
 	 *
 	 * @return the raw IRC Packet String representing this IRC Packet
 	 */

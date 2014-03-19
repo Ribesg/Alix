@@ -1,7 +1,7 @@
 package fr.ribesg.alix.api.enums;
 /**
  * Lists all possible IRC commands defined by the protocol.
- * <p/>
+ * <p>
  * Sources:
  *
  * @author Ribesg

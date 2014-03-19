@@ -21,14 +21,7 @@ public class ArtUtil {
 	 *
 	 * @return the ASCII bar
 	 */
-	public static String asciiBar(final double leftPercentage,
-	                              final String leftColor,
-	                              final double rightPercentage,
-	                              final String rightColor,
-	                              final int totalNbChars,
-	                              final char barCharacter,
-	                              final char separatorCharacter,
-	                              final String separatorColor) {
+	public static String asciiBar(final double leftPercentage, final String leftColor, final double rightPercentage, final String rightColor, final int totalNbChars, final char barCharacter, final char separatorCharacter, final String separatorColor) {
 		final double total = leftPercentage + rightPercentage;
 		final int nbLeftChars = (int) Math.round(leftPercentage * totalNbChars / total);
 		final int nbRightChars = totalNbChars - nbLeftChars;

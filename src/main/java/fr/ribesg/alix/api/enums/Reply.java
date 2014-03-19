@@ -4,7 +4,7 @@ import java.util.Map;
 
 /**
  * Lists all possible IRC replies defined by the protocol.
- * <p/>
+ * <p>
  * Sources:
  *
  * @author Ribesg

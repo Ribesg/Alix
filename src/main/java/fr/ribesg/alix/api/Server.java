@@ -216,7 +216,7 @@ public class Server {
 	 * This is called by the
 	 * {@link fr.ribesg.alix.internal.InternalMessageHandler}, please
 	 * do not use it.
-	 * <p/>
+	 * <p>
 	 * This is nothing more than a Setter for {@link #joined}, please
 	 * use {@link #connect()} and {@link #disconnect()}.
 	 *
@@ -239,7 +239,7 @@ public class Server {
 	 * This is called by the
 	 * {@link fr.ribesg.alix.internal.InternalMessageHandler}, please
 	 * do not use it.
-	 * <p/>
+	 * <p>
 	 * This is nothing more than a Setter for {@link #connected}, please
 	 * use {@link #connect()} and {@link #disconnect()}.
 	 *
@@ -260,7 +260,7 @@ public class Server {
 	/**
 	 * Connects the Client to the Server.
 	 * This is a non-blocking method.
-	 * <p/>
+	 * <p>
 	 * Note: The Client is <strong>not</strong> connected directly after this method call.
 	 */
 	public void connect() {
@@ -287,7 +287,7 @@ public class Server {
 	/**
 	 * Disconnects the Client from the Server.
 	 * This is a blocking method.
-	 * <p/>
+	 * <p>
 	 * Note: The Client is disconnected directly after this method call.
 	 */
 	public void disconnect() {
@@ -297,7 +297,7 @@ public class Server {
 	/**
 	 * Disconnects the Client from the Server.
 	 * This is a blocking method.
-	 * <p/>
+	 * <p>
 	 * Note: The Client is disconnected directly after this method call.
 	 *
 	 * @param message the quit message to send to the server

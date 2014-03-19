@@ -101,7 +101,7 @@ public abstract class Client {
 	 * Switch to a backup name.
 	 * The default behaviour is to add "Bot" to the current name until
 	 * it gets accepted.
-	 * <p/>
+	 * <p>
 	 * This can be overriden to define custom secondary nicknames.
 	 */
 	public void switchToBackupName() {
@@ -128,13 +128,13 @@ public abstract class Client {
 	 * That's typically where you should load your
 	 * config files or ask for user input to populate
 	 * the {@link #servers} Set.
-	 * <p/>
+	 * <p>
 	 * If you want to make a bot and you want to use the
 	 * CommandManager, you need to call
 	 * {@link #createCommandManager(String, Set)} then you can start
 	 * registering your Commands with {@link #getCommandManager()} and
 	 * {@link CommandManager#registerCommand(fr.ribesg.alix.api.bot.command.Command)}.
-	 * <p/>
+	 * <p>
 	 * After calling this method, the Client will try to
 	 * connect to all servers ({@link #connectToServers()})
 	 *
@@ -192,7 +192,7 @@ public abstract class Client {
 	 * ({@link fr.ribesg.alix.api.enums.Reply#RPL_WELCOME}) from the Server.
 	 * At this point the Client asked to joined defined Channels, but has not
 	 * joined them yet.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param server the Server the Client just joined
@@ -207,9 +207,9 @@ public abstract class Client {
 	 * echo of the {@link fr.ribesg.alix.api.enums.Command#JOIN} command
 	 * from the Server that confirms that the Client has successfully joined
 	 * the Channel.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
-	 * <p/>
+	 * <p>
 	 * Note: If you need to interact with the list of users or with the
 	 * topic of the Channel here, please wait before doing it. At this point,
 	 * those are not set. If they are not set in the next 2 seconds, Alix
@@ -229,7 +229,7 @@ public abstract class Client {
 	 * echo of the {@link fr.ribesg.alix.api.enums.Command#PART} command
 	 * from the Server that confirms that the Client has successfully parted
 	 * the Channel.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param channel the Channel the Client just left
@@ -241,7 +241,7 @@ public abstract class Client {
 	 * To be more precise, this is triggered once the Client receive a
 	 * {@link fr.ribesg.alix.api.enums.Command#KICK} command with the
 	 * Client's name as second parameter.
-	 * <p/>
+	 * <p>
 	 * This method tries to rejoin the Channel by default and could be
 	 * overridden.
 	 *
@@ -259,7 +259,7 @@ public abstract class Client {
 	 * To be more precise, this is triggered once the Client receive a
 	 * {@link fr.ribesg.alix.api.enums.Command#QUIT} command with the
 	 * Client's name as prefix.
-	 * <p/>
+	 * <p>
 	 * This method tries to rejoin the Server and all Channels by default
 	 * and could be overridden.
 	 *
@@ -279,7 +279,7 @@ public abstract class Client {
 	 * {@link fr.ribesg.alix.api.enums.Command#PONG} command within 5 seconds
 	 * after sending a {@link fr.ribesg.alix.api.enums.Command#PING} command
 	 * to this Server.
-	 * <p/>
+	 * <p>
 	 * This method tries to rejoin the Server and all Channels by default
 	 * and could be overridden.
 	 *
@@ -297,7 +297,7 @@ public abstract class Client {
 	 * To be more precise, this is triggered once the Client receive a
 	 * {@link fr.ribesg.alix.api.enums.Command#JOIN} command
 	 * from the Server with a User set as Prefix.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param channel the Channel the User just joined
@@ -309,7 +309,7 @@ public abstract class Client {
 	 * To be more precise, this is triggered once the Client receive a
 	 * {@link fr.ribesg.alix.api.enums.Command#PART} command
 	 * from the Server with a User set as Prefix.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param channel the Channel the User just left
@@ -321,7 +321,7 @@ public abstract class Client {
 	 * To be more precise, this is triggered once the Client receive a
 	 * {@link fr.ribesg.alix.api.enums.Command#KICK} command with another
 	 * name than the Client's name as second parameter.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param channel the Channel a User just got kicked from
@@ -334,7 +334,7 @@ public abstract class Client {
 	 * To be more precise, this is triggered once the Client receive a
 	 * {@link fr.ribesg.alix.api.enums.Command#QUIT} command with another
 	 * name than the Client's name as prefix.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param server the Server a User just quited or got kicked from
@@ -344,7 +344,7 @@ public abstract class Client {
 
 	/**
 	 * Executed when the Client receive a Private Message.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param fromSource the Source that sent the Private Message to the Client
@@ -354,7 +354,7 @@ public abstract class Client {
 
 	/**
 	 * Executed when the Client sees a message sent in a Channel.
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param channel    the Channel the message was sent in
@@ -367,7 +367,7 @@ public abstract class Client {
 	 * Executed every time the Client receives an IRC Packet.
 	 * This is where you can do what's not yet in this API as an "Event".
 	 * Please ask for features, or make a Pull Request on Github!
-	 * <p/>
+	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param server    the Server that sent the IRC Packet

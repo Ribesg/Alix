@@ -34,7 +34,7 @@ public abstract class Command {
 	/**
 	 * Usage Strings, used by the help command.
 	 * You can also use them to send error messages.
-	 * <p/>
+	 * <p>
 	 * Note that the first line will be prepended with the
 	 * Command prefix, followed by the command name and a space.
 	 * All other lines are prepended by enough spaces to match the first line
@@ -101,12 +101,7 @@ public abstract class Command {
 	 * @throws IllegalArgumentException if the Command is public and a Set
 	 *                                  of allowedNickNames was provided
 	 */
-	public Command(final CommandManager manager,
-	               final String name,
-	               final String[] usage,
-	               final boolean restricted,
-	               final Set<String> allowedNickNames,
-	               final String... aliases) {
+	public Command(final CommandManager manager, final String name, final String[] usage, final boolean restricted, final Set<String> allowedNickNames, final String... aliases) {
 		if (!restricted && allowedNickNames != null) {
 			throw new IllegalArgumentException("A public Command should not have allowedNickNames, did you do something wrong?");
 		}
@@ -189,11 +184,7 @@ public abstract class Command {
 	 * @param primaryArgument argument passed as commandPrefix.primaryArgument
 	 * @param args            arguments passed the the Command
 	 */
-	public abstract void exec(final Server server,
-	                          final Channel channel,
-	                          final Source user,
-	                          final String primaryArgument,
-	                          final String[] args);
+	public abstract void exec(final Server server, final Channel channel, final Source user, final String primaryArgument, final String[] args);
 
 	/**
 	 * Sends the usage of this Command to a Receiver.

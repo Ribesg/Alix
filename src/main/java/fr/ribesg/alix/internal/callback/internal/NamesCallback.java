@@ -11,7 +11,7 @@ import java.util.Set;
 
 /**
  * This class represents an internal Callback for the NAMES IRC Command.
- * <p/>
+ * <p>
  * The idea for this Callback is to handle the retrieval of Users of a
  * Channel properly.
  */

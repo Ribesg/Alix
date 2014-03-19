@@ -15,10 +15,10 @@ import org.apache.log4j.Logger;
  * This class handles messages internally. An example being more clear than
  * any explanation, this class typically handle PING commands by responding
  * with a PONG command.
- * <p/>
+ * <p>
  * If the message has or can be handled externally (understand "by the API
  * user" here), then the handler will make appropriate calls to the Client.
- * <p/>
+ * <p>
  * Note that every message will still produce a call to
  * {@link Client#onRawIrcMessage(Server, IrcPacket)}.
  *
@@ -159,8 +159,7 @@ public class InternalMessageHandler {
 					source = m.getPrefixAsSource(server);
 					final String dest = m.getParameters()[0];
 					if (dest.startsWith("#")) {
-						final boolean isBotCommand = client.getCommandManager() != null &&
-						                             client.getCommandManager().isCommand(m.getTrail());
+						final boolean isBotCommand = client.getCommandManager() != null && client.getCommandManager().isCommand(m.getTrail());
 						channel = server.getChannel(dest);
 						if (isBotCommand) {
 							client.getCommandManager().exec(server, channel, source, m.getTrail(), false);
