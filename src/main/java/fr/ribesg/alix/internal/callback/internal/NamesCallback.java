@@ -51,6 +51,8 @@ public class NamesCallback extends Callback {
 			case RPL_ENDOFNAMES: // Notification of the End of the Users Set
 				channelName = packet.getParameters()[1];
 				if (this.channel.getName().equals(channelName)) {
+					// FIXME: This may be called BEFORE another Thread take care of
+					//        an/some other(s) RPL_NAMREPLY Packets
 					channel.setUsers(this.users);
 					unlock();
 					return true;
