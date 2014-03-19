@@ -18,8 +18,8 @@ import java.util.Set;
 public class NamesCallback extends Callback {
 
 	private static final String[] LISTENED_CODES = new String[] {
-			Reply.RPL_NAMREPLY.name(),
-			Reply.RPL_ENDOFNAMES.name()
+			Reply.RPL_NAMREPLY.getIntCodeAsString(),
+			Reply.RPL_ENDOFNAMES.getIntCodeAsString()
 	};
 
 	private final Channel     channel;
