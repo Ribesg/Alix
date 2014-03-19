@@ -70,8 +70,8 @@ public class NamesCallback extends Callback {
 	}
 
 	private void unlock() {
-		synchronized (lock) {
-			if (this.lock != null) {
+		if (this.lock != null) {
+			synchronized (lock) {
 				lock.notifyAll();
 			}
 		}
