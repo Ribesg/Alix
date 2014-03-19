@@ -27,12 +27,10 @@ public class PingPongTask extends Thread {
 	@Override
 	public void run() {
 		while (!stopAsked) {
-			for (final Server server : this.client.getServers()) {
-				if (server.isConnected()) {
-					final String value = Long.toString(RANDOM.nextLong());
-					server.send(new PingIrcPacket(value), new PingPongCallback(value));
-				}
-			}
+			this.client.getServers().stream().filter(Server::isConnected).forEach(server -> {
+				final String value = Long.toString(RANDOM.nextLong());
+				server.send(new PingIrcPacket(value), new PingPongCallback(value));
+			});
 			Tools.pause(120_000);
 		}
 	}

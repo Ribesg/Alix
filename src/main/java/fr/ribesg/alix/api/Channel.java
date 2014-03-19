@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Represents an IRC Channel.
@@ -112,26 +113,14 @@ public class Channel extends Receiver {
 	 * @return the OP users of this Channel, without the @
 	 */
 	public Set<String> getOps() {
-		final Set<String> result = new HashSet<>();
-		for (final String user : this.users) {
-			if (user.startsWith("@")) {
-				result.add(user.substring(1));
-			}
-		}
-		return result;
+		return this.users.stream().filter(user -> user.startsWith("@")).map(user -> user.substring(1)).collect(Collectors.toSet());
 	}
 
 	/**
 	 * @return the Voices users of this Channel, without the @
 	 */
 	public Set<String> getVoiced() {
-		final Set<String> result = new HashSet<>();
-		for (final String user : this.users) {
-			if (user.startsWith("+")) {
-				result.add(user.substring(1));
-			}
-		}
-		return result;
+		return this.users.stream().filter(user -> user.startsWith("+")).map(user -> user.substring(1)).collect(Collectors.toSet());
 	}
 
 	/**
@@ -185,7 +174,7 @@ public class Channel extends Receiver {
 	 */
 	public void setUsers(final Collection<String> users) {
 		if (this.users == null) {
-			this.users = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+			this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
 		}
 		this.users.addAll(users);
 	}

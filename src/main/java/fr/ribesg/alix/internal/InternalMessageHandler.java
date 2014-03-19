@@ -68,14 +68,7 @@ public class InternalMessageHandler {
 	 */
 	public void handleMessage(final Server server, final String messageString) {
 		server.setJoined(true);
-		Client.getThreadPool().execute(new Runnable() {
-
-			@Override
-			public void run() {
-				handleMessageAsync(server, messageString);
-			}
-		});
-
+		Client.getThreadPool().execute(() -> handleMessageAsync(server, messageString));
 	}
 
 	/**

@@ -66,12 +66,10 @@ public abstract class Client {
 
 	public void kill() {
 		LOGGER.debug("Killing Client...");
-		for (final Server server : servers) {
-			if (server.isConnected()) {
-				LOGGER.debug("- Disconnecting from " + server.getUrl() + ":" + server.getPort() + "...");
-				server.disconnect();
-			}
-		}
+		servers.stream().filter(Server::isConnected).forEach(server -> {
+			LOGGER.debug("- Disconnecting from " + server.getUrl() + ":" + server.getPort() + "...");
+			server.disconnect();
+		});
 		for (final Server server : servers) {
 			while (server.isConnected()) {
 				Tools.pause(50);
@@ -106,11 +104,7 @@ public abstract class Client {
 	 */
 	public void switchToBackupName() {
 		this.name += "Bot";
-		for (final Server server : this.servers) {
-			if (server.hasJoined()) {
-				server.send(new NickIrcPacket(this.name));
-			}
-		}
+		this.servers.stream().filter(Server::hasJoined).forEach(server -> server.send(new NickIrcPacket(this.name)));
 	}
 
 	/**

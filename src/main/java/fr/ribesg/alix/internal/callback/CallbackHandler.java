@@ -20,13 +20,7 @@ public class CallbackHandler {
 	 * Comparator used to create SortedSets of Callbacks sorted by closest
 	 * timeout first.
 	 */
-	private static final Comparator<Callback> callbackTimeoutComparator = new Comparator<Callback>() {
-
-		@Override
-		public int compare(final Callback a, final Callback b) {
-			return Long.compare(a.getTimeoutDate(), b.getTimeoutDate());
-		}
-	};
+	private static final Comparator<Callback> callbackTimeoutComparator = (a, b) -> Long.compare(a.getTimeoutDate(), b.getTimeoutDate());
 
 	/**
 	 * The registered Callbacks, sorted by closest timeout first.
