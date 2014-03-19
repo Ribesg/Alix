@@ -138,8 +138,8 @@ public class CallbackHandler {
 						} while (it.hasNext() && removedCallback);
 					}
 				}
+				Tools.pause(1_000);
 			}
-			Tools.pause(1_000);
 		}
 	}
 
