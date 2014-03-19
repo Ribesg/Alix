@@ -1,18 +1,13 @@
 package fr.ribesg.alix.internal;
 
-import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
-import fr.ribesg.alix.api.callback.Callback;
-import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.api.message.PongIrcPacket;
-import fr.ribesg.alix.api.message.TopicIrcPacket;
 import fr.ribesg.alix.internal.callback.CallbackHandler;
 import org.apache.log4j.Logger;
 
@@ -119,46 +114,17 @@ public class InternalMessageHandler {
 					if (source == null || source.getName().equals(client.getName())) {
 						if (cmd == Command.JOIN) {
 							client.onClientJoinChannel(channel);
-							Tools.pause(2_000);
-							if (channel.getUsers() == null) {
-								server.send(new NamesIrcPacket(channelName));
-							}
-							if (channel.getTopic() == null) {
-								server.send(new TopicIrcPacket(channelName));
-							}
 						} else {
 							client.onClientPartChannel(channel);
 						}
 					} else {
 						if (cmd == Command.JOIN) {
+							// TODO Fetch info about user (+, @) and add it to the users list
 							client.onUserJoinChannel(source, channel);
 						} else {
+							// TODO Remove user from users list
 							client.onUserPartChannel(source, channel);
 						}
-
-						// Update channel users
-						server.send(new NamesIrcPacket(channel.getName()), new Callback(Reply.RPL_NAMREPLY.toString()) {
-
-							@Override
-							public boolean onIrcPacket(final IrcPacket packet) {
-								// On FIRST received Names reply
-								final NamesIrcPacket original = (NamesIrcPacket) this.originalIrcPacket;
-								final Channel channel = this.server.getChannel(original.getChannelName());
-								if (channel == null || !original.getChannelName().equals(packet.getParameters()[0])) {
-									return false;
-								}
-
-								// Clear existing users list
-								channel.clearUsers();
-								handleNamesReply(this.server, packet);
-								return true;
-
-								// Eventual following Names reply will add users normally
-							}
-
-							@Override
-							public void onTimeout() { /* Ignore */ }
-						});
 					}
 					break;
 				case KICK:
@@ -170,6 +136,7 @@ public class InternalMessageHandler {
 					if (client.getName().equals(who)) {
 						client.onClientKickedFromChannel(channel, source, reason);
 					} else {
+						// TODO Remove user from users list
 						client.onUserKickedFromChannel(channel, source, reason);
 					}
 					break;
@@ -183,6 +150,7 @@ public class InternalMessageHandler {
 							server.setJoined(false);
 							server.setConnected(false);
 						} else {
+							// TODO Remove user from users list (in all channels?)
 							client.onUserQuitServer(server, reason);
 						}
 					}
@@ -222,9 +190,6 @@ public class InternalMessageHandler {
 					Channel channel = server.getChannel(channelName);
 					channel.setTopic(m.getTrail());
 					break;
-				case RPL_NAMREPLY:
-					handleNamesReply(server, m);
-					break;
 				case ERR_NICKNAMEINUSE:
 				case ERR_NICKCOLLISION:
 					client.switchToBackupName();
@@ -236,12 +201,5 @@ public class InternalMessageHandler {
 			// Reply code not defined by the RFCs
 			LOGGER.warn("Unknown command/reply code: " + m.getRawCommandString());
 		}
-	}
-
-	private void handleNamesReply(final Server server, final IrcPacket packet) {
-		final String channelName = packet.getParameters()[2];
-		final Channel channel = server.getChannel(channelName);
-		final String[] users = packet.getTrail().split(Codes.SP);
-		channel.addUsers(users);
 	}
 }

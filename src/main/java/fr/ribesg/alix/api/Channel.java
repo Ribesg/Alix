@@ -1,7 +1,13 @@
 package fr.ribesg.alix.api;
+import fr.ribesg.alix.api.callback.Callback;
+import fr.ribesg.alix.api.enums.Command;
+import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
+import fr.ribesg.alix.api.message.NamesIrcPacket;
+import fr.ribesg.alix.internal.callback.internal.NamesCallback;
+import org.apache.log4j.Logger;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Ribesg
  */
 public class Channel extends Receiver {
+
+	private static final Logger LOGGER = Logger.getLogger(Channel.class.getName());
 
 	/**
 	 * The password of this Channel, if any
@@ -170,16 +178,16 @@ public class Channel extends Receiver {
 	}
 
 	/**
-	 * You should not use this. This is used internally to add known users to
-	 * the Channel object.
+	 * You should not use this. This is used internally to set known users on
+	 * this Channel object.
 	 *
-	 * @param users the array of Users found on this Channel
+	 * @param users the Set of Users found on this Channel
 	 */
-	public void addUsers(final String[] users) {
+	public void setUsers(final Collection<String> users) {
 		if (this.users == null) {
 			this.users = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 		}
-		this.users.addAll(Arrays.asList(users));
+		this.users.addAll(users);
 	}
 
 	/**
@@ -198,13 +206,68 @@ public class Channel extends Receiver {
 	 */
 	public void join() {
 		if (getServer().isConnected()) {
+			final Callback joinCallback = new Callback(Command.JOIN.name()) {
+
+				@Override
+				public boolean onIrcPacket(final IrcPacket packet) {
+					final Source user = packet.getPrefixAsSource(this.server);
+					final String channelName = packet.getParameters()[0];
+					if (getName().equals(channelName) && server.getClient().getName().equals(user.getName())) {
+						Channel.this.updateUsers(false);
+						// TODO Other things to update like topic and modes
+						return true;
+					} else {
+						return false;
+					}
+				}
+			};
+
 			if (this.hasPassword()) {
-				this.server.send(new JoinIrcPacket(this.getName(), this.getPassword()));
+				this.server.send(new JoinIrcPacket(this.getName(), this.getPassword()), joinCallback);
 			} else {
-				this.server.send(new JoinIrcPacket(this.getName()));
+				this.server.send(new JoinIrcPacket(this.getName()), joinCallback);
 			}
 		} else {
 			throw new IllegalStateException("Not connected!");
+		}
+	}
+
+	// ###################### //
+	// ## Updating methods ## //
+	// ###################### //
+
+	/**
+	 * This flag indicates if there is an update running for the Users Set.
+	 * It's also use as a mutex to wait for the update to finish.
+	 */
+	private Boolean updatingUsers = false;
+
+	/**
+	 * Update the Users Set.
+	 *
+	 * @param block true if the method should block until the update is done,
+	 *              false otherwise
+	 */
+	public void updateUsers(final boolean block) {
+		if (!updatingUsers) {
+			updatingUsers = true;
+			if (block) {
+				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, updatingUsers));
+				try {
+					updatingUsers.wait();
+				} catch (final InterruptedException e) {
+					LOGGER.error(e);
+				}
+			} else {
+				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this));
+			}
+			updatingUsers = false;
+		} else if (block) {
+			try {
+				updatingUsers.wait();
+			} catch (final InterruptedException e) {
+				LOGGER.error(e);
+			}
 		}
 	}
 }
