@@ -12,23 +12,51 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Represents an IRC Client that can connect to IRC servers,
- * join channels on those various IRC servers, etc.
+ * This class represents an IRC Client.
+ * <p>
+ * This is the class you should override to start implementing the Alix API.
  *
  * @author Ribesg
  */
 public abstract class Client {
 
+	/**
+	 * This class Logger
+	 */
 	private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
 
+	/**
+	 * The Client's thread pool. This thread pool is used for every single
+	 * asynchronous need of the Client. You can, and you are encouraged to
+	 * use it.
+	 * <p>
+	 * The Cached implementation of the ExecutorService has been chosen
+	 * because of the high amount of short-living thread that Alix will
+	 * create. In fact, most received IRC Packets will create a new Task.
+	 *
+	 * @see java.util.concurrent.ExecutorService
+	 */
 	private static final ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
+	/**
+	 * The Client's thread pool. This thread pool is used for every single
+	 * asynchronous need of the Client. You can, and you are encouraged to
+	 * use it.
+	 * <p>
+	 * The Cached implementation of the ExecutorService has been chosen
+	 * because of the high amount of short-living thread that Alix will
+	 * create. In fact, most received IRC Packets will create a new Task.
+	 *
+	 * @return a cached thread pool
+	 *
+	 * @see java.util.concurrent.ExecutorService
+	 */
 	public static ExecutorService getThreadPool() {
 		return THREAD_POOL;
 	}
 
 	/**
-	 * Name of this Client, used as Nick
+	 * Name of this Client, default Nickname used when connecting to Servers
 	 */
 	protected String name;
 
@@ -37,13 +65,25 @@ public abstract class Client {
 	 */
 	private final Set<Server> servers;
 
+	/**
+	 * This Client's CommandManager.
+	 *
+	 * @see #createCommandManager(String, java.util.Set)
+	 */
 	private CommandManager commandManager = null;
 
+	/**
+	 * The task responsible for Pinging Servers, to make sure the connection
+	 * is still active
+	 */
 	private PingPongTask pingPongTask = null;
 
 	/**
-	 * Constructs an IRC Client, call the {@link #load()} method then the
-	 * {@link #connectToServers()} method.
+	 * Construct an IRC Client.
+	 * <p>
+	 * Initialize the {@link #servers} Set, call the {@link #load()} method
+	 * then the {@link #connectToServers()} method.
+	 * Also adds a shutdown hook to try to exit properly.
 	 *
 	 * @param name the name of the Client
 	 */
@@ -64,6 +104,11 @@ public abstract class Client {
 		});
 	}
 
+	/**
+	 * Method called by the shutdown hook.
+	 * <p>
+	 * This method will try to disconnect from servers and will kill tasks.
+	 */
 	public void kill() {
 		LOGGER.debug("Killing Client...");
 		servers.stream().filter(Server::isConnected).forEach(server -> {
@@ -99,6 +144,8 @@ public abstract class Client {
 	 * Switch to a backup name.
 	 *
 	 * @param server the Server for which we need a backup name
+	 *
+	 * @see #getBackupName(Server)
 	 */
 	public final void switchToBackupName(final Server server) {
 		final String newName = getBackupName(server);
@@ -107,7 +154,8 @@ public abstract class Client {
 	}
 
 	/**
-	 * Provide a backup name for the provided Server.
+	 * Create a backup name for the provided Server.
+	 * <p>
 	 * The default behaviour is to add "_" to the current name until
 	 * it gets accepted.
 	 * <p>
@@ -195,22 +243,24 @@ public abstract class Client {
 
 	/**
 	 * Executed once the Client successfully connects to a Server.
+	 * <p>
 	 * To be more precise, this is triggered once the Client receive
 	 * the welcome message
 	 * ({@link fr.ribesg.alix.api.enums.Reply#RPL_WELCOME}) from the Server.
-	 * At this point the Client asked to joined defined Channels, but has not
-	 * joined them yet.
+	 * At this point the Client has already ask to joined defined Channels,
+	 * but has not joined them yet.
 	 * <p>
 	 * This method does not do anything and should be overridden.
 	 *
 	 * @param server the Server the Client just joined
 	 *
-	 * @see #onClientJoinChannel(Channel)
+	 * @see #onClientJoinChannel(Channel) for actions on Channel join
 	 */
 	public void onServerJoined(final Server server) {}
 
 	/**
 	 * Executed once the Client successfully joins a Channel.
+	 * <p>
 	 * To be more precise, this is triggered once the Client receive an
 	 * echo of the {@link fr.ribesg.alix.api.enums.Command#JOIN} command
 	 * from the Server that confirms that the Client has successfully joined
@@ -218,14 +268,9 @@ public abstract class Client {
 	 * <p>
 	 * This method does not do anything and should be overridden.
 	 * <p>
-	 * Note: If you need to interact with the list of users or with the
-	 * topic of the Channel here, please wait before doing it. At this point,
-	 * those are not set. If they are not set in the next 2 seconds, Alix
-	 * will send the appropriate TOPIC and NAMES commands to the server.
-	 * So you can either use {@link fr.ribesg.alix.Tools#pause(int)} for
-	 * around 3-4 seconds or just make a loop waiting for it to be set,
-	 * as everything is async. Please use the pause(int) method in your
-	 * waiting loop to prevent surcharging the bot.
+	 * Important Note: If you need to interact with the list of users, please use the
+	 * {@link Channel#updateUsers(boolean)} method with the
+	 * <code>blocking</code> parameter set to <code>true</code> before.
 	 *
 	 * @param channel the Channel the Client just joined
 	 */
@@ -233,12 +278,17 @@ public abstract class Client {
 
 	/**
 	 * Executed once the Client parts a Channel.
+	 * <p>
 	 * To be more precise, this is triggered once the Client receive an
 	 * echo of the {@link fr.ribesg.alix.api.enums.Command#PART} command
 	 * from the Server that confirms that the Client has successfully parted
 	 * the Channel.
 	 * <p>
 	 * This method does not do anything and should be overridden.
+	 * <p>
+	 * Important Note: If you need to interact with the list of users, please use the
+	 * {@link Channel#updateUsers(boolean)} method with the
+	 * <code>blocking</code> parameter set to <code>true</code> before.
 	 *
 	 * @param channel the Channel the Client just left
 	 */
@@ -307,6 +357,10 @@ public abstract class Client {
 	 * from the Server with a User set as Prefix.
 	 * <p>
 	 * This method does not do anything and should be overridden.
+	 * <p>
+	 * Important Note: If you need to interact with the list of users, please use the
+	 * {@link Channel#updateUsers(boolean)} method with the
+	 * <code>blocking</code> parameter set to <code>true</code> before.
 	 *
 	 * @param channel the Channel the User just joined
 	 */
@@ -319,6 +373,10 @@ public abstract class Client {
 	 * from the Server with a User set as Prefix.
 	 * <p>
 	 * This method does not do anything and should be overridden.
+	 * <p>
+	 * Important Note: If you need to interact with the list of users, please use the
+	 * {@link Channel#updateUsers(boolean)} method with the
+	 * <code>blocking</code> parameter set to <code>true</code> before.
 	 *
 	 * @param channel the Channel the User just left
 	 */
@@ -331,6 +389,10 @@ public abstract class Client {
 	 * name than the Client's name as second parameter.
 	 * <p>
 	 * This method does not do anything and should be overridden.
+	 * <p>
+	 * Important Note: If you need to interact with the list of users, please use the
+	 * {@link Channel#updateUsers(boolean)} method with the
+	 * <code>blocking</code> parameter set to <code>true</code> before.
 	 *
 	 * @param channel the Channel a User just got kicked from
 	 * @param by      the Source of the kick
@@ -364,6 +426,10 @@ public abstract class Client {
 	 * Executed when the Client sees a message sent in a Channel.
 	 * <p>
 	 * This method does not do anything and should be overridden.
+	 * <p>
+	 * Important Note: If you need to interact with the list of users, please use the
+	 * {@link Channel#updateUsers(boolean)} method with the
+	 * <code>blocking</code> parameter set to <code>true</code> before.
 	 *
 	 * @param channel    the Channel the message was sent in
 	 * @param fromSource the Source that sent the message
