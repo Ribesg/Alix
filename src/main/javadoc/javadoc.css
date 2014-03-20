@@ -7,7 +7,7 @@ body {
 	background-color : #FFFFFF;
 	color            : #353833;
 	font-family      : sans-serif;
-	font-size        : 14px;
+	font-size        : 15px;
 	margin           : 0;
 }
 
@@ -39,7 +39,7 @@ a[name]:hover {
 
 pre {
 	font-family : monospace;
-	font-size   : 14px;
+	font-size   : 15px;
 }
 
 h1 {
@@ -74,7 +74,7 @@ ul {
 code,
 tt {
 	font-family : monospace;
-	font-size   : 14px;
+	font-size   : 15px;
 	padding-top : 4px;
 	margin-top  : 8px;
 	line-height : 1.4em;
@@ -82,13 +82,13 @@ tt {
 
 dt code {
 	font-family : monospace;
-	font-size   : 14px;
+	font-size   : 15px;
 	padding-top : 4px;
 }
 
 table tr td dt code {
 	font-family    : monospace;
-	font-size      : 14px;
+	font-size      : 15px;
 	vertical-align : top;
 	padding-top    : 4px;
 }
@@ -362,7 +362,7 @@ Page layout container styles
 .contentContainer .details dl dd,
 .serializedFormContainer dl dd {
 	margin      : 5px 0 10px 0;
-	font-size   : 14px;
+	font-size   : 15px;
 	font-family : monospace;
 }
 
@@ -713,7 +713,7 @@ ul.blockList ul.blockList ul.blockList li.blockList h3 {
 }
 
 div.block {
-	font-size   : 14px;
+	font-size   : 15px;
 	font-family : sans-serif;
 }
 
