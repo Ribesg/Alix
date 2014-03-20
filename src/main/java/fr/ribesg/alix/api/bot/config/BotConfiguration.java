@@ -83,7 +83,7 @@ public class BotConfiguration {
 			final int port = server.getPort();
 			final SSLType sslType = server.getSslType();
 			final List<String> channels = server.getChannels().stream().map(Channel::getName).collect(Collectors.toList());
-			final String clientNick = server.getClientName();
+			final String clientNick = server.getClientNick();
 
 			document.set("url", url);
 			document.set("port", port);

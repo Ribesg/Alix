@@ -97,14 +97,28 @@ public abstract class Client {
 
 	/**
 	 * Switch to a backup name.
-	 * The default behaviour is to add "Bot" to the current name until
+	 *
+	 * @param server the Server for which we need a backup name
+	 */
+	public final void switchToBackupName(final Server server) {
+		final String newName = getBackupName(server);
+		server.setClientNick(newName);
+		server.send(new NickIrcPacket(newName), true);
+	}
+
+	/**
+	 * Provide a backup name for the provided Server.
+	 * The default behaviour is to add "_" to the current name until
 	 * it gets accepted.
 	 * <p>
 	 * This can be overriden to define custom secondary nicknames.
+	 *
+	 * @param server the Server for which we need a backup name
+	 *
+	 * @return a new name for this Client on the provided Server
 	 */
-	public void switchToBackupName() {
-		this.name += "_";
-		this.servers.stream().filter(Server::hasJoined).forEach(server -> server.send(new NickIrcPacket(this.name)));
+	protected String getBackupName(final Server server) {
+		return server.getClientNick() + '_';
 	}
 
 	/**

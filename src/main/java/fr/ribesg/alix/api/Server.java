@@ -52,6 +52,11 @@ public class Server {
 	private final Map<String, Channel> channels;
 
 	/**
+	 * The client nick on this Server
+	 */
+	private String clientNick;
+
+	/**
 	 * The SocketHandler dedicated to this Server
 	 */
 	private SocketHandler socket;
@@ -75,14 +80,16 @@ public class Server {
 	/**
 	 * Main constructor.
 	 *
-	 * @param client  the Client this Server is / will be connected to
-	 * @param url     the url of this Server (IP or FQDN)
-	 * @param port    the port of this Server
-	 * @param sslType If this connection should use secured SSL, trusting SSL
-	 *                or no SSL
+	 * @param client     the Client this Server is / will be connected to
+	 * @param clientNick the Client name on this Server
+	 * @param url        the url of this Server (IP or FQDN)
+	 * @param port       the port of this Server
+	 * @param sslType    If this connection should use secured SSL, trusting SSL
+	 *                   or no SSL
 	 */
-	public Server(final Client client, final String url, final int port, final SSLType sslType) {
+	public Server(final Client client, final String clientNick, final String url, final int port, final SSLType sslType) {
 		this.client = client;
+		this.clientNick = clientNick;
 		this.url = url;
 		this.port = port;
 		this.sslType = sslType;
@@ -99,7 +106,7 @@ public class Server {
 	 * @param port   the port of this Server
 	 */
 	public Server(final Client client, final String url, final int port) {
-		this(client, url, port, SSLType.NONE);
+		this(client, client == null ? "AlixTestBot" : client.getName(), url, port, SSLType.NONE);
 	}
 
 	/**
@@ -107,6 +114,27 @@ public class Server {
 	 */
 	public Client getClient() {
 		return client;
+	}
+
+	/**
+	 * @return the Client nick on this Server
+	 */
+	public String getClientNick() {
+		return clientNick;
+	}
+
+	/**
+	 * You should not use this. This is called internally when
+	 * the Server sends a {@link fr.ribesg.alix.api.enums.Command#NICK}
+	 * Command.
+	 * <p>
+	 * To change this Client's nick on this Server, send a
+	 * {@link fr.ribesg.alix.api.enums.Command#NICK} Command to this Server.
+	 *
+	 * @param clientNick the new Client name on this Server
+	 */
+	public void setClientNick(final String clientNick) {
+		this.clientNick = clientNick;
 	}
 
 	/**
@@ -276,8 +304,8 @@ public class Server {
 				LOGGER.error("Failed to connect to Server", e);
 				return;
 			}
-			this.socket.write(new NickIrcPacket(client.getName()));
-			this.socket.write(new UserIrcPacket(client.getName()));
+			this.socket.write(new NickIrcPacket(getClientNick()));
+			this.socket.write(new UserIrcPacket(getClientNick(), client.getName()));
 
 			LOGGER.info("Successfully connected to " + this.url + ":" + this.port);
 			LOGGER.info("Waiting for Welcome message...");

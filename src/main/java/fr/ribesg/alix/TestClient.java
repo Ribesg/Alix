@@ -6,7 +6,6 @@ import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.bot.command.Command;
 import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.PrivMsgIrcPacket;
-import fr.ribesg.alix.api.network.ssl.SSLType;
 
 /**
  * Example usage of the Alix IRC API.
@@ -21,7 +20,7 @@ public class TestClient {
 
 			@Override
 			protected void load() {
-				final Server server = new Server(this, "irc.esper.net", 6697, SSLType.TRUSTING);
+				final Server server = new Server(this, "irc.esper.net", 6667);
 				server.addChannel("#alix");
 				this.getServers().add(server);
 
@@ -35,13 +34,7 @@ public class TestClient {
 						if (channel == null) {
 							user.sendMessage("Use the !test command in a Channel!");
 						} else {
-							channel.sendMessage("So " +
-							                    user.getName() +
-							                    " used the command " +
-							                    this.getName() +
-							                    " in the Channel " +
-							                    channel.getName() +
-							                    "!");
+							channel.sendMessage("So " + user.getName() + " used the command " + this.getName() + " in the Channel " + channel.getName() + "!");
 						}
 					}
 				});
@@ -68,7 +61,7 @@ public class TestClient {
 			@Override
 			public void onPrivateMessage(final Server server, final Source fromSource, final String message) {
 				server.send(new PrivMsgIrcPacket(fromSource.getName(), "Hi!"));
-				if (message.equalsIgnoreCase(getName() + ", quit")) {
+				if (message.equalsIgnoreCase(server.getClientNick() + ", quit")) {
 					// Disconnect from server
 					server.disconnect();
 				} else if (message.startsWith("!pm ") && message.length() > "!pm ".length() + 1) {
@@ -81,12 +74,12 @@ public class TestClient {
 
 			@Override
 			public void onChannelMessage(final Channel channel, final Source fromSource, final String message) {
-				if (message.equalsIgnoreCase(getName() + ", quit")) {
+				if (message.equalsIgnoreCase(channel.getServer().getClientNick() + ", quit")) {
 					// Disconnect from server
 					channel.getServer().disconnect();
-				} else if (message.startsWith(getName() + ", ")) {
+				} else if (message.startsWith(channel.getServer().getClientNick() + ", ")) {
 					// Repeat message
-					channel.sendMessage(fromSource.getName() + message.substring(getName().length()));
+					channel.sendMessage(fromSource.getName() + message.substring(channel.getServer().getClientNick().length()));
 				}
 			}
 		};
