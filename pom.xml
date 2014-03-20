@@ -154,6 +154,8 @@
 					<author>true</author>
 					<keywords>true</keywords>
 					<show>private</show>
+					<stylesheet>java</stylesheet>
+					<stylesheetfile>src/main/resources/javadoc.css</stylesheetfile>
 				</configuration>
 				<executions>
 					<execution>
