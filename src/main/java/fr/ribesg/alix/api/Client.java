@@ -103,7 +103,7 @@ public abstract class Client {
 	 * This can be overriden to define custom secondary nicknames.
 	 */
 	public void switchToBackupName() {
-		this.name += "Bot";
+		this.name += "_";
 		this.servers.stream().filter(Server::hasJoined).forEach(server -> server.send(new NickIrcPacket(this.name)));
 	}
 
