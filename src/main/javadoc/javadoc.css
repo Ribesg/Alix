@@ -572,3 +572,11 @@ div.block div.block span.interfaceName {
 div.contentContainer ul.blockList li.blockList h2{
     padding-bottom:0px;
 }
+
+/* #################################################### */
+/* ## Modifications to the original Java 8 CSS below ## */
+/* #################################################### */
+
+div.block {
+    font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+}
