@@ -155,7 +155,7 @@
 					<keywords>true</keywords>
 					<show>private</show>
 					<stylesheet>java</stylesheet>
-					<stylesheetfile>src/main/resources/javadoc.css</stylesheetfile>
+					<stylesheetfile>src/main/javadoc/javadoc.css</stylesheetfile>
 				</configuration>
 				<executions>
 					<execution>
