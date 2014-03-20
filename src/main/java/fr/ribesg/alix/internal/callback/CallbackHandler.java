@@ -1,8 +1,8 @@
 package fr.ribesg.alix.internal.callback;
-import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 import org.apache.log4j.Logger;
 
 import java.util.Comparator;
@@ -44,7 +44,7 @@ public class CallbackHandler {
 	 * Kill this CallbackHandler
 	 */
 	public void kill() {
-		this.cleanerThread.stopAsked = true;
+		this.cleanerThread.askStop();
 		try {
 			this.cleanerThread.join();
 		} catch (final InterruptedException e) {
@@ -88,7 +88,7 @@ public class CallbackHandler {
 	 * Callbacks and to check that every Callback is still valid,
 	 * i.e. every Callback didn't timeout.
 	 */
-	private class CallbacksCleanerThread extends Thread {
+	private class CallbacksCleanerThread extends AbstractRepeatingThread {
 
 		/**
 		 * The callbacks
@@ -96,16 +96,12 @@ public class CallbackHandler {
 		private final SortedSet<Callback> callbacks;
 
 		/**
-		 * If this Thread should be stopped
-		 */
-		private boolean stopAsked = false;
-
-		/**
 		 * Main CallbacksCleanerThread constructor.
 		 *
 		 * @param callbacks the callbacks to monitor
 		 */
 		public CallbacksCleanerThread(final SortedSet<Callback> callbacks) {
+			super(1_000);
 			this.callbacks = callbacks;
 		}
 
@@ -113,23 +109,20 @@ public class CallbackHandler {
 		 * Will check the callbacks Set every second
 		 */
 		@Override
-		public void run() {
-			while (!this.stopAsked) {
-				if (!this.callbacks.isEmpty()) {
-					final long now = System.currentTimeMillis();
-					final Iterator<Callback> it = this.callbacks.iterator();
-					boolean removedCallback;
-					do {
-						removedCallback = false;
-						final Callback callback = it.next();
-						if (callback.getTimeoutDate() < now) {
-							callback.onTimeout();
-							it.remove();
-							removedCallback = true;
-						}
-					} while (it.hasNext() && removedCallback);
-				}
-				Tools.pause(1_000);
+		public void work() {
+			if (!this.callbacks.isEmpty()) {
+				final long now = System.currentTimeMillis();
+				final Iterator<Callback> it = this.callbacks.iterator();
+				boolean removedCallback;
+				do {
+					removedCallback = false;
+					final Callback callback = it.next();
+					if (callback.getTimeoutDate() < now) {
+						callback.onTimeout();
+						it.remove();
+						removedCallback = true;
+					}
+				} while (it.hasNext() && removedCallback);
 			}
 		}
 	}

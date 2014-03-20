@@ -33,9 +33,6 @@ public class SocketHandler {
 	private SocketSender   socketSender;
 	private SocketReceiver socketReceiver;
 
-	private Thread senderThread;
-	private Thread receiverThread;
-
 	private InternalMessageHandler handler;
 
 	public SocketHandler(final Server server, final String url, final int port) {
@@ -77,11 +74,9 @@ public class SocketHandler {
 		this.socketSender = new SocketSender(this.server, writer);
 		this.socketReceiver = new SocketReceiver(this.server, reader, this.handler);
 
-		this.senderThread = new Thread(this.socketSender);
-		this.receiverThread = new Thread(this.socketReceiver);
-
-		this.senderThread.start();
-		this.receiverThread.start();
+		this.socketSender.start();
+		this.socketReceiver.start();
+		this.handler.start();
 	}
 
 	public boolean hasAnythingToWrite() {
@@ -107,7 +102,7 @@ public class SocketHandler {
 	public void askStop() {
 		this.socketSender.askStop();
 		this.socketReceiver.askStop();
-		this.handler.kill();
+		this.handler.askStop();
 	}
 
 	public boolean isStopped() {
@@ -116,15 +111,21 @@ public class SocketHandler {
 
 	public void kill() {
 		try {
-			this.receiverThread.join();
+			this.socketReceiver.join();
 		} catch (final InterruptedException e) {
-			LOGGER.error("Failed to join on ReceiverThread", e);
+			LOGGER.error("Failed to join on SocketReceiver", e);
 		}
 
 		try {
-			this.senderThread.join();
+			this.socketSender.join();
 		} catch (final InterruptedException e) {
-			LOGGER.error("Failed to join on SenderThread", e);
+			LOGGER.error("Failed to join on SocketSender", e);
+		}
+
+		try {
+			this.handler.join();
+		} catch (final InterruptedException e) {
+			LOGGER.error("Failed to join on InternalMessageHandler", e);
 		}
 
 		try {
