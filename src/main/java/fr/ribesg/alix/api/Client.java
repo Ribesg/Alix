@@ -76,7 +76,7 @@ public abstract class Client {
 			}
 			LOGGER.debug("- Disconnected from " + server.getUrl() + ":" + server.getPort() + "!");
 		}
-		this.pingPongTask.kill();
+		this.pingPongTask.askStop();
 		try {
 			LOGGER.debug("Stopping PingPongTask Thread...");
 			this.pingPongTask.join();
