@@ -1,9 +1,10 @@
-package fr.ribesg.alix.internal.callback.internal;
+package fr.ribesg.alix.internal.callback;
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
+import org.apache.log4j.Logger;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,6 +18,8 @@ import java.util.Set;
  */
 public class NamesCallback extends Callback {
 
+	private static final Logger LOGGER = Logger.getLogger(NamesCallback.class.getName());
+
 	private static final String[] LISTENED_CODES = new String[] {
 			Reply.RPL_NAMREPLY.getIntCodeAsString(),
 			Reply.RPL_ENDOFNAMES.getIntCodeAsString()
@@ -24,17 +27,17 @@ public class NamesCallback extends Callback {
 
 	private final Channel     channel;
 	private final Set<String> users;
-	private final Object      lock;
 
 	public NamesCallback(final Channel channel) {
-		this(channel, null);
-	}
-
-	public NamesCallback(final Channel channel, final Object lock) {
 		super(LISTENED_CODES);
 		this.channel = channel;
 		this.users = new HashSet<>();
-		this.lock = lock;
+	}
+
+	public NamesCallback(final Channel channel, final Object lock) {
+		super(lock, LISTENED_CODES);
+		this.channel = channel;
+		this.users = new HashSet<>();
 	}
 
 	@Override
@@ -51,8 +54,6 @@ public class NamesCallback extends Callback {
 			case RPL_ENDOFNAMES: // Notification of the End of the Users Set
 				channelName = packet.getParameters()[1];
 				if (this.channel.getName().equals(channelName)) {
-					// FIXME: This may be called BEFORE another Thread take care of
-					//        an/some other(s) RPL_NAMREPLY Packets
 					channel.setUsers(this.users);
 					unlock();
 					return true;
@@ -61,21 +62,13 @@ public class NamesCallback extends Callback {
 				}
 			default:
 				throw new IllegalArgumentException(packet.toString());
-
 		}
 	}
 
 	@Override
 	public void onTimeout() {
+		LOGGER.error("NAMES Command timed out! The users list of Channel " + this.channel.getName() + " has been emptied!");
 		channel.clearUsers();
 		unlock();
-	}
-
-	private void unlock() {
-		if (this.lock != null) {
-			synchronized (lock) {
-				lock.notifyAll();
-			}
-		}
 	}
 }

@@ -1,6 +1,7 @@
 package fr.ribesg.alix.internal.network;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.internal.InternalMessageHandler;
+import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -12,49 +13,33 @@ import java.io.IOException;
  *
  * @author Ribesg
  */
-public class SocketReceiver implements Runnable {
+public class SocketReceiver extends AbstractRepeatingThread {
 
 	private static final Logger LOGGER = Logger.getLogger(SocketReceiver.class.getName());
 
 	private final BufferedReader reader;
 
 	private final Server                 server;
-	private final InternalMessageHandler handler;
+	private final InternalMessageHandler packetHandler;
 
-	private boolean stopAsked;
-	private boolean stopped;
-
-	/* package */ SocketReceiver(final Server server, final BufferedReader reader, final InternalMessageHandler handler) {
+	/* package */ SocketReceiver(final Server server, final BufferedReader reader, final InternalMessageHandler packetHandler) {
+		super(10);
 		this.reader = reader;
 		this.server = server;
-		this.handler = handler;
-		this.stopAsked = false;
-		this.stopped = true;
+		this.packetHandler = packetHandler;
 	}
 
 	@Override
-	public void run() {
-		this.stopped = false;
+	public void work() {
 		String mes;
-		while (!this.stopAsked) {
-			try {
-				while ((mes = this.reader.readLine()) != null) {
-					LOGGER.debug(server.getUrl() + ':' + server.getPort() + " - RECEIVED MESSAGE: '" + mes + "'");
-					this.handler.handleMessage(this.server, mes);
-				}
-			} catch (final IOException ignored) {
-				// readLine() Timeout
+		try {
+			while ((mes = this.reader.readLine()) != null) {
+				LOGGER.debug(server.getUrl() + ':' + server.getPort() + " - RECEIVED MESSAGE: '" + mes + "'");
+				this.packetHandler.queue(this.server, mes);
 			}
+		} catch (final IOException ignored) {
+			// readLine() Timeout
 		}
-		this.kill();
-	}
-
-	/* package */ void askStop() {
-		this.stopAsked = true;
-	}
-
-	/* package */ boolean isStopped() {
-		return this.stopped;
 	}
 
 	/* package */ void kill() {
@@ -63,6 +48,5 @@ public class SocketReceiver implements Runnable {
 		} catch (final IOException e) {
 			LOGGER.error("Failed to close Reader stream", e);
 		}
-		this.stopped = true;
 	}
 }

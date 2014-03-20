@@ -1,5 +1,6 @@
 package fr.ribesg.alix.internal.callback;
 import fr.ribesg.alix.Tools;
+import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.message.IrcPacket;
 import org.apache.log4j.Logger;
@@ -64,30 +65,22 @@ public class CallbackHandler {
 	 * See if a Callback handles an incoming IRC Packet.
 	 *
 	 * @param packet the incoming IRC Packet
-	 *
-	 * @return true if the IRC packet was handled by a Callback, false
-	 * otherwise
 	 */
-	public boolean handle(final IrcPacket packet) {
-		boolean result = false;
+	public void handle(final IrcPacket packet) {
 		final String code = packet.getRawCommandString().toUpperCase();
-		synchronized (this.callbacks) {
-			final long now = System.currentTimeMillis();
-			final Iterator<Callback> it = this.callbacks.iterator();
-			while (it.hasNext() && !result) {
-				final Callback callback = it.next();
-				if (callback.getTimeoutDate() < now) {
-					callback.onTimeout();
+		final long now = System.currentTimeMillis();
+		final Iterator<Callback> it = this.callbacks.iterator();
+		while (it.hasNext()) {
+			final Callback callback = it.next();
+			if (callback.getTimeoutDate() < now) {
+				Client.getThreadPool().submit(callback::onTimeout);
+				it.remove();
+			} else if (callback.listensTo(code)) {
+				if (callback.onIrcPacket(packet)) {
 					it.remove();
-				} else if (callback.listensTo(code)) {
-					if (callback.onIrcPacket(packet)) {
-						result = true;
-						it.remove();
-					}
 				}
 			}
 		}
-		return result;
 	}
 
 	/**
@@ -122,21 +115,19 @@ public class CallbackHandler {
 		@Override
 		public void run() {
 			while (!this.stopAsked) {
-				synchronized (this.callbacks) {
-					if (!this.callbacks.isEmpty()) {
-						final long now = System.currentTimeMillis();
-						final Iterator<Callback> it = this.callbacks.iterator();
-						boolean removedCallback;
-						do {
-							removedCallback = false;
-							final Callback callback = it.next();
-							if (callback.getTimeoutDate() < now) {
-								callback.onTimeout();
-								it.remove();
-								removedCallback = true;
-							}
-						} while (it.hasNext() && removedCallback);
-					}
+				if (!this.callbacks.isEmpty()) {
+					final long now = System.currentTimeMillis();
+					final Iterator<Callback> it = this.callbacks.iterator();
+					boolean removedCallback;
+					do {
+						removedCallback = false;
+						final Callback callback = it.next();
+						if (callback.getTimeoutDate() < now) {
+							callback.onTimeout();
+							it.remove();
+							removedCallback = true;
+						}
+					} while (it.hasNext() && removedCallback);
 				}
 				Tools.pause(1_000);
 			}

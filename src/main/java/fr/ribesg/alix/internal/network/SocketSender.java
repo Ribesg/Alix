@@ -1,6 +1,6 @@
 package fr.ribesg.alix.internal.network;
-import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.Server;
+import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedWriter;
@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  *
  * @author Ribesg
  */
-public class SocketSender implements Runnable {
+public class SocketSender extends AbstractRepeatingThread {
 
 	private static final Logger LOGGER = Logger.getLogger(SocketSender.class.getName());
 
@@ -23,38 +23,27 @@ public class SocketSender implements Runnable {
 
 	private final Server server;
 
-	private boolean stopAsked;
-	private boolean stopped;
-
 	/* package */ SocketSender(final Server server, final BufferedWriter writer) {
+		super(50);
 		this.writer = writer;
 		this.buffer = new ConcurrentLinkedDeque<>();
 		this.server = server;
-		this.stopAsked = false;
-		this.stopped = true;
 	}
 
 	@Override
-	public void run() {
-		this.stopped = false;
+	public void work() throws InterruptedException {
 		String mes;
-		while (!this.stopAsked) {
-			try {
-				while ((mes = this.buffer.poll()) != null) {
-					LOGGER.debug(server.getUrl() + ':' + server.getPort() +
-					             " - SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
-					this.writer.write(mes);
-					this.writer.flush();
-					Tools.pause(1_000);
-				}
-			} catch (final IOException e) {
-				if (!this.stopAsked && !this.stopped) {
-					LOGGER.error("Failed to send IRC Packet", e);
-				}
+		try {
+			while ((mes = this.buffer.poll()) != null) {
+				LOGGER.debug(server.getUrl() + ':' + server.getPort() +
+				             " - SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
+				this.writer.write(mes);
+				this.writer.flush();
+				Thread.sleep(1_000);
 			}
-			Tools.pause(50);
+		} catch (final IOException e) {
+			LOGGER.error("Failed to send IRC Packet", e);
 		}
-		this.kill();
 	}
 
 	public void write(final String message) {
@@ -69,20 +58,11 @@ public class SocketSender implements Runnable {
 		return !this.buffer.isEmpty();
 	}
 
-	/* package */ void askStop() {
-		this.stopAsked = true;
-	}
-
-	/* package */ boolean isStopped() {
-		return this.stopped;
-	}
-
 	/* package */ void kill() {
 		try {
 			this.writer.close();
 		} catch (final IOException e) {
 			LOGGER.error("Failed to close Writer stream", e);
 		}
-		this.stopped = true;
 	}
 }

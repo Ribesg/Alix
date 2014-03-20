@@ -40,6 +40,11 @@ public abstract class Callback {
 	protected final long timeoutDate;
 
 	/**
+	 * A mutex that can be unlocked later
+	 */
+	protected final Object lock;
+
+	/**
 	 * The Original IRC Packet for which the Callback was set up.
 	 * <p>
 	 * Should be set by the send-like methods to be more user-friendly than
@@ -73,10 +78,11 @@ public abstract class Callback {
 	 * @param timeoutDuration the time after which this Callback should call
 	 *                        {@link #onTimeout} and be destroyed, in
 	 *                        milliseconds
+	 * @param lock            a mutex that can be unlocked later
 	 * @param listenedCodes   listened Commands and Reply codes, can be empty
 	 *                        to listen to everything
 	 */
-	public Callback(final long timeoutDuration, final String... listenedCodes) {
+	public Callback(final long timeoutDuration, final Object lock, final String... listenedCodes) {
 		this.timeoutDuration = timeoutDuration;
 		this.timeoutDate = System.currentTimeMillis() + timeoutDuration;
 		if (listenedCodes.length != 0) {
@@ -85,6 +91,51 @@ public abstract class Callback {
 		} else {
 			this.listenedCodes = null;
 		}
+		this.lock = lock;
+	}
+
+	/**
+	 * Callback constructor with custom timeout.
+	 * <p>
+	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
+	 * <p>
+	 * If listenedCodes is empty, {@link #onIrcPacket(IrcPacket)} will be
+	 * called for every incoming {@link IrcPacket} until the method
+	 * returns true.
+	 * <p>
+	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
+	 *
+	 * @param timeoutDuration the time after which this Callback should call
+	 *                        {@link #onTimeout} and be destroyed, in
+	 *                        milliseconds
+	 * @param listenedCodes   listened Commands and Reply codes, can be empty
+	 *                        to listen to everything
+	 */
+	public Callback(final long timeoutDuration, final String... listenedCodes) {
+		this(timeoutDuration, null, listenedCodes);
+	}
+
+	/**
+	 * Callback constructor with default timeout of 30 seconds and a lock.
+	 * <p>
+	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
+	 * <p>
+	 * If listenedCodes is empty, {@link #onIrcPacket(IrcPacket)} will be
+	 * called for every incoming {@link IrcPacket} until the method
+	 * returns true.
+	 * <p>
+	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
+	 *
+	 * @param lock          a mutex that can be unlocked later
+	 * @param listenedCodes listened Commands and Reply codes, can be empty
+	 *                      to listen to everything
+	 */
+	public Callback(final Object lock, final String... listenedCodes) {
+		this(DEFAULT_TIMEOUT, lock, listenedCodes);
 	}
 
 	/**
@@ -104,7 +155,7 @@ public abstract class Callback {
 	 *                      to listen to everything
 	 */
 	public Callback(final String... listenedCodes) {
-		this(DEFAULT_TIMEOUT, listenedCodes);
+		this(DEFAULT_TIMEOUT, null, listenedCodes);
 	}
 
 	/**
@@ -176,21 +227,22 @@ public abstract class Callback {
 	 * this Callback listens to, or everyone of them if
 	 * {@link #listenedCodes} is null.
 	 * <p>
-	 * If the method returns false, this means that the passed
-	 * {@link IrcPacket} is not the one which was awaited. The Callback will
-	 * continue to receive {@link IrcPacket}s to handle.
+	 * WARNING: This method will be called synchronously! Anything that does
+	 * not need to be sync should be called sync from this method!
 	 * <p>
-	 * If the method returns true, this means that the passed
-	 * {@link IrcPacket} is the awaited one. The Callback will stop receiving
-	 * {@link IrcPacket} and will be destroyed.
+	 * If the method returns false, this means that the Callback want to
+	 * continue to receive {@link IrcPacket}s to handle: its job is not
+	 * done.
+	 * <p>
+	 * If the method returns true, this means that the Callback wants to be
+	 * destroyed: its job is done.
 	 * <p>
 	 * Please @see #onTimeout()
 	 *
 	 * @param packet a received IrcPacket matching {@link #listenedCodes} if
 	 *               defined, any received IrcPacket otherwise
 	 *
-	 * @return true if the received IrcPacket was the one which was awaited,
-	 * false otherwise
+	 * @return true if the Callback's job is done, false otherwise
 	 */
 	public abstract boolean onIrcPacket(final IrcPacket packet);
 
@@ -202,6 +254,17 @@ public abstract class Callback {
 	public void onTimeout() {
 		LOGGER.warn("A Callback timed out! It had a timeout of " + format.format(getTimeoutDuration() / 1000.0) +
 		            " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
+	}
+
+	/**
+	 * Unlock this Callback's mutex, if any
+	 */
+	protected void unlock() {
+		if (this.lock != null) {
+			synchronized (lock) {
+				lock.notifyAll();
+			}
+		}
 	}
 
 }

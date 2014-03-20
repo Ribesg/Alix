@@ -4,7 +4,7 @@ import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
-import fr.ribesg.alix.internal.callback.internal.NamesCallback;
+import fr.ribesg.alix.internal.callback.NamesCallback;
 import org.apache.log4j.Logger;
 
 import java.util.Collection;
@@ -41,6 +41,7 @@ public class Channel extends Receiver {
 	public Channel(final Server server, final String name) {
 		super(server, name);
 		this.password = null;
+		this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	}
 
 	/**
@@ -53,6 +54,7 @@ public class Channel extends Receiver {
 	public Channel(final Server server, final String name, final String password) {
 		super(server, name);
 		this.password = password;
+		this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
 	}
 
 	/**
@@ -173,9 +175,7 @@ public class Channel extends Receiver {
 	 * @param users the Set of Users found on this Channel
 	 */
 	public void setUsers(final Collection<String> users) {
-		if (this.users == null) {
-			this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
-		}
+		this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
 		this.users.addAll(users);
 	}
 
@@ -231,7 +231,8 @@ public class Channel extends Receiver {
 	 * This flag indicates if there is an update running for the Users Set.
 	 * It's also use as a mutex to wait for the update to finish.
 	 */
-	private Boolean updatingUsers = false;
+	private final    Object  updateLock    = new Object();
+	private volatile boolean updatingUsers = false;
 
 	/**
 	 * Update the Users Set.
@@ -240,15 +241,22 @@ public class Channel extends Receiver {
 	 *              false otherwise
 	 */
 	public void updateUsers(final boolean block) {
+		this.clearUsers();
 		if (!updatingUsers) {
 			updatingUsers = true;
 			if (block) {
-				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, updatingUsers));
-				synchronized (updatingUsers) {
-					try {
-						updatingUsers.wait();
-					} catch (final InterruptedException e) {
-						LOGGER.error(e);
+				LOGGER.debug("DEBUG: - Sending IrcPacket");
+				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, updateLock));
+				LOGGER.debug("DEBUG: - Locking on lock");
+				synchronized (updateLock) {
+					while (this.getUsers().isEmpty()) {
+						LOGGER.debug("DEBUG: - Begin while loop");
+						try {
+							updateLock.wait();
+						} catch (final InterruptedException e) {
+							LOGGER.error(e);
+						}
+						LOGGER.debug("DEBUG: - End while loop");
 					}
 				}
 			} else {
@@ -256,11 +264,15 @@ public class Channel extends Receiver {
 			}
 			updatingUsers = false;
 		} else if (block) {
-			synchronized (updatingUsers) {
-				try {
-					updatingUsers.wait();
-				} catch (final InterruptedException e) {
-					LOGGER.error(e);
+			synchronized (updateLock) {
+				while (this.getUsers().isEmpty()) {
+					LOGGER.debug("DEBUG: - Begin while loop");
+					try {
+						updateLock.wait();
+					} catch (final InterruptedException e) {
+						LOGGER.error(e);
+					}
+					LOGGER.debug("DEBUG: - End while loop");
 				}
 			}
 		}
