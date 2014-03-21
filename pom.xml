@@ -145,25 +145,42 @@
 			<plugin>
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.9.1</version>
-				<configuration>
-					<charset>UTF-8</charset>
-					<encoding>UTF-8</encoding>
-					<docencoding>UTF-8</docencoding>
-					<breakiterator>true</breakiterator>
-					<version>true</version>
-					<author>true</author>
-					<keywords>true</keywords>
-					<show>package</show>
-					<stylesheet>java</stylesheet>
-					<stylesheetfile>src/main/javadoc/javadoc.css</stylesheetfile>
-					<outputDirectory>/home/www/jd.ribesg.fr/${project.name}/${project.version}</outputDirectory>
-				</configuration>
 				<executions>
 					<execution>
 						<id>attach-javadocs</id>
 						<goals>
 							<goal>jar</goal>
 						</goals>
+						<configuration>
+							<charset>UTF-8</charset>
+							<encoding>UTF-8</encoding>
+							<docencoding>UTF-8</docencoding>
+							<breakiterator>true</breakiterator>
+							<version>true</version>
+							<author>true</author>
+							<keywords>true</keywords>
+							<show>private</show>
+						</configuration>
+					</execution>
+					<execution>
+						<id>javadoc-site</id>
+						<goals>
+							<goal>javadoc</goal>
+						</goals>
+						<configuration>
+							<charset>UTF-8</charset>
+							<encoding>UTF-8</encoding>
+							<docencoding>UTF-8</docencoding>
+							<breakiterator>true</breakiterator>
+							<version>true</version>
+							<author>true</author>
+							<keywords>true</keywords>
+							<show>protected</show>
+							<stylesheet>java</stylesheet>
+							<stylesheetfile>src/main/javadoc/javadoc.css</stylesheetfile>
+							<outputDirectory>target/javadoc-site</outputDirectory>
+							<destDir>${project.name}/${project.version}</destDir>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
