@@ -156,6 +156,7 @@
 					<show>package</show>
 					<stylesheet>java</stylesheet>
 					<stylesheetfile>src/main/javadoc/javadoc.css</stylesheetfile>
+					<outputDirectory>/home/www/jd.ribesg.fr/${project.name}/${project.version}</outputDirectory>
 				</configuration>
 				<executions>
 					<execution>
