@@ -163,7 +163,7 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>javadoc-site</id>
+						<id>default-cli</id>
 						<goals>
 							<goal>javadoc</goal>
 						</goals>
@@ -178,7 +178,7 @@
 							<show>protected</show>
 							<stylesheet>java</stylesheet>
 							<stylesheetfile>src/main/javadoc/javadoc.css</stylesheetfile>
-							<outputDirectory>target/javadoc-site</outputDirectory>
+							<reportOutputDirectory>/home/www/jd.ribesg.fr/</reportOutputDirectory>
 							<destDir>${project.name}/${project.version}</destDir>
 						</configuration>
 					</execution>
