@@ -3,13 +3,15 @@ import fr.ribesg.alix.api.message.PrivMsgIrcPacket;
 
 /**
  * Represents an entity that can receive Messages on a Server.
+ * <p>
+ * This is extended by {@link Channel} and {@link Source}.
  *
  * @author Ribesg
  */
 public abstract class Receiver {
 
 	/**
-	 * The Server this Receiver belongs to
+	 * The Server this Receiver is known on
 	 */
 	protected final Server server;
 
@@ -30,13 +32,17 @@ public abstract class Receiver {
 	}
 
 	/**
-	 * @return the Server this Receiver belongs to
+	 * Gets the Server this Receiver is known on.
+	 *
+	 * @return the Server this Receiver is known on
 	 */
 	public Server getServer() {
 		return this.server;
 	}
 
 	/**
+	 * Gets the name of this Receiver.
+	 *
 	 * @return the name of this Receiver
 	 */
 	public String getName() {
@@ -46,7 +52,7 @@ public abstract class Receiver {
 	/**
 	 * Sends one or multiple messages to this Receiver.
 	 *
-	 * @param messages messages to send
+	 * @param messages the message or the messages to send to this Receiver
 	 */
 	public void sendMessage(final String... messages) {
 		for (final String message : messages) {

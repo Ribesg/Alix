@@ -37,15 +37,15 @@ public class TestPrefixParser {
 	public static Collection<Object[]> data() {
 		final Collection<Object[]> data = new ArrayList<>();
 		data.add(new Object[] {
-				new Source(DUMMY_SERVER, "Test", null, null, true),
+				new Source(DUMMY_SERVER, "Test", null, null),
 				"Test"
 		});
 		data.add(new Object[] {
-				new Source(DUMMY_SERVER, "irc.esper.net", null, "irc.esper.net", false),
+				new Source(DUMMY_SERVER, "irc.esper.net"),
 				"irc.esper.net"
 		});
 		data.add(new Object[] {
-				new Source(DUMMY_SERVER, "Ribesg", "Ribesg", "ribesg.fr", true),
+				new Source(DUMMY_SERVER, "Ribesg", "Ribesg", "ribesg.fr"),
 				"Ribesg!Ribesg@ribesg.fr"
 		});
 		return data;

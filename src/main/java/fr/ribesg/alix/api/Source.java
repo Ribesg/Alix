@@ -32,7 +32,10 @@ public class Source extends Receiver {
 	 * @param hostName the Host name of the Source
 	 */
 	public Source(final Server server, final String name, final String userName, final String hostName) {
-		this(server, name, userName, hostName, true);
+		super(server, name);
+		this.userName = userName;
+		this.hostName = hostName;
+		this.isUser = true;
 	}
 
 	/**
@@ -42,25 +45,10 @@ public class Source extends Receiver {
 	 * @param hostName the Host name / Name of the Source
 	 */
 	public Source(final Server server, final String hostName) {
-		this(server, hostName, null, hostName, false);
-	}
-
-	/**
-	 * <strong>Please do not use this constructor</strong>
-	 * <p>
-	 * Mainly user for testing the Prefix parser.
-	 *
-	 * @param server   the Server this Source belongs to
-	 * @param name     the name of the Source
-	 * @param userName the User name of the Source
-	 * @param hostName the Host name of the Source
-	 * @param isUser   if this Source is a User
-	 */
-	public Source(final Server server, final String name, final String userName, final String hostName, final boolean isUser) {
-		super(server, name);
-		this.userName = userName;
+		super(server, hostName);
+		this.userName = null;
 		this.hostName = hostName;
-		this.isUser = isUser;
+		this.isUser = false;
 	}
 
 	/**

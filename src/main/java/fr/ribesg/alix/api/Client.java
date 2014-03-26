@@ -87,16 +87,9 @@ public abstract class Client {
 		this.servers = new HashSet<>();
 
 		load();
-
 		connectToServers();
 
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-
-			@Override
-			public void run() {
-				Client.this.kill();
-			}
-		});
+		Runtime.getRuntime().addShutdownHook(new Thread(this::kill));
 	}
 
 	/**
@@ -189,7 +182,8 @@ public abstract class Client {
 	 * After calling this method, the Client will try to
 	 * connect to all servers ({@link #connectToServers()})
 	 *
-	 * @see fr.ribesg.alix.TestClient for example
+	 * @see fr.ribesg.alix.TestClient TestClient class for an example
+	 * implementation
 	 */
 	protected abstract void load();
 
@@ -220,7 +214,7 @@ public abstract class Client {
 	 * Once sockets are opened and everything's fine, the Client
 	 * will automagically try to join known channels.
 	 *
-	 * @see Server#joinChannels()
+	 * @see Server#joinChannels() Joining Channels
 	 */
 	private void connectToServers() {
 		for (final Server server : this.servers) {
@@ -249,7 +243,7 @@ public abstract class Client {
 	 *
 	 * @param server the Server the Client just joined
 	 *
-	 * @see #onClientJoinChannel(Channel) for actions on Channel join
+	 * @see #onClientJoinChannel(Channel) Doing stuff on Channel join
 	 */
 	public void onServerJoined(final Server server) {}
 

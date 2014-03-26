@@ -6,6 +6,7 @@ import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.internal.callback.NamesCallback;
 import fr.ribesg.alix.internal.thread.SimpleCondition;
+import org.apache.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
  * @author Ribesg
  */
 public class Channel extends Receiver {
+
+	private static final Logger LOGGER = Logger.getLogger(Channel.class.getName());
 
 	/**
 	 * The password of this Channel, if any
@@ -63,14 +66,14 @@ public class Channel extends Receiver {
 	}
 
 	/**
-	 * @return the password of this Channel, if any
+	 * @return the password of this Channel, if any, null otherwise
 	 */
 	public String getPassword() {
 		return this.password;
 	}
 
 	/**
-	 * @return the topic of this Channel
+	 * @return the topic of this Channel, if any and if known, null otherwise
 	 */
 	public String getTopic() {
 		return topic;
@@ -87,8 +90,8 @@ public class Channel extends Receiver {
 	}
 
 	/**
-	 * @return the users of this Channel, op being represented as @user
-	 * and voices as +user
+	 * @return the users of this Channel, op being represented as @nickname
+	 * and voices as +nickname
 	 */
 	public Set<String> getUsers() {
 		return users;
@@ -97,7 +100,7 @@ public class Channel extends Receiver {
 	/**
 	 * @return the users of this Channel, without op or voiced prefix
 	 */
-	public Set<String> getUserNames() {
+	public Set<String> getUserNicknames() {
 		final Set<String> res = new HashSet<>();
 		for (final String userName : this.users) {
 			if (userName.startsWith("@") || userName.startsWith("+")) {
