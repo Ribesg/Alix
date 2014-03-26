@@ -9,7 +9,8 @@ public class HelpCommand extends Command {
 
 	public HelpCommand(final CommandManager manager) {
 		super(manager, "help", new String[] {
-				"##<.<command>| [command]> - Get help about a command, or list every commands"
+				"Get help about a command, or list every commands",
+				"Usage: ##<.<command>| [command]>"
 		}, "h");
 	}
 
