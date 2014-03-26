@@ -2,7 +2,7 @@ package fr.ribesg.alix.api.callback;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.internal.thread.CallbackLock;
+import fr.ribesg.alix.internal.thread.SimpleCondition;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -42,7 +42,7 @@ public abstract class Callback {
 	/**
 	 * A mutex that can be unlocked later
 	 */
-	protected final CallbackLock lock;
+	protected final SimpleCondition condition;
 
 	/**
 	 * This Callback's Priority
@@ -84,11 +84,12 @@ public abstract class Callback {
 	 * @param timeoutDuration the time after which this Callback should call
 	 *                        {@link #onTimeout} and be destroyed, in
 	 *                        milliseconds
-	 * @param lock            a mutex that can be unlocked later
+	 * @param condition       a condition to signal when the Callback
+	 *                        execution is done
 	 * @param listenedCodes   listened Commands and Reply codes, can be empty
 	 *                        to listen to everything
 	 */
-	public Callback(final CallbackPriority priority, final long timeoutDuration, final CallbackLock lock, final String... listenedCodes) {
+	public Callback(final CallbackPriority priority, final long timeoutDuration, final SimpleCondition condition, final String... listenedCodes) {
 		this.priority = priority;
 		this.timeoutDuration = timeoutDuration;
 		this.timeoutDate = System.currentTimeMillis() + timeoutDuration;
@@ -98,11 +99,11 @@ public abstract class Callback {
 		} else {
 			this.listenedCodes = null;
 		}
-		this.lock = lock;
+		this.condition = condition;
 	}
 
 	/**
-	 * Constructor without lock.
+	 * Constructor without condition.
 	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -139,16 +140,17 @@ public abstract class Callback {
 	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
 	 *
 	 * @param priority      the priority of this Callback
-	 * @param lock          a mutex that can be unlocked later
+	 * @param condition     a condition to signal when the Callback
+	 *                      execution is done
 	 * @param listenedCodes listened Commands and Reply codes, can be empty
 	 *                      to listen to everything
 	 */
-	public Callback(final CallbackPriority priority, final CallbackLock lock, final String... listenedCodes) {
-		this(priority, DEFAULT_TIMEOUT, lock, listenedCodes);
+	public Callback(final CallbackPriority priority, final SimpleCondition condition, final String... listenedCodes) {
+		this(priority, DEFAULT_TIMEOUT, condition, listenedCodes);
 	}
 
 	/**
-	 * Constructor with default timeout of 30 seconds and without lock.
+	 * Constructor with default timeout of 30 seconds and without condition.
 	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -184,17 +186,18 @@ public abstract class Callback {
 	 * @param timeoutDuration the time after which this Callback should call
 	 *                        {@link #onTimeout} and be destroyed, in
 	 *                        milliseconds
-	 * @param lock            a mutex that can be unlocked later
+	 * @param condition       a condition to signal when the Callback
+	 *                        execution is done
 	 * @param listenedCodes   listened Commands and Reply codes, can be empty
 	 *                        to listen to everything
 	 */
-	public Callback(final long timeoutDuration, final CallbackLock lock, final String... listenedCodes) {
-		this(CallbackPriority.LOW, timeoutDuration, lock, listenedCodes);
+	public Callback(final long timeoutDuration, final SimpleCondition condition, final String... listenedCodes) {
+		this(CallbackPriority.LOW, timeoutDuration, condition, listenedCodes);
 	}
 
 	/**
 	 * Constructor with default {@link CallbackPriority#LOW} priority and
-	 * without lock.
+	 * without condition.
 	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -230,17 +233,18 @@ public abstract class Callback {
 	 * <p>
 	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
 	 *
-	 * @param lock          a mutex that can be unlocked later
+	 * @param condition     a condition to signal when the Callback
+	 *                      execution is done
 	 * @param listenedCodes listened Commands and Reply codes, can be empty
 	 *                      to listen to everything
 	 */
-	public Callback(final CallbackLock lock, final String... listenedCodes) {
-		this(CallbackPriority.LOW, DEFAULT_TIMEOUT, lock, listenedCodes);
+	public Callback(final SimpleCondition condition, final String... listenedCodes) {
+		this(CallbackPriority.LOW, DEFAULT_TIMEOUT, condition, listenedCodes);
 	}
 
 	/**
 	 * Constructor with default {@link CallbackPriority#LOW} priority,
-	 * without lock and with a default timeout of 30 seconds.
+	 * without condition and with a default timeout of 30 seconds.
 	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -359,17 +363,19 @@ public abstract class Callback {
 	 * <p>
 	 * The default implementation is to log a warning message.
 	 */
+	// TODO This should maybe throw an Exception? With list of deadlocked threads maybe?
 	public void onTimeout() {
 		Log.warn("A Callback timed out! It had a timeout of " + format.format(getTimeoutDuration() / 1000.0) +
 		         " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
+		this.done();
 	}
 
 	/**
 	 * Unlock this Callback's mutex, if any
 	 */
-	protected void unlock() {
-		if (this.lock != null) {
-			this.lock.done();
+	public void done() {
+		if (this.condition != null) {
+			this.condition.signalAll();
 		}
 	}
 

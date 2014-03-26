@@ -5,7 +5,7 @@ import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.internal.callback.NamesCallback;
-import fr.ribesg.alix.internal.thread.CallbackLock;
+import fr.ribesg.alix.internal.thread.SimpleCondition;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -202,7 +202,11 @@ public class Channel extends Receiver {
 					final Source user = packet.getPrefixAsSource(this.server);
 					final String channelName = packet.getParameters()[0];
 					if (Channel.this.getName().equals(channelName) && server.getClient().getName().equals(user.getName())) {
-						Channel.this.updateUsers(false);
+						try {
+							Channel.this.updateUsers(false);
+						} catch (final InterruptedException e) {
+							Log.error("Failed to update user list for Channel " + channelName, e);
+						}
 						// TODO Other things to update like topic and modes
 						return true;
 					} else {
@@ -229,8 +233,8 @@ public class Channel extends Receiver {
 	 * This flag indicates if there is an update running for the Users Set.
 	 * It's also use as a mutex to wait for the update to finish.
 	 */
-	private final    CallbackLock updateLock    = new CallbackLock();
-	private volatile boolean      updatingUsers = false;
+	private final    SimpleCondition updateLock    = new SimpleCondition();
+	private volatile boolean         updatingUsers = false;
 
 	/**
 	 * Update the Users Set.
@@ -238,15 +242,15 @@ public class Channel extends Receiver {
 	 * @param block true if the method should block until the update is done,
 	 *              false otherwise
 	 */
-	public void updateUsers(final boolean block) {
+	public void updateUsers(final boolean block) throws InterruptedException {
 		this.clearUsers();
 		if (!updatingUsers) {
 			updatingUsers = true;
 			if (block) {
 				Log.debug("DEBUG: - Sending IrcPacket");
 				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, updateLock));
-				Log.debug("DEBUG: - Locking on lock");
-				updateLock.waitCallback();
+				Log.debug("DEBUG: - Locking on condition");
+				updateLock.await();
 			} else {
 				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this));
 			}
@@ -254,7 +258,7 @@ public class Channel extends Receiver {
 		} else if (block) {
 			while (this.getUsers().isEmpty()) {
 				Log.debug("DEBUG: - Begin while loop");
-				updateLock.waitCallback();
+				updateLock.await();
 				Log.debug("DEBUG: - End while loop");
 			}
 		}

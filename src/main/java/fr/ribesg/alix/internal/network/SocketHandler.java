@@ -61,7 +61,7 @@ public class SocketHandler {
 				break;
 		}
 
-		// Prevent infinite lock on reader.readLine() in SocketReceiver
+		// Prevent infinite condition on reader.readLine() in SocketReceiver
 		this.socket.setSoTimeout(1_000);
 
 		final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), "UTF-8"));
