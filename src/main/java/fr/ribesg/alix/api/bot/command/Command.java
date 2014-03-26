@@ -116,11 +116,11 @@ public abstract class Command {
 		}
 
 		final String commandString = this.toString();
-		this.usage = new String[1 + (usage == null ? 0 : usage.length) + 1 + (this.aliases.length > 0 ? 1 : 0)];
+		this.usage = new String[1 + (usage == null ? 0 : usage.length - 1) + (this.aliases.length > 0 ? 1 : 0)];
 		this.usage[0] = Codes.RED + commandString + " - " + (usage != null && usage.length > 0 ? usage[0] : "");
 		if (usage != null && usage.length > 1) {
-			for (int i = 1; i < usage.length + 1; i++) {
-				this.usage[i] = Codes.RED + " | " + usage[i - 1].replaceAll("##", commandString);
+			for (int i = 1; i < usage.length; i++) {
+				this.usage[i] = Codes.RED + " | " + usage[i].replaceAll("##", commandString);
 			}
 		}
 		if (this.aliases.length > 0) {
