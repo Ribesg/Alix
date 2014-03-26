@@ -4,7 +4,6 @@ import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Receiver;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
-import fr.ribesg.alix.api.bot.util.ArtUtil;
 import fr.ribesg.alix.api.enums.Codes;
 
 import java.util.Set;
@@ -107,26 +106,6 @@ public abstract class Command {
 		}
 		this.manager = manager;
 		this.name = name.toLowerCase();
-		if (usage == null) {
-			this.usage = null;
-		} else {
-			final String prefix = this.toString();
-			final String spacePrefix = ArtUtil.spaces(prefix.length());
-			this.usage = new String[usage.length + 1];
-			if (usage.length > 0) {
-				this.usage[0] = Codes.RED + prefix + usage[0];
-				for (int i = 1; i < usage.length; i++) {
-					this.usage[i] = Codes.RED + spacePrefix + usage[i];
-				}
-			}
-			if (aliases.length > 0) {
-				final StringBuilder aliasesStringBuilder = new StringBuilder(spacePrefix + "Aliases: " + aliases[0]);
-				for (int i = 1; i < aliases.length; i++) {
-					aliasesStringBuilder.append(", ").append(aliases[i]);
-				}
-				this.usage[this.usage.length - 1] = aliasesStringBuilder.toString();
-			}
-		}
 		this.aliases = aliases;
 		this.restricted = restricted;
 		this.allowedNickNames = allowedNickNames;
@@ -134,6 +113,26 @@ public abstract class Command {
 		// Make the aliases lowercase, too
 		for (int i = 0; i < this.aliases.length; i++) {
 			this.aliases[i] = this.aliases[i].toLowerCase();
+		}
+
+		if (usage == null) {
+			this.usage = null;
+		} else {
+			final String commandString = this.toString();
+			this.usage = new String[usage.length + 1 + this.aliases.length > 0 ? 1 : 0];
+			this.usage[0] = Codes.RED + commandString;
+			if (usage.length > 0) {
+				for (int i = 1; i < usage.length + 1; i++) {
+					this.usage[i] = Codes.RED + " | " + usage[i - 1].replaceAll("##", commandString);
+				}
+			}
+			if (this.aliases.length > 0) {
+				final StringBuilder aliasesStringBuilder = new StringBuilder(Codes.RED + " | Aliases: " + this.aliases[0]);
+				for (int i = 1; i < this.aliases.length; i++) {
+					aliasesStringBuilder.append(", ").append(this.aliases[i]);
+				}
+				this.usage[this.usage.length - 1] = aliasesStringBuilder.toString();
+			}
 		}
 	}
 
