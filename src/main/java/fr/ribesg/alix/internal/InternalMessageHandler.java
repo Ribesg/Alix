@@ -5,6 +5,7 @@ import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
+import fr.ribesg.alix.api.callback.CallbackPriority;
 import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
@@ -98,9 +99,10 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 		// Parse the IRC Packet
 		final IrcPacket packet = IrcPacket.parseMessage(packetString);
 
-		// Callback Handler
+		// Callback Handler: High priorities
 		if (this.callbackHandler != null) {
-			this.callbackHandler.handle(packet);
+			this.callbackHandler.handle(CallbackPriority.HIGHEST, packet);
+			this.callbackHandler.handle(CallbackPriority.HIGH, packet);
 		}
 
 		// Raw IRC Packet
@@ -157,6 +159,12 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 		} else {
 			// Reply code not defined by the RFCs
 			Log.warn("Unknown command/reply code: " + packet.getRawCommandString());
+		}
+
+		// Callback Handler: Low priorities
+		if (this.callbackHandler != null) {
+			this.callbackHandler.handle(CallbackPriority.LOW, packet);
+			this.callbackHandler.handle(CallbackPriority.LOWEST, packet);
 		}
 	}
 

@@ -44,6 +44,11 @@ public abstract class Callback {
 	protected final Object lock;
 
 	/**
+	 * This Callback's Priority
+	 */
+	protected final CallbackPriority priority;
+
+	/**
 	 * The Original IRC Packet for which the Callback was set up.
 	 * <p>
 	 * Should be set by the send-like methods to be more user-friendly than
@@ -62,7 +67,108 @@ public abstract class Callback {
 	protected Server server;
 
 	/**
-	 * Main Callback constructor.
+	 * Main Callback constructor with all arguments.
+	 * <p>
+	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
+	 * <p>
+	 * If no argument is passed, {@link #onIrcPacket(IrcPacket)} will be
+	 * called for every incoming {@link IrcPacket} until the method
+	 * returns true.
+	 * <p>
+	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
+	 *
+	 * @param priority        the priority of this Callback
+	 * @param timeoutDuration the time after which this Callback should call
+	 *                        {@link #onTimeout} and be destroyed, in
+	 *                        milliseconds
+	 * @param lock            a mutex that can be unlocked later
+	 * @param listenedCodes   listened Commands and Reply codes, can be empty
+	 *                        to listen to everything
+	 */
+	public Callback(final CallbackPriority priority, final long timeoutDuration, final Object lock, final String... listenedCodes) {
+		this.priority = priority;
+		this.timeoutDuration = timeoutDuration;
+		this.timeoutDate = System.currentTimeMillis() + timeoutDuration;
+		if (listenedCodes.length != 0) {
+			this.listenedCodes = new HashSet<>();
+			Collections.addAll(this.listenedCodes, listenedCodes);
+		} else {
+			this.listenedCodes = null;
+		}
+		this.lock = lock;
+	}
+
+	/**
+	 * Constructor without lock.
+	 * <p>
+	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
+	 * <p>
+	 * If listenedCodes is empty, {@link #onIrcPacket(IrcPacket)} will be
+	 * called for every incoming {@link IrcPacket} until the method
+	 * returns true.
+	 * <p>
+	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
+	 *
+	 * @param priority        the priority of this Callback
+	 * @param timeoutDuration the time after which this Callback should call
+	 *                        {@link #onTimeout} and be destroyed, in
+	 *                        milliseconds
+	 * @param listenedCodes   listened Commands and Reply codes, can be empty
+	 *                        to listen to everything
+	 */
+	public Callback(final CallbackPriority priority, final long timeoutDuration, final String... listenedCodes) {
+		this(priority, timeoutDuration, null, listenedCodes);
+	}
+
+	/**
+	 * Constructor with default timeout of 30 seconds.
+	 * <p>
+	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
+	 * <p>
+	 * If listenedCodes is empty, {@link #onIrcPacket(IrcPacket)} will be
+	 * called for every incoming {@link IrcPacket} until the method
+	 * returns true.
+	 * <p>
+	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
+	 *
+	 * @param priority      the priority of this Callback
+	 * @param lock          a mutex that can be unlocked later
+	 * @param listenedCodes listened Commands and Reply codes, can be empty
+	 *                      to listen to everything
+	 */
+	public Callback(final CallbackPriority priority, final Object lock, final String... listenedCodes) {
+		this(priority, DEFAULT_TIMEOUT, lock, listenedCodes);
+	}
+
+	/**
+	 * Constructor with default timeout of 30 seconds and without lock.
+	 * <p>
+	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
+	 * <p>
+	 * If no argument is passed, {@link #onIrcPacket(IrcPacket)} will be
+	 * called for every incoming {@link IrcPacket} until the method
+	 * returns true.
+	 * <p>
+	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
+	 *
+	 * @param priority      the priority of this Callback
+	 * @param listenedCodes listened Commands and Reply codes, can be empty
+	 *                      to listen to everything
+	 */
+	public Callback(final CallbackPriority priority, final String... listenedCodes) {
+		this(priority, DEFAULT_TIMEOUT, null, listenedCodes);
+	}
+
+	/**
+	 * Constructor with default {@link CallbackPriority#LOW} priority.
 	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -82,19 +188,12 @@ public abstract class Callback {
 	 *                        to listen to everything
 	 */
 	public Callback(final long timeoutDuration, final Object lock, final String... listenedCodes) {
-		this.timeoutDuration = timeoutDuration;
-		this.timeoutDate = System.currentTimeMillis() + timeoutDuration;
-		if (listenedCodes.length != 0) {
-			this.listenedCodes = new HashSet<>();
-			Collections.addAll(this.listenedCodes, listenedCodes);
-		} else {
-			this.listenedCodes = null;
-		}
-		this.lock = lock;
+		this(CallbackPriority.LOW, timeoutDuration, lock, listenedCodes);
 	}
 
 	/**
-	 * Callback constructor with custom timeout.
+	 * Constructor with default {@link CallbackPriority#LOW} priority and
+	 * without lock.
 	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -113,11 +212,12 @@ public abstract class Callback {
 	 *                        to listen to everything
 	 */
 	public Callback(final long timeoutDuration, final String... listenedCodes) {
-		this(timeoutDuration, null, listenedCodes);
+		this(CallbackPriority.LOW, timeoutDuration, null, listenedCodes);
 	}
 
 	/**
-	 * Callback constructor with default timeout of 30 seconds and a lock.
+	 * Constructor with default {@link CallbackPriority#LOW} priority
+	 * and with a default timeout of 30 seconds.
 	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -134,11 +234,12 @@ public abstract class Callback {
 	 *                      to listen to everything
 	 */
 	public Callback(final Object lock, final String... listenedCodes) {
-		this(DEFAULT_TIMEOUT, lock, listenedCodes);
+		this(CallbackPriority.LOW, DEFAULT_TIMEOUT, lock, listenedCodes);
 	}
 
 	/**
-	 * Callback constructor with default timeout of 30 seconds.
+	 * Constructor with default {@link CallbackPriority#LOW} priority,
+	 * without lock and with a default timeout of 30 seconds.
 	 * <p>
 	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
 	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -154,7 +255,7 @@ public abstract class Callback {
 	 *                      to listen to everything
 	 */
 	public Callback(final String... listenedCodes) {
-		this(DEFAULT_TIMEOUT, null, listenedCodes);
+		this(CallbackPriority.LOW, DEFAULT_TIMEOUT, null, listenedCodes);
 	}
 
 	/**
@@ -179,6 +280,13 @@ public abstract class Callback {
 	 */
 	public long getTimeoutDate() {
 		return timeoutDate;
+	}
+
+	/**
+	 * @return this Callback's priority
+	 */
+	public CallbackPriority getPriority() {
+		return priority;
 	}
 
 	/**

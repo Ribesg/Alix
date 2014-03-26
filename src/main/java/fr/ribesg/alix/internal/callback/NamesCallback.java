@@ -40,11 +40,13 @@ public class NamesCallback extends Callback {
 
 	@Override
 	public boolean onIrcPacket(final IrcPacket packet) {
+		Log.debug("DEBUG: Received packet " + packet);
 		String channelName;
 		switch (Reply.getFromCode(packet.getRawCommandString())) {
 			case RPL_NAMREPLY: // A part of the complete Users Set
 				channelName = packet.getParameters()[2];
 				if (this.channel.getName().equals(channelName)) {
+					Log.debug("DEBUG: Handled, adding to the list");
 					final String[] users = packet.getTrail().split(Codes.SP);
 					Collections.addAll(this.users, users);
 				}
@@ -52,6 +54,7 @@ public class NamesCallback extends Callback {
 			case RPL_ENDOFNAMES: // Notification of the End of the Users Set
 				channelName = packet.getParameters()[1];
 				if (this.channel.getName().equals(channelName)) {
+					Log.debug("DEBUG: Handled, unlocking");
 					channel.setUsers(this.users);
 					unlock();
 					return true;

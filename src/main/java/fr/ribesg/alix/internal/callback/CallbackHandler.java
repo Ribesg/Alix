@@ -2,11 +2,16 @@ package fr.ribesg.alix.internal.callback;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.callback.Callback;
+import fr.ribesg.alix.api.callback.CallbackPriority;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -22,9 +27,9 @@ public class CallbackHandler {
 	private static final Comparator<Callback> callbackTimeoutComparator = (a, b) -> Long.compare(a.getTimeoutDate(), b.getTimeoutDate());
 
 	/**
-	 * The registered Callbacks, sorted by closest timeout first.
+	 * The registered Callbacks, per priority, sorted by closest timeout first.
 	 */
-	private final SortedSet<Callback> callbacks;
+	private final Map<CallbackPriority, SortedSet<Callback>> prioritizedCallbacks;
 
 	private final CallbacksCleanerThread cleanerThread;
 
@@ -32,8 +37,13 @@ public class CallbackHandler {
 	 * Main CallbackHandler constructor.
 	 */
 	public CallbackHandler() {
-		this.callbacks = new ConcurrentSkipListSet<>(callbackTimeoutComparator);
-		this.cleanerThread = new CallbacksCleanerThread(this.callbacks);
+		final Map<CallbackPriority, SortedSet<Callback>> map = new EnumMap<>(CallbackPriority.class);
+		map.put(CallbackPriority.HIGHEST, new ConcurrentSkipListSet<>(callbackTimeoutComparator));
+		map.put(CallbackPriority.HIGH, new ConcurrentSkipListSet<>(callbackTimeoutComparator));
+		map.put(CallbackPriority.LOW, new ConcurrentSkipListSet<>(callbackTimeoutComparator));
+		map.put(CallbackPriority.LOWEST, new ConcurrentSkipListSet<>(callbackTimeoutComparator));
+		this.prioritizedCallbacks = Collections.unmodifiableMap(map);
+		this.cleanerThread = new CallbacksCleanerThread(this.prioritizedCallbacks);
 
 		this.cleanerThread.start();
 	}
@@ -56,7 +66,7 @@ public class CallbackHandler {
 	 * @param callback the callback to register
 	 */
 	public void registerCallback(final Callback callback) {
-		this.callbacks.add(callback);
+		this.prioritizedCallbacks.get(callback.getPriority()).add(callback);
 	}
 
 	/**
@@ -64,10 +74,11 @@ public class CallbackHandler {
 	 *
 	 * @param packet the incoming IRC Packet
 	 */
-	public void handle(final IrcPacket packet) {
+	public void handle(final CallbackPriority priority, final IrcPacket packet) {
+		final Set<Callback> callbacks = this.prioritizedCallbacks.get(priority);
 		final String code = packet.getRawCommandString().toUpperCase();
 		final long now = System.currentTimeMillis();
-		final Iterator<Callback> it = this.callbacks.iterator();
+		final Iterator<Callback> it = callbacks.iterator();
 		while (it.hasNext()) {
 			final Callback callback = it.next();
 			if (callback.getTimeoutDate() < now) {
@@ -75,6 +86,7 @@ public class CallbackHandler {
 				it.remove();
 			} else if (callback.listensTo(code)) {
 				if (callback.onIrcPacket(packet)) {
+					Log.debug("DEBUG: Packet handled by a Callback!");
 					it.remove();
 				}
 			}
@@ -91,36 +103,39 @@ public class CallbackHandler {
 		/**
 		 * The callbacks
 		 */
-		private final SortedSet<Callback> callbacks;
+		private final Map<CallbackPriority, SortedSet<Callback>> prioritizedCallbacks;
 
 		/**
 		 * Main CallbacksCleanerThread constructor.
 		 *
-		 * @param callbacks the callbacks to monitor
+		 * @param prioritizedCallbacks the prioritizedCallbacks to monitor
 		 */
-		public CallbacksCleanerThread(final SortedSet<Callback> callbacks) {
+		public CallbacksCleanerThread(final Map<CallbackPriority, SortedSet<Callback>> prioritizedCallbacks) {
 			super("Cb-Cleaner", 1_000);
-			this.callbacks = callbacks;
+			this.prioritizedCallbacks = prioritizedCallbacks;
 		}
 
 		/**
-		 * Will check the callbacks Set every second
+		 * Will check the prioritizedCallbacks Set every second
 		 */
 		@Override
 		public void work() {
-			if (!this.callbacks.isEmpty()) {
-				final long now = System.currentTimeMillis();
-				final Iterator<Callback> it = this.callbacks.iterator();
-				boolean removedCallback;
-				do {
-					removedCallback = false;
-					final Callback callback = it.next();
-					if (callback.getTimeoutDate() < now) {
-						callback.onTimeout();
-						it.remove();
-						removedCallback = true;
-					}
-				} while (it.hasNext() && removedCallback);
+			for (final CallbackPriority priority : this.prioritizedCallbacks.keySet()) {
+				final Set<Callback> callbacks = this.prioritizedCallbacks.get(priority);
+				if (!this.prioritizedCallbacks.isEmpty()) {
+					final long now = System.currentTimeMillis();
+					final Iterator<Callback> it = callbacks.iterator();
+					boolean removedCallback;
+					do {
+						removedCallback = false;
+						final Callback callback = it.next();
+						if (callback.getTimeoutDate() < now) {
+							callback.onTimeout();
+							it.remove();
+							removedCallback = true;
+						}
+					} while (it.hasNext() && removedCallback);
+				}
 			}
 		}
 	}
