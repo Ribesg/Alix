@@ -1,7 +1,7 @@
 package fr.ribesg.alix.internal.network;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
-import org.apache.log4j.Logger;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -15,8 +15,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * @author Ribesg
  */
 public class SocketSender extends AbstractRepeatingThread {
-
-	private static final Logger LOGGER = Logger.getLogger(SocketSender.class.getName());
 
 	private final BufferedWriter writer;
 	private final Deque<String>  buffer;
@@ -35,14 +33,14 @@ public class SocketSender extends AbstractRepeatingThread {
 		String mes;
 		try {
 			while ((mes = this.buffer.poll()) != null) {
-				LOGGER.debug(server.getUrl() + ':' + server.getPort() +
-				             " - SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
+				Log.debug(server.getUrl() + ':' + server.getPort() +
+				          " - SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
 				this.writer.write(mes);
 				this.writer.flush();
 				Thread.sleep(1_000);
 			}
 		} catch (final IOException e) {
-			LOGGER.error("Failed to send IRC Packet", e);
+			Log.error("Failed to send IRC Packet", e);
 		}
 	}
 
@@ -62,7 +60,7 @@ public class SocketSender extends AbstractRepeatingThread {
 		try {
 			this.writer.close();
 		} catch (final IOException e) {
-			LOGGER.error("Failed to close Writer stream", e);
+			Log.error("Failed to close Writer stream", e);
 		}
 	}
 }

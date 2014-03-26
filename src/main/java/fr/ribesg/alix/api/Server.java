@@ -8,7 +8,6 @@ import fr.ribesg.alix.api.message.QuitIrcPacket;
 import fr.ribesg.alix.api.message.UserIrcPacket;
 import fr.ribesg.alix.api.network.ssl.SSLType;
 import fr.ribesg.alix.internal.network.SocketHandler;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -19,8 +18,6 @@ import java.util.Map;
  * @author Ribesg
  */
 public class Server {
-
-	private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
 
 	/**
 	 * A useful reference to the Client
@@ -292,7 +289,7 @@ public class Server {
 	 * Note: The Client is <strong>not</strong> connected directly after this method call.
 	 */
 	public void connect() {
-		LOGGER.info("Connecting to " + this.url + ":" + this.port + "...");
+		Log.info("Connecting to " + this.url + ":" + this.port + "...");
 
 		if (connected) {
 			throw new IllegalStateException("Already Connected!");
@@ -301,14 +298,14 @@ public class Server {
 			try {
 				this.socket.connect();
 			} catch (final IOException e) {
-				LOGGER.error("Failed to connect to Server", e);
+				Log.error("Failed to connect to Server", e);
 				return;
 			}
 			this.socket.write(new NickIrcPacket(getClientNick()));
 			this.socket.write(new UserIrcPacket(getClientNick(), client.getName()));
 
-			LOGGER.info("Successfully connected to " + this.url + ":" + this.port);
-			LOGGER.info("Waiting for Welcome message...");
+			Log.info("Successfully connected to " + this.url + ":" + this.port);
+			Log.info("Waiting for Welcome message...");
 		}
 	}
 
@@ -331,7 +328,7 @@ public class Server {
 	 * @param message the quit message to send to the server
 	 */
 	public void disconnect(String message) {
-		LOGGER.info("Disconnecting from " + this.url + ":" + this.port + "...");
+		Log.info("Disconnecting from " + this.url + ":" + this.port + "...");
 
 		if (!connected) {
 			throw new IllegalStateException("Not Connected!");
@@ -360,7 +357,7 @@ public class Server {
 			this.joined = false;
 			this.leaving = false;
 
-			LOGGER.info("Successfully disconnected from " + this.url + ":" + this.port);
+			Log.info("Successfully disconnected from " + this.url + ":" + this.port);
 		}
 	}
 

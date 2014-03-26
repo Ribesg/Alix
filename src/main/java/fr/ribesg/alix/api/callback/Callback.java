@@ -1,7 +1,7 @@
 package fr.ribesg.alix.api.callback;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
-import org.apache.log4j.Logger;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -14,7 +14,6 @@ import java.util.Set;
  */
 public abstract class Callback {
 
-	private static final Logger       LOGGER = Logger.getLogger(Callback.class.getName());
 	private static final NumberFormat format = new DecimalFormat("#.##");
 
 	/**
@@ -252,8 +251,8 @@ public abstract class Callback {
 	 * The default implementation is to log a warning message.
 	 */
 	public void onTimeout() {
-		LOGGER.warn("A Callback timed out! It had a timeout of " + format.format(getTimeoutDuration() / 1000.0) +
-		            " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
+		Log.warn("A Callback timed out! It had a timeout of " + format.format(getTimeoutDuration() / 1000.0) +
+		         " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
 	}
 
 	/**

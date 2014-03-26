@@ -1,8 +1,8 @@
 package fr.ribesg.alix.internal.network;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.internal.InternalMessageHandler;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,8 +14,6 @@ import java.io.IOException;
  * @author Ribesg
  */
 public class SocketReceiver extends AbstractRepeatingThread {
-
-	private static final Logger LOGGER = Logger.getLogger(SocketReceiver.class.getName());
 
 	private final BufferedReader reader;
 
@@ -34,7 +32,7 @@ public class SocketReceiver extends AbstractRepeatingThread {
 		String mes;
 		try {
 			while ((mes = this.reader.readLine()) != null) {
-				LOGGER.debug(server.getUrl() + ':' + server.getPort() + " - RECEIVED MESSAGE: '" + mes + "'");
+				Log.debug(server.getUrl() + ':' + server.getPort() + " - RECEIVED MESSAGE: '" + mes + "'");
 				this.packetHandler.queue(this.server, mes);
 			}
 		} catch (final IOException ignored) {
@@ -46,7 +44,7 @@ public class SocketReceiver extends AbstractRepeatingThread {
 		try {
 			this.reader.close();
 		} catch (final IOException e) {
-			LOGGER.error("Failed to close Reader stream", e);
+			Log.error("Failed to close Reader stream", e);
 		}
 	}
 }

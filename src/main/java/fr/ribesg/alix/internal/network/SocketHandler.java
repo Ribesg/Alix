@@ -1,10 +1,10 @@
 package fr.ribesg.alix.internal.network;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.network.ssl.SSLType;
 import fr.ribesg.alix.internal.InternalMessageHandler;
 import fr.ribesg.alix.internal.network.ssl.SSLSocketFactory;
-import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -20,8 +20,6 @@ import java.net.Socket;
  * @author Ribesg
  */
 public class SocketHandler {
-
-	private final Logger LOGGER = Logger.getLogger(SocketHandler.class.getName());
 
 	private final String  url;
 	private final int     port;
@@ -113,25 +111,25 @@ public class SocketHandler {
 		try {
 			this.socketReceiver.join();
 		} catch (final InterruptedException e) {
-			LOGGER.error("Failed to join on SocketReceiver", e);
+			Log.error("Failed to join on SocketReceiver", e);
 		}
 
 		try {
 			this.socketSender.join();
 		} catch (final InterruptedException e) {
-			LOGGER.error("Failed to join on SocketSender", e);
+			Log.error("Failed to join on SocketSender", e);
 		}
 
 		try {
 			this.handler.join();
 		} catch (final InterruptedException e) {
-			LOGGER.error("Failed to join on InternalMessageHandler", e);
+			Log.error("Failed to join on InternalMessageHandler", e);
 		}
 
 		try {
 			this.socket.close();
 		} catch (final IOException e) {
-			LOGGER.error("Failed to close Socket", e);
+			Log.error("Failed to close Socket", e);
 		}
 	}
 }

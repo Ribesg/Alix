@@ -1,10 +1,10 @@
 package fr.ribesg.alix.internal.callback;
 import fr.ribesg.alix.api.Channel;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
-import org.apache.log4j.Logger;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,8 +17,6 @@ import java.util.Set;
  * Channel properly.
  */
 public class NamesCallback extends Callback {
-
-	private static final Logger LOGGER = Logger.getLogger(NamesCallback.class.getName());
 
 	private static final String[] LISTENED_CODES = new String[] {
 			Reply.RPL_NAMREPLY.getIntCodeAsString(),
@@ -67,7 +65,7 @@ public class NamesCallback extends Callback {
 
 	@Override
 	public void onTimeout() {
-		LOGGER.error("NAMES Command timed out! The users list of Channel " + this.channel.getName() + " has been emptied!");
+		Log.error("NAMES Command timed out! The users list of Channel " + this.channel.getName() + " has been emptied!");
 		channel.clearUsers();
 		unlock();
 	}

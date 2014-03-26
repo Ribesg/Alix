@@ -1,6 +1,6 @@
 package fr.ribesg.alix;
 
-import org.apache.log4j.Logger;
+import fr.ribesg.alix.api.Log;
 
 /**
  * Just a class used for quick tools like pausing a Thread
@@ -9,8 +9,6 @@ import org.apache.log4j.Logger;
  * @author Ribesg
  */
 public class Tools {
-
-	private final static Logger LOGGER = Logger.getLogger(Tools.class.getName());
 
 	/**
 	 * Pauses the calling Thread for the provided amount of
@@ -22,7 +20,7 @@ public class Tools {
 		try {
 			Thread.sleep(millis);
 		} catch (final InterruptedException e) {
-			LOGGER.error(e.getMessage(), e);
+			Log.error(e.getMessage(), e);
 		}
 	}
 }

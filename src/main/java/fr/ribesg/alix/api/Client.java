@@ -21,11 +21,6 @@ import java.util.concurrent.Executors;
 public abstract class Client {
 
 	/**
-	 * This class Logger
-	 */
-	private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
-
-	/**
 	 * The Client's thread pool. This thread pool is used for every single
 	 * asynchronous need of the Client. You can, and you are encouraged to
 	 * use it.
@@ -110,24 +105,24 @@ public abstract class Client {
 	 * This method will try to disconnect from servers and will kill tasks.
 	 */
 	public void kill() {
-		LOGGER.debug("Killing Client...");
+		Log.debug("Killing Client...");
 		servers.stream().filter(Server::isConnected).forEach(server -> {
-			LOGGER.debug("- Disconnecting from " + server.getUrl() + ":" + server.getPort() + "...");
+			Log.debug("- Disconnecting from " + server.getUrl() + ":" + server.getPort() + "...");
 			server.disconnect();
 		});
 		for (final Server server : servers) {
 			while (server.isConnected()) {
 				Tools.pause(50);
 			}
-			LOGGER.debug("- Disconnected from " + server.getUrl() + ":" + server.getPort() + "!");
+			Log.debug("- Disconnected from " + server.getUrl() + ":" + server.getPort() + "!");
 		}
 		this.pingPongTask.askStop();
 		try {
-			LOGGER.debug("Stopping PingPongTask Thread...");
+			Log.debug("Stopping PingPongTask Thread...");
 			this.pingPongTask.join();
 		} catch (final InterruptedException ignored) {}
 
-		LOGGER.info("Exiting.");
+		Log.info("Exiting.");
 		System.exit(0);
 	}
 

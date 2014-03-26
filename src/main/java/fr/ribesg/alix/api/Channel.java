@@ -5,7 +5,6 @@ import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.internal.callback.NamesCallback;
-import org.apache.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,8 +19,6 @@ import java.util.stream.Collectors;
  * @author Ribesg
  */
 public class Channel extends Receiver {
-
-	private static final Logger LOGGER = Logger.getLogger(Channel.class.getName());
 
 	/**
 	 * The password of this Channel, if any
@@ -245,18 +242,18 @@ public class Channel extends Receiver {
 		if (!updatingUsers) {
 			updatingUsers = true;
 			if (block) {
-				LOGGER.debug("DEBUG: - Sending IrcPacket");
+				Log.debug("DEBUG: - Sending IrcPacket");
 				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, updateLock));
-				LOGGER.debug("DEBUG: - Locking on lock");
+				Log.debug("DEBUG: - Locking on lock");
 				synchronized (updateLock) {
 					while (this.getUsers().isEmpty()) {
-						LOGGER.debug("DEBUG: - Begin while loop");
+						Log.debug("DEBUG: - Begin while loop");
 						try {
 							updateLock.wait();
 						} catch (final InterruptedException e) {
-							LOGGER.error(e);
+							Log.error(e);
 						}
-						LOGGER.debug("DEBUG: - End while loop");
+						Log.debug("DEBUG: - End while loop");
 					}
 				}
 			} else {
@@ -266,13 +263,13 @@ public class Channel extends Receiver {
 		} else if (block) {
 			synchronized (updateLock) {
 				while (this.getUsers().isEmpty()) {
-					LOGGER.debug("DEBUG: - Begin while loop");
+					Log.debug("DEBUG: - Begin while loop");
 					try {
 						updateLock.wait();
 					} catch (final InterruptedException e) {
-						LOGGER.error(e);
+						Log.error(e);
 					}
-					LOGGER.debug("DEBUG: - End while loop");
+					Log.debug("DEBUG: - End while loop");
 				}
 			}
 		}

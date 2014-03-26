@@ -1,9 +1,9 @@
 package fr.ribesg.alix.internal.callback;
 import fr.ribesg.alix.api.Client;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
-import org.apache.log4j.Logger;
 
 import java.util.Comparator;
 import java.util.Iterator;
@@ -14,8 +14,6 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * This class handles Callbacks.
  */
 public class CallbackHandler {
-
-	private static final Logger LOGGER = Logger.getLogger(CallbackHandler.class.getName());
 
 	/**
 	 * Comparator used to create SortedSets of Callbacks sorted by closest
@@ -48,7 +46,7 @@ public class CallbackHandler {
 		try {
 			this.cleanerThread.join();
 		} catch (final InterruptedException e) {
-			LOGGER.error(e);
+			Log.error(e);
 		}
 	}
 
@@ -101,7 +99,7 @@ public class CallbackHandler {
 		 * @param callbacks the callbacks to monitor
 		 */
 		public CallbacksCleanerThread(final SortedSet<Callback> callbacks) {
-			super("Cb-Cleaner",1_000);
+			super("Cb-Cleaner", 1_000);
 			this.callbacks = callbacks;
 		}
 

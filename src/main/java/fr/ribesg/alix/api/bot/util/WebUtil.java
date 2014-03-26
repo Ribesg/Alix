@@ -1,5 +1,5 @@
 package fr.ribesg.alix.api.bot.util;
-import org.apache.log4j.Logger;
+import fr.ribesg.alix.api.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -13,8 +13,6 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class WebUtil {
-
-	private final static Logger LOG = Logger.getLogger(WebUtil.class.getName());
 
 	private static final String URL_SHORTENER_URL = "http://is.gd/create.php?format=simple&url=";
 
@@ -114,14 +112,13 @@ public class WebUtil {
 	 * @throws IOException if something fails
 	 */
 	public static String getString(final String urlString, final int timeOut) throws IOException {
-		LOG.debug("Getting page " + urlString + " ...");
+		Log.debug("Getting page " + urlString + " ...");
 
 		final URL url = new URL(urlString);
 
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-		connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, " + "like Gecko) Chrome/23.0.1271.95 Safari/537.11"
-		                             );
+		connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 
 		connection.setConnectTimeout(timeOut);
 		connection.setReadTimeout(timeOut);
@@ -135,7 +132,7 @@ public class WebUtil {
 				buffer.append('\n');
 			}
 
-			LOG.debug("Done getting page " + urlString + " !");
+			Log.debug("Done getting page " + urlString + " !");
 			return buffer.toString();
 		}
 	}

@@ -2,6 +2,7 @@ package fr.ribesg.alix.internal;
 
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.enums.Command;
@@ -11,7 +12,6 @@ import fr.ribesg.alix.api.message.PongIrcPacket;
 import fr.ribesg.alix.internal.callback.CallbackHandler;
 import fr.ribesg.alix.internal.network.ReceivedPacket;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
-import org.apache.log4j.Logger;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -30,8 +30,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author Ribesg
  */
 public class InternalMessageHandler extends AbstractRepeatingThread {
-
-	private static final Logger LOGGER = Logger.getLogger(InternalMessageHandler.class.getName());
 
 	/**
 	 * A reference to the Client is always nice to have.
@@ -93,7 +91,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	 */
 	public void handleMessage(final Server server, final String packetString) {
 
-		LOGGER.debug("DEBUG: Handling Packet " + packetString);
+		Log.debug("DEBUG: Handling Packet " + packetString);
 
 		server.setJoined(true);
 
@@ -158,7 +156,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 			}
 		} else {
 			// Reply code not defined by the RFCs
-			LOGGER.warn("Unknown command/reply code: " + packet.getRawCommandString());
+			Log.warn("Unknown command/reply code: " + packet.getRawCommandString());
 		}
 	}
 
