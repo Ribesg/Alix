@@ -119,7 +119,7 @@ public abstract class Command {
 			this.usage = null;
 		} else {
 			final String commandString = this.toString();
-			this.usage = new String[usage.length + 1 + this.aliases.length > 0 ? 1 : 0];
+			this.usage = new String[usage.length + 1 + (this.aliases.length > 0 ? 1 : 0)];
 			this.usage[0] = Codes.RED + commandString;
 			if (usage.length > 0) {
 				for (int i = 1; i < usage.length + 1; i++) {
