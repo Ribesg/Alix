@@ -110,7 +110,7 @@ public abstract class Command {
 		if (usage == null) {
 			this.usage = null;
 		} else {
-			final String prefix = this.toString() + ' ';
+			final String prefix = this.toString();
 			final String spacePrefix = ArtUtil.spaces(prefix.length());
 			this.usage = new String[usage.length + 1];
 			if (usage.length > 0) {

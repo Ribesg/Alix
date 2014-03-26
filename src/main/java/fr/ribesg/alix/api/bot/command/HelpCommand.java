@@ -8,7 +8,7 @@ import fr.ribesg.alix.api.enums.Codes;
 public class HelpCommand extends Command {
 
 	public HelpCommand(final CommandManager manager) {
-		super(manager, "help", new String[] {"[command] - Get help about a command, or list every commands"}, "h");
+		super(manager, "help", new String[] {"<.| >[command] - Get help about a command, or list every commands"}, "h");
 	}
 
 	@Override
