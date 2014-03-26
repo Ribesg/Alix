@@ -203,7 +203,7 @@ public class Channel extends Receiver {
 				public boolean onIrcPacket(final IrcPacket packet) {
 					final Source user = packet.getPrefixAsSource(this.server);
 					final String channelName = packet.getParameters()[0];
-					if (getName().equals(channelName) && server.getClient().getName().equals(user.getName())) {
+					if (Channel.this.getName().equals(channelName) && server.getClient().getName().equals(user.getName())) {
 						Channel.this.updateUsers(false);
 						// TODO Other things to update like topic and modes
 						return true;

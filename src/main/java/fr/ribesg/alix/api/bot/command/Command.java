@@ -112,12 +112,19 @@ public abstract class Command {
 		} else {
 			final String prefix = this.toString() + ' ';
 			final String spacePrefix = ArtUtil.spaces(prefix.length());
-			this.usage = new String[usage.length];
+			this.usage = new String[usage.length + 1];
 			if (usage.length > 0) {
 				this.usage[0] = Codes.RED + prefix + usage[0];
 				for (int i = 1; i < usage.length; i++) {
 					this.usage[i] = Codes.RED + spacePrefix + usage[i];
 				}
+			}
+			if (aliases.length > 0) {
+				final StringBuilder aliasesStringBuilder = new StringBuilder(spacePrefix + "Aliases: " + aliases[0]);
+				for (int i = 1; i < aliases.length; i++) {
+					aliasesStringBuilder.append(", ").append(aliases[i]);
+				}
+				this.usage[this.usage.length - 1] = aliasesStringBuilder.toString();
 			}
 		}
 		this.aliases = aliases;
