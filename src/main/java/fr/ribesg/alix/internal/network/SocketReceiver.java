@@ -23,7 +23,7 @@ public class SocketReceiver extends AbstractRepeatingThread {
 	private final InternalMessageHandler packetHandler;
 
 	/* package */ SocketReceiver(final Server server, final BufferedReader reader, final InternalMessageHandler packetHandler) {
-		super(10);
+		super("S-Receiver", 10);
 		this.reader = reader;
 		this.server = server;
 		this.packetHandler = packetHandler;

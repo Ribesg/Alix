@@ -15,9 +15,11 @@ public abstract class AbstractRepeatingThread extends Thread {
 	/**
 	 * This is the main AbstractRepeatingThread constructor.
 	 *
+	 * @param name     the name of this Thread
 	 * @param loopTime the delay between each call to {@link #work()}
 	 */
-	public AbstractRepeatingThread(final int loopTime) {
+	public AbstractRepeatingThread(final String name, final int loopTime) {
+		super(name);
 		this.loopTime = loopTime;
 	}
 

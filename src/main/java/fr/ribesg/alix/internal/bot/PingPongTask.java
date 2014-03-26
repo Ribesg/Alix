@@ -20,7 +20,7 @@ public class PingPongTask extends AbstractRepeatingThread {
 	private final Client client;
 
 	public PingPongTask(final Client client) {
-		super(120_000);
+		super("PingPong  ",120_000);
 		this.client = client;
 	}
 

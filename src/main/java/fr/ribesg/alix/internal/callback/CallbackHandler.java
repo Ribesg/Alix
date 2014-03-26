@@ -101,7 +101,7 @@ public class CallbackHandler {
 		 * @param callbacks the callbacks to monitor
 		 */
 		public CallbacksCleanerThread(final SortedSet<Callback> callbacks) {
-			super(1_000);
+			super("Cb-Cleaner",1_000);
 			this.callbacks = callbacks;
 		}
 

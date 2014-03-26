@@ -24,7 +24,7 @@ public class SocketSender extends AbstractRepeatingThread {
 	private final Server server;
 
 	/* package */ SocketSender(final Server server, final BufferedWriter writer) {
-		super(50);
+		super("S-Sender  ", 50);
 		this.writer = writer;
 		this.buffer = new ConcurrentLinkedDeque<>();
 		this.server = server;

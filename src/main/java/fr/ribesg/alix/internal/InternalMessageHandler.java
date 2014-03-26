@@ -55,7 +55,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	 * @param client the Client this Handler relates to
 	 */
 	public InternalMessageHandler(final Client client) {
-		super(50);
+		super("MsgHandler", 50);
 		this.client = client;
 		this.packetBuffer = new ConcurrentLinkedQueue<>();
 	}
