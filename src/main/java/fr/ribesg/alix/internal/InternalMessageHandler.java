@@ -172,12 +172,16 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 		// Workaround for IRCds using the trail as parameter (Unreal)
 		final String channelName = packet.getParameters().length > 0 ? packet.getParameters()[0] : packet.getTrail();
 		final Channel channel = server.getChannel(channelName);
+		if (channel == null) {
+			server.addChannel(channelName);
+		}
 		final Source source = packet.getPrefix() == null ? null : packet.getPrefixAsSource(server);
 		if (source == null || source.getName().equals(server.getClientNick())) {
 			if (isJoin) {
 				client.onClientJoinChannel(channel);
 			} else {
 				client.onClientPartChannel(channel);
+				server.removeChannel(channelName);
 			}
 		} else {
 			if (isJoin) {
@@ -198,6 +202,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 		final String reason = packet.getTrail();
 		if (server.getClientNick().equals(who)) {
 			client.onClientKickedFromChannel(channel, source, reason);
+			server.removeChannel(channelName);
 		} else {
 			// TODO Remove user from users list
 			client.onUserKickedFromChannel(channel, source, reason);
