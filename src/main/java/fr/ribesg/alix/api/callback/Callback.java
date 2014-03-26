@@ -2,6 +2,7 @@ package fr.ribesg.alix.api.callback;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.internal.thread.CallbackLock;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -41,7 +42,7 @@ public abstract class Callback {
 	/**
 	 * A mutex that can be unlocked later
 	 */
-	protected final Object lock;
+	protected final CallbackLock lock;
 
 	/**
 	 * This Callback's Priority
@@ -87,7 +88,7 @@ public abstract class Callback {
 	 * @param listenedCodes   listened Commands and Reply codes, can be empty
 	 *                        to listen to everything
 	 */
-	public Callback(final CallbackPriority priority, final long timeoutDuration, final Object lock, final String... listenedCodes) {
+	public Callback(final CallbackPriority priority, final long timeoutDuration, final CallbackLock lock, final String... listenedCodes) {
 		this.priority = priority;
 		this.timeoutDuration = timeoutDuration;
 		this.timeoutDate = System.currentTimeMillis() + timeoutDuration;
@@ -142,7 +143,7 @@ public abstract class Callback {
 	 * @param listenedCodes listened Commands and Reply codes, can be empty
 	 *                      to listen to everything
 	 */
-	public Callback(final CallbackPriority priority, final Object lock, final String... listenedCodes) {
+	public Callback(final CallbackPriority priority, final CallbackLock lock, final String... listenedCodes) {
 		this(priority, DEFAULT_TIMEOUT, lock, listenedCodes);
 	}
 
@@ -187,7 +188,7 @@ public abstract class Callback {
 	 * @param listenedCodes   listened Commands and Reply codes, can be empty
 	 *                        to listen to everything
 	 */
-	public Callback(final long timeoutDuration, final Object lock, final String... listenedCodes) {
+	public Callback(final long timeoutDuration, final CallbackLock lock, final String... listenedCodes) {
 		this(CallbackPriority.LOW, timeoutDuration, lock, listenedCodes);
 	}
 
@@ -233,7 +234,7 @@ public abstract class Callback {
 	 * @param listenedCodes listened Commands and Reply codes, can be empty
 	 *                      to listen to everything
 	 */
-	public Callback(final Object lock, final String... listenedCodes) {
+	public Callback(final CallbackLock lock, final String... listenedCodes) {
 		this(CallbackPriority.LOW, DEFAULT_TIMEOUT, lock, listenedCodes);
 	}
 
@@ -368,9 +369,7 @@ public abstract class Callback {
 	 */
 	protected void unlock() {
 		if (this.lock != null) {
-			synchronized (lock) {
-				lock.notifyAll();
-			}
+			this.lock.done();
 		}
 	}
 

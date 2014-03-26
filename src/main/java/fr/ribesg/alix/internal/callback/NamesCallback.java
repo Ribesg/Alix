@@ -5,6 +5,7 @@ import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.internal.thread.CallbackLock;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,7 +33,7 @@ public class NamesCallback extends Callback {
 		this.users = new HashSet<>();
 	}
 
-	public NamesCallback(final Channel channel, final Object lock) {
+	public NamesCallback(final Channel channel, final CallbackLock lock) {
 		super(lock, LISTENED_CODES);
 		this.channel = channel;
 		this.users = new HashSet<>();

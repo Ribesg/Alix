@@ -5,6 +5,7 @@ import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.internal.callback.NamesCallback;
+import fr.ribesg.alix.internal.thread.CallbackLock;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -228,8 +229,8 @@ public class Channel extends Receiver {
 	 * This flag indicates if there is an update running for the Users Set.
 	 * It's also use as a mutex to wait for the update to finish.
 	 */
-	private final    Object  updateLock    = new Object();
-	private volatile boolean updatingUsers = false;
+	private final    CallbackLock updateLock    = new CallbackLock();
+	private volatile boolean      updatingUsers = false;
 
 	/**
 	 * Update the Users Set.
@@ -245,32 +246,16 @@ public class Channel extends Receiver {
 				Log.debug("DEBUG: - Sending IrcPacket");
 				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, updateLock));
 				Log.debug("DEBUG: - Locking on lock");
-				synchronized (updateLock) {
-					while (this.getUsers().isEmpty()) {
-						Log.debug("DEBUG: - Begin while loop");
-						try {
-							updateLock.wait();
-						} catch (final InterruptedException e) {
-							Log.error(e);
-						}
-						Log.debug("DEBUG: - End while loop");
-					}
-				}
+				updateLock.waitCallback();
 			} else {
 				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this));
 			}
 			updatingUsers = false;
 		} else if (block) {
-			synchronized (updateLock) {
-				while (this.getUsers().isEmpty()) {
-					Log.debug("DEBUG: - Begin while loop");
-					try {
-						updateLock.wait();
-					} catch (final InterruptedException e) {
-						Log.error(e);
-					}
-					Log.debug("DEBUG: - End while loop");
-				}
+			while (this.getUsers().isEmpty()) {
+				Log.debug("DEBUG: - Begin while loop");
+				updateLock.waitCallback();
+				Log.debug("DEBUG: - End while loop");
 			}
 		}
 	}

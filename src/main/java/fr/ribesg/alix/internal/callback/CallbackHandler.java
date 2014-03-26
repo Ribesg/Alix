@@ -7,13 +7,11 @@ import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * This class handles Callbacks.
@@ -21,15 +19,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class CallbackHandler {
 
 	/**
-	 * Comparator used to create SortedSets of Callbacks sorted by closest
-	 * timeout first.
-	 */
-	private static final Comparator<Callback> callbackTimeoutComparator = (a, b) -> Long.compare(a.getTimeoutDate(), b.getTimeoutDate());
-
-	/**
 	 * The registered Callbacks, per priority, sorted by closest timeout first.
 	 */
-	private final Map<CallbackPriority, SortedSet<Callback>> prioritizedCallbacks;
+	private final Map<CallbackPriority, Queue<Callback>> prioritizedCallbacks;
 
 	private final CallbacksCleanerThread cleanerThread;
 
@@ -37,11 +29,11 @@ public class CallbackHandler {
 	 * Main CallbackHandler constructor.
 	 */
 	public CallbackHandler() {
-		final Map<CallbackPriority, SortedSet<Callback>> map = new EnumMap<>(CallbackPriority.class);
-		map.put(CallbackPriority.HIGHEST, new ConcurrentSkipListSet<>(callbackTimeoutComparator));
-		map.put(CallbackPriority.HIGH, new ConcurrentSkipListSet<>(callbackTimeoutComparator));
-		map.put(CallbackPriority.LOW, new ConcurrentSkipListSet<>(callbackTimeoutComparator));
-		map.put(CallbackPriority.LOWEST, new ConcurrentSkipListSet<>(callbackTimeoutComparator));
+		final Map<CallbackPriority, Queue<Callback>> map = new EnumMap<>(CallbackPriority.class);
+		map.put(CallbackPriority.HIGHEST, new ConcurrentLinkedDeque<>());
+		map.put(CallbackPriority.HIGH, new ConcurrentLinkedDeque<>());
+		map.put(CallbackPriority.LOW, new ConcurrentLinkedDeque<>());
+		map.put(CallbackPriority.LOWEST, new ConcurrentLinkedDeque<>());
 		this.prioritizedCallbacks = Collections.unmodifiableMap(map);
 		this.cleanerThread = new CallbacksCleanerThread(this.prioritizedCallbacks);
 
@@ -75,7 +67,7 @@ public class CallbackHandler {
 	 * @param packet the incoming IRC Packet
 	 */
 	public void handle(final CallbackPriority priority, final IrcPacket packet) {
-		final Set<Callback> callbacks = this.prioritizedCallbacks.get(priority);
+		final Iterable<Callback> callbacks = this.prioritizedCallbacks.get(priority);
 		final String code = packet.getRawCommandString().toUpperCase();
 		final long now = System.currentTimeMillis();
 		final Iterator<Callback> it = callbacks.iterator();
@@ -103,14 +95,14 @@ public class CallbackHandler {
 		/**
 		 * The callbacks
 		 */
-		private final Map<CallbackPriority, SortedSet<Callback>> prioritizedCallbacks;
+		private final Map<CallbackPriority, ? extends Iterable<Callback>> prioritizedCallbacks;
 
 		/**
 		 * Main CallbacksCleanerThread constructor.
 		 *
 		 * @param prioritizedCallbacks the prioritizedCallbacks to monitor
 		 */
-		public CallbacksCleanerThread(final Map<CallbackPriority, SortedSet<Callback>> prioritizedCallbacks) {
+		public CallbacksCleanerThread(final Map<CallbackPriority, ? extends Iterable<Callback>> prioritizedCallbacks) {
 			super("Cb-Cleaner", 1_000);
 			this.prioritizedCallbacks = prioritizedCallbacks;
 		}
@@ -121,7 +113,7 @@ public class CallbackHandler {
 		@Override
 		public void work() {
 			for (final CallbackPriority priority : this.prioritizedCallbacks.keySet()) {
-				final Set<Callback> callbacks = this.prioritizedCallbacks.get(priority);
+				final Iterable<Callback> callbacks = this.prioritizedCallbacks.get(priority);
 				if (!this.prioritizedCallbacks.isEmpty()) {
 					final long now = System.currentTimeMillis();
 					final Iterator<Callback> it = callbacks.iterator();
