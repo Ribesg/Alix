@@ -185,29 +185,4 @@ public class WebUtil {
 			return buffer.toString();
 		}
 	}
-
-
-
-
-
-
-
-
-	/*
-
-
-		if (postData.length > 0) {
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setRequestMethod("POST");
-			final StringBuilder data = new StringBuilder(postData[0]);
-			for (int i = 1; i < postData.length; i++) {
-				data.append('&').append(postData[i]);
-			}
-			final Writer writer = new OutputStreamWriter(connection.getOutputStream());
-			writer.write(data.toString());
-			writer.flush();
-			writer.close();
-		}
-
-	 */
 }
