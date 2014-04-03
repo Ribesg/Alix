@@ -168,6 +168,7 @@ public class WebUtil {
 		connection.setConnectTimeout(timeOut);
 		connection.setReadTimeout(timeOut);
 		connection.setUseCaches(false);
+		connection.setDoOutput(true);
 
 		connection.getOutputStream().write(postData.getBytes());
 		connection.getOutputStream().flush();
