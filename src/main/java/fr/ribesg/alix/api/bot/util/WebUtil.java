@@ -61,64 +61,87 @@ public class WebUtil {
 
 	/**
 	 * Parse a web page as a Jsoup Document.
+	 * <p>
+	 * If no POST parameter is specified, a GET request will be used.
 	 *
 	 * @param urlString the URL of the web page
+	 * @param postData  optional POST parameters
 	 *
 	 * @return the web page as a Jsoup Document
 	 *
 	 * @throws IOException if something fails
 	 */
-	public static Document getPage(final String urlString) throws IOException {
-		return Jsoup.parse(getString(urlString));
+	public static Document getPage(final String urlString, final String... postData) throws IOException {
+		return Jsoup.parse(getString(urlString, postData));
 	}
 
 	/**
 	 * Parse a web page as a Jsoup Document.
+	 * <p>
+	 * If no POST parameter is specified, a GET request will be used.
 	 *
 	 * @param urlString the URL of the web page
 	 * @param timeOut   maximum time to wait for the web server
+	 * @param postData  optional POST parameters
 	 *
 	 * @return the web page as a Jsoup Document
 	 *
 	 * @throws IOException if something fails
 	 */
-	public static Document getPage(final String urlString, final int timeOut) throws IOException {
-		return Jsoup.parse(getString(urlString, timeOut));
+	public static Document getPage(final String urlString, final int timeOut, final String... postData) throws IOException {
+		return Jsoup.parse(getString(urlString, timeOut, postData));
 	}
 
 	/**
 	 * Get a web ressource as String.
 	 * Can also get stuff like Json content from some APIs, etc.
+	 * <p>
+	 * If no POST parameter is specified, a GET request will be used.
 	 *
 	 * @param urlString the URL of the web ressource
+	 * @param postData  optional POST parameters
 	 *
 	 * @return the web ressource in a single String
 	 *
 	 * @throws IOException if something fails
 	 */
-	public static String getString(final String urlString) throws IOException {
-		return getString(urlString, DEFAULT_TIMEOUT);
+	public static String getString(final String urlString, final String... postData) throws IOException {
+		return getString(urlString, DEFAULT_TIMEOUT, postData);
 	}
 
 	/**
 	 * Get a web ressource as String.
 	 * Can also get stuff like Json content from some APIs, etc.
+	 * <p>
+	 * If no POST parameter is specified, a GET request will be used.
 	 *
 	 * @param urlString the URL of the web ressource
 	 * @param timeOut   maximum time to wait for the web server
+	 * @param postData  optional POST parameters
 	 *
 	 * @return the web ressource in a single String
 	 *
 	 * @throws IOException if something fails
 	 */
-	public static String getString(final String urlString, final int timeOut) throws IOException {
+	public static String getString(final String urlString, final int timeOut, final String... postData) throws IOException {
 		Log.debug("Getting page " + urlString + " ...");
 
 		final URL url = new URL(urlString);
 
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-		connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+		connection.setRequestProperty("User-Agent",
+		                              "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, " +
+		                              "like Gecko) Chrome/23.0.1271.95 Safari/537.11"
+		                             );
+
+		if (postData.length > 0) {
+			connection.setRequestMethod("POST");
+			final StringBuilder data = new StringBuilder(postData[0]);
+			for (int i = 1; i < postData.length; i++) {
+				data.append('&').append(postData[i]);
+			}
+		}
 
 		connection.setConnectTimeout(timeOut);
 		connection.setReadTimeout(timeOut);
