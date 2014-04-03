@@ -7,6 +7,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
@@ -135,17 +137,21 @@ public class WebUtil {
 		                              "like Gecko) Chrome/23.0.1271.95 Safari/537.11"
 		                             );
 
+		connection.setConnectTimeout(timeOut);
+		connection.setReadTimeout(timeOut);
+		connection.setUseCaches(false);
+
 		if (postData.length > 0) {
 			connection.setRequestMethod("POST");
 			final StringBuilder data = new StringBuilder(postData[0]);
 			for (int i = 1; i < postData.length; i++) {
 				data.append('&').append(postData[i]);
 			}
+			final Writer writer = new OutputStreamWriter(connection.getOutputStream());
+			writer.write(data.toString());
+			writer.flush();
+			writer.close();
 		}
-
-		connection.setConnectTimeout(timeOut);
-		connection.setReadTimeout(timeOut);
-		connection.setUseCaches(false);
 
 		try (final BufferedReader input = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
 			final StringBuilder buffer = new StringBuilder();
