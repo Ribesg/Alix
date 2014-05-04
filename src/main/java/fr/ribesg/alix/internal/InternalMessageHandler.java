@@ -73,6 +73,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	}
 
 	public void queue(final Server server, final String packet) {
+		Log.debug("DEBUG: Queue packet " + packet);
 		this.packetBuffer.add(new ReceivedPacket(server, packet));
 	}
 
@@ -80,6 +81,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	public void work() {
 		ReceivedPacket packet;
 		while ((packet = this.packetBuffer.poll()) != null) {
+			Log.debug("DEBUG: Poll packet " + packet.getPacket());
 			this.handleMessage(packet.getSource(), packet.getPacket());
 		}
 	}

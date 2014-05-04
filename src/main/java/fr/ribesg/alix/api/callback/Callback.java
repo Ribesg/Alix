@@ -340,7 +340,7 @@ public abstract class Callback {
 	 * {@link #listenedCodes} is null.
 	 * <p>
 	 * WARNING: This method will be called synchronously! Anything that does
-	 * not need to be sync should be called sync from this method!
+	 * not need to be sync should be called async from this method!
 	 * <p>
 	 * If the method returns false, this means that the Callback want to
 	 * continue to receive {@link IrcPacket}s to handle: its job is not
