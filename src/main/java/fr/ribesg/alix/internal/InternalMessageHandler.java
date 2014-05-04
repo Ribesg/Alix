@@ -231,6 +231,9 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 		if (dest.startsWith("#")) {
 			final boolean isBotCommand = client.getCommandManager() != null && client.getCommandManager().isCommand(packet.getTrail());
 			final Channel channel = server.getChannel(dest);
+			if (channel == null) {
+				server.addChannel(dest);
+			}
 			if (isBotCommand) {
 				client.getCommandManager().exec(server, channel, source, packet.getTrail(), false);
 			} else {
