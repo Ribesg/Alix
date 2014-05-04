@@ -14,8 +14,8 @@ import fr.ribesg.alix.internal.callback.CallbackHandler;
 import fr.ribesg.alix.internal.network.ReceivedPacket;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * This class handles messages internally. An example being more clear than
@@ -41,7 +41,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	 * The Queue of received packets, populated by
 	 * {@link fr.ribesg.alix.internal.network.SocketReceiver}
 	 */
-	private final Queue<ReceivedPacket> packetBuffer;
+	private final BlockingQueue<ReceivedPacket> packetBuffer;
 
 	/**
 	 * The Callback handler
@@ -56,7 +56,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	public InternalMessageHandler(final Client client) {
 		super("MsgHandler", 50);
 		this.client = client;
-		this.packetBuffer = new ConcurrentLinkedQueue<>();
+		this.packetBuffer = new LinkedBlockingQueue<>();
 	}
 
 	public void kill() {
