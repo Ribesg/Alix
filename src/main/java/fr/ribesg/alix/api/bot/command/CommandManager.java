@@ -91,6 +91,7 @@ public class CommandManager {
 			throw new IllegalArgumentException("Failed to register Command '" +
 			                                   name +
 			                                   "': the command '" +
+			                                   commandPrefix +
 			                                   this.aliases.get(name) +
 			                                   "' already has '" +
 			                                   name +
