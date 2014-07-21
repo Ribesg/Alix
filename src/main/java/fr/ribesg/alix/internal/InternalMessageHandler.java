@@ -14,8 +14,8 @@ import fr.ribesg.alix.internal.callback.CallbackHandler;
 import fr.ribesg.alix.internal.network.ReceivedPacket;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * This class handles messages internally. An example being more clear than
@@ -41,7 +41,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	 * The Queue of received packets, populated by
 	 * {@link fr.ribesg.alix.internal.network.SocketReceiver}
 	 */
-	private final Queue<ReceivedPacket> packetBuffer;
+	private final BlockingQueue<ReceivedPacket> packetBuffer;
 
 	/**
 	 * The Callback handler
@@ -56,7 +56,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	public InternalMessageHandler(final Client client) {
 		super("MsgHandler", 50);
 		this.client = client;
-		this.packetBuffer = new ConcurrentLinkedQueue<>();
+		this.packetBuffer = new LinkedBlockingQueue<>();
 	}
 
 	public void kill() {
@@ -73,6 +73,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	}
 
 	public void queue(final Server server, final String packet) {
+		Log.debug("DEBUG: Queue packet " + packet);
 		this.packetBuffer.add(new ReceivedPacket(server, packet));
 	}
 
@@ -80,6 +81,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 	public void work() {
 		ReceivedPacket packet;
 		while ((packet = this.packetBuffer.poll()) != null) {
+			Log.debug("DEBUG: Poll packet " + packet.getPacket());
 			this.handleMessage(packet.getSource(), packet.getPacket());
 		}
 	}
@@ -231,6 +233,9 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 		if (dest.startsWith("#")) {
 			final boolean isBotCommand = client.getCommandManager() != null && client.getCommandManager().isCommand(packet.getTrail());
 			final Channel channel = server.getChannel(dest);
+			if (channel == null) {
+				server.addChannel(dest);
+			}
 			if (isBotCommand) {
 				client.getCommandManager().exec(server, channel, source, packet.getTrail(), false);
 			} else {

@@ -4,12 +4,12 @@ import fr.ribesg.alix.api.bot.command.CommandManager;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
 import fr.ribesg.alix.internal.bot.PingPongTask;
-import org.apache.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class represents an IRC Client.
@@ -115,8 +115,14 @@ public abstract class Client {
 			this.pingPongTask.join();
 		} catch (final InterruptedException ignored) {}
 
+		THREAD_POOL.shutdown();
+		try {
+			THREAD_POOL.awaitTermination(5, TimeUnit.SECONDS);
+		} catch(InterruptedException e) {
+			Runtime.getRuntime().halt(1);
+		}
+
 		Log.info("Exiting.");
-		System.exit(0);
 	}
 
 	/**

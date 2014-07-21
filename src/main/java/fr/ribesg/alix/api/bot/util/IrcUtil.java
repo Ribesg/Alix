@@ -14,7 +14,8 @@ public class IrcUtil {
 		if (message == null || message.length() < 2) {
 			return message;
 		} else {
-			String result = message.substring(0, 1) + Codes.EMPTY + message.substring(1);
+			final String trimedMessage = message.trim();
+			String result = trimedMessage.substring(0, 1) + Codes.EMPTY + trimedMessage.substring(1);
 
 			int i = -1;
 			while ((i = result.indexOf(' ', i + 1)) != -1 && i + 2 < result.length()) {
