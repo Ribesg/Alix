@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2012-2014 Ribesg - www.ribesg.fr
+ * This file is under GPLv3 -> http://www.gnu.org/licenses/gpl-3.0.txt
+ * Please contact me at ribesg[at]yahoo.fr if you improve this file!
+ *
+ * Project file:    Alix - Alix - PingPongTask.java
+ * Full Class name: fr.ribesg.alix.internal.bot.PingPongTask
+ */
+
 package fr.ribesg.alix.internal.bot;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
@@ -15,41 +24,41 @@ import java.util.Random;
  */
 public class PingPongTask extends AbstractRepeatingThread {
 
-	private static final Random RANDOM = new Random();
+   private static final Random RANDOM = new Random();
 
-	private final Client client;
+   private final Client client;
 
-	public PingPongTask(final Client client) {
-		super("PingPong  ",120_000);
-		this.client = client;
-	}
+   public PingPongTask(final Client client) {
+      super("PingPong  ", 120_000);
+      this.client = client;
+   }
 
-	@Override
-	public void work() {
-		this.client.getServers().stream().filter(Server::isConnected).forEach(server -> {
-			final String value = Long.toString(RANDOM.nextLong());
-			server.send(new PingIrcPacket(value), new PingPongCallback(value));
-		});
-	}
+   @Override
+   public void work() {
+      this.client.getServers().stream().filter(Server::isConnected).forEach(server -> {
+         final String value = Long.toString(RANDOM.nextLong());
+         server.send(new PingIrcPacket(value), new PingPongCallback(value));
+      });
+   }
 
-	private class PingPongCallback extends Callback {
+   private class PingPongCallback extends Callback {
 
-		private String value;
+      private String value;
 
-		private PingPongCallback(final String value) {
-			super(60_000, Command.PONG.name());
-			this.value = value;
-		}
+      private PingPongCallback(final String value) {
+         super(60_000, Command.PONG.name());
+         this.value = value;
+      }
 
-		@Override
-		public boolean onIrcPacket(final IrcPacket packet) {
-			return this.value.equals(packet.getTrail());
-		}
+      @Override
+      public boolean onIrcPacket(final IrcPacket packet) {
+         return this.value.equals(packet.getTrail());
+      }
 
-		@Override
-		public void onTimeout() {
-			this.server.disconnect();
-			this.server.getClient().onClientLostConnection(this.server);
-		}
-	}
+      @Override
+      public void onTimeout() {
+         this.server.disconnect();
+         this.server.getClient().onClientLostConnection(this.server);
+      }
+   }
 }

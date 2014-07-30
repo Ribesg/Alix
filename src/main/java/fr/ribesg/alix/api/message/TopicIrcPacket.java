@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2012-2014 Ribesg - www.ribesg.fr
+ * This file is under GPLv3 -> http://www.gnu.org/licenses/gpl-3.0.txt
+ * Please contact me at ribesg[at]yahoo.fr if you improve this file!
+ *
+ * Project file:    Alix - Alix - TopicIrcPacket.java
+ * Full Class name: fr.ribesg.alix.api.message.TopicIrcPacket
+ */
+
 package fr.ribesg.alix.api.message;
 import fr.ribesg.alix.api.enums.Command;
 
@@ -6,43 +15,43 @@ import fr.ribesg.alix.api.enums.Command;
  */
 public class TopicIrcPacket extends IrcPacket {
 
-	private final String channelName;
-	private final String newTopic;
+   private final String channelName;
+   private final String newTopic;
 
-	/**
-	 * Just get TOPIC.
-	 */
-	public TopicIrcPacket(final String channelName) {
-		this(channelName, null);
-	}
+   /**
+    * Just get TOPIC.
+    */
+   public TopicIrcPacket(final String channelName) {
+      this(channelName, null);
+   }
 
-	/**
-	 * Change TOPIC.
-	 */
-	public TopicIrcPacket(final String channelName, final String newTopic) {
-		super(null, Command.TOPIC.name(), newTopic, channelName);
-		this.channelName = channelName;
-		this.newTopic = newTopic;
-	}
+   /**
+    * Change TOPIC.
+    */
+   public TopicIrcPacket(final String channelName, final String newTopic) {
+      super(null, Command.TOPIC.name(), newTopic, channelName);
+      this.channelName = channelName;
+      this.newTopic = newTopic;
+   }
 
-	/**
-	 * @return this Topic packet Channel name
-	 */
-	public String getChannelName() {
-		return channelName;
-	}
+   /**
+    * @return this Topic packet Channel name
+    */
+   public String getChannelName() {
+      return channelName;
+   }
 
-	/**
-	 * @return true if this Topic packet holds a new Topic, false otherwise
-	 */
-	public boolean isNewTopic() {
-		return this.newTopic != null;
-	}
+   /**
+    * @return true if this Topic packet holds a new Topic, false otherwise
+    */
+   public boolean isNewTopic() {
+      return this.newTopic != null;
+   }
 
-	/**
-	 * @return this Topic packet new Topic if any, null otherwise
-	 */
-	public String getNewTopic() {
-		return newTopic;
-	}
+   /**
+    * @return this Topic packet new Topic if any, null otherwise
+    */
+   public String getNewTopic() {
+      return newTopic;
+   }
 }

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2012-2014 Ribesg - www.ribesg.fr
+ * This file is under GPLv3 -> http://www.gnu.org/licenses/gpl-3.0.txt
+ * Please contact me at ribesg[at]yahoo.fr if you improve this file!
+ *
+ * Project file:    Alix - Alix - SocketHandler.java
+ * Full Class name: fr.ribesg.alix.internal.network.SocketHandler
+ */
+
 package fr.ribesg.alix.internal.network;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
@@ -21,115 +30,115 @@ import java.net.Socket;
  */
 public class SocketHandler {
 
-	private final String  url;
-	private final int     port;
-	private final SSLType sslType;
+   private final String  url;
+   private final int     port;
+   private final SSLType sslType;
 
-	private final Server server;
+   private final Server server;
 
-	private Socket         socket;
-	private SocketSender   socketSender;
-	private SocketReceiver socketReceiver;
+   private Socket         socket;
+   private SocketSender   socketSender;
+   private SocketReceiver socketReceiver;
 
-	private InternalMessageHandler handler;
+   private InternalMessageHandler handler;
 
-	public SocketHandler(final Server server, final String url, final int port) {
-		this(server, url, port, SSLType.NONE);
-	}
+   public SocketHandler(final Server server, final String url, final int port) {
+      this(server, url, port, SSLType.NONE);
+   }
 
-	public SocketHandler(final Server server, final String url, final int port, final SSLType sslType) {
-		this.url = url;
-		this.port = port;
-		this.server = server;
-		this.sslType = sslType;
-	}
+   public SocketHandler(final Server server, final String url, final int port, final SSLType sslType) {
+      this.url = url;
+      this.port = port;
+      this.server = server;
+      this.sslType = sslType;
+   }
 
-	public InternalMessageHandler getHandler() {
-		return handler;
-	}
+   public InternalMessageHandler getHandler() {
+      return handler;
+   }
 
-	public void connect() throws IOException {
-		switch (this.sslType) {
-			case NONE:
-				this.socket = new Socket(this.url, this.port);
-				break;
-			case TRUSTING:
-				this.socket = SSLSocketFactory.getTrustingSSLSocket(this.url, this.port);
-				break;
-			case SECURED:
-				this.socket = SSLSocketFactory.getSecuredSSLSocket(this.url, this.port);
-				break;
-		}
+   public void connect() throws IOException {
+      switch (this.sslType) {
+         case NONE:
+            this.socket = new Socket(this.url, this.port);
+            break;
+         case TRUSTING:
+            this.socket = SSLSocketFactory.getTrustingSSLSocket(this.url, this.port);
+            break;
+         case SECURED:
+            this.socket = SSLSocketFactory.getSecuredSSLSocket(this.url, this.port);
+            break;
+      }
 
-		// Prevent infinite condition on reader.readLine() in SocketReceiver
-		this.socket.setSoTimeout(1_000);
+      // Prevent infinite condition on reader.readLine() in SocketReceiver
+      this.socket.setSoTimeout(1_000);
 
-		final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), "UTF-8"));
-		final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream(), "UTF-8"));
+      final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), "UTF-8"));
+      final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream(), "UTF-8"));
 
-		this.handler = new InternalMessageHandler(this.server.getClient());
+      this.handler = new InternalMessageHandler(this.server.getClient());
 
-		this.socketSender = new SocketSender(this.server, writer);
-		this.socketReceiver = new SocketReceiver(this.server, reader, this.handler);
+      this.socketSender = new SocketSender(this.server, writer);
+      this.socketReceiver = new SocketReceiver(this.server, reader, this.handler);
 
-		this.socketSender.start();
-		this.socketReceiver.start();
-		this.handler.start();
-	}
+      this.socketSender.start();
+      this.socketReceiver.start();
+      this.handler.start();
+   }
 
-	public boolean hasAnythingToWrite() {
-		return this.socketSender.hasAnythingToWrite();
-	}
+   public boolean hasAnythingToWrite() {
+      return this.socketSender.hasAnythingToWrite();
+   }
 
-	public void writeRaw(final String message) {
-		this.socketSender.write(message);
-	}
+   public void writeRaw(final String message) {
+      this.socketSender.write(message);
+   }
 
-	public void write(final IrcPacket ircPacket) {
-		this.writeRaw(ircPacket.getRawMessage());
-	}
+   public void write(final IrcPacket ircPacket) {
+      this.writeRaw(ircPacket.getRawMessage());
+   }
 
-	public void writeRawFirst(final String message) {
-		this.socketSender.writeFirst(message);
-	}
+   public void writeRawFirst(final String message) {
+      this.socketSender.writeFirst(message);
+   }
 
-	public void writeFirst(final IrcPacket ircPacket) {
-		this.writeRawFirst(ircPacket.getRawMessage());
-	}
+   public void writeFirst(final IrcPacket ircPacket) {
+      this.writeRawFirst(ircPacket.getRawMessage());
+   }
 
-	public void askStop() {
-		this.socketSender.askStop();
-		this.socketReceiver.askStop();
-		this.handler.askStop();
-	}
+   public void askStop() {
+      this.socketSender.askStop();
+      this.socketReceiver.askStop();
+      this.handler.askStop();
+   }
 
-	public boolean isStopped() {
-		return this.socketSender.isInterrupted() && this.socketReceiver.isInterrupted();
-	}
+   public boolean isStopped() {
+      return this.socketSender.isInterrupted() && this.socketReceiver.isInterrupted();
+   }
 
-	public void kill() {
-		try {
-			this.socketReceiver.join();
-		} catch (final InterruptedException e) {
-			Log.error("Failed to join on SocketReceiver", e);
-		}
+   public void kill() {
+      try {
+         this.socketReceiver.join();
+      } catch (final InterruptedException e) {
+         Log.error("Failed to join on SocketReceiver", e);
+      }
 
-		try {
-			this.socketSender.join();
-		} catch (final InterruptedException e) {
-			Log.error("Failed to join on SocketSender", e);
-		}
+      try {
+         this.socketSender.join();
+      } catch (final InterruptedException e) {
+         Log.error("Failed to join on SocketSender", e);
+      }
 
-		try {
-			this.handler.join();
-		} catch (final InterruptedException e) {
-			Log.error("Failed to join on InternalMessageHandler", e);
-		}
+      try {
+         this.handler.join();
+      } catch (final InterruptedException e) {
+         Log.error("Failed to join on InternalMessageHandler", e);
+      }
 
-		try {
-			this.socket.close();
-		} catch (final IOException e) {
-			Log.error("Failed to close Socket", e);
-		}
-	}
+      try {
+         this.socket.close();
+      } catch (final IOException e) {
+         Log.error("Failed to close Socket", e);
+      }
+   }
 }

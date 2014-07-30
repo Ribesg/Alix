@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) 2012-2014 Ribesg - www.ribesg.fr
+ * This file is under GPLv3 -> http://www.gnu.org/licenses/gpl-3.0.txt
+ * Please contact me at ribesg[at]yahoo.fr if you improve this file!
+ *
+ * Project file:    Alix - Alix - Tools.java
+ * Full Class name: fr.ribesg.alix.Tools
+ */
+
 package fr.ribesg.alix;
 
 import fr.ribesg.alix.api.Log;
@@ -10,17 +19,17 @@ import fr.ribesg.alix.api.Log;
  */
 public class Tools {
 
-	/**
-	 * Pauses the calling Thread for the provided amount of
-	 * time. Ignores any InterruptedException, but logs it.
-	 *
-	 * @param millis the time to pause
-	 */
-	public static void pause(final int millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (final InterruptedException e) {
-			Log.error(e.getMessage(), e);
-		}
-	}
+   /**
+    * Pauses the calling Thread for the provided amount of
+    * time. Ignores any InterruptedException, but logs it.
+    *
+    * @param millis the time to pause
+    */
+   public static void pause(final int millis) {
+      try {
+         Thread.sleep(millis);
+      } catch (final InterruptedException e) {
+         Log.error(e.getMessage(), e);
+      }
+   }
 }
