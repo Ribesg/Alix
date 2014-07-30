@@ -64,10 +64,8 @@ public class NamesCallback extends Callback {
             channelName = packet.getParameters()[1];
             if (this.channel.getName().equals(channelName)) {
                Log.debug("DEBUG: Handled, unlocking");
-               channel.setUsers(this.users);
-               for (final Runnable r : this.callbacks) {
-                  r.run();
-               }
+               this.channel.setUsers(this.users);
+               this.runAllCallbacks();
                return true;
             } else {
                return false;
@@ -80,6 +78,6 @@ public class NamesCallback extends Callback {
    @Override
    public void onTimeout() {
       Log.error("NAMES Command timed out! The users list of Channel " + this.channel.getName() + " has been emptied!");
-      channel.clearUsers();
+      this.channel.clearUsers();
    }
 }
