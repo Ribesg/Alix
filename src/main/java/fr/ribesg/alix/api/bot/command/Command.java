@@ -122,7 +122,7 @@ public abstract class Command {
          }
       }
       if (this.aliases.length > 0) {
-         final StringBuilder aliasesStringBuilder = new StringBuilder(Codes.RED + " | Aliases: " + this.aliases[0]);
+         final StringBuilder aliasesStringBuilder = new StringBuilder(ArtUtil.spaces(commandString.length()) + " | Aliases: " + this.aliases[0]);
          for (int i = 1; i < this.aliases.length; i++) {
             aliasesStringBuilder.append(", ").append(this.aliases[i]);
          }
