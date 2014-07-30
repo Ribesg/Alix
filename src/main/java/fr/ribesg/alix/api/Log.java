@@ -10,6 +10,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
 /**
+ * Logging class.
+ *
  * @author Ribesg
  */
 public class Log {
