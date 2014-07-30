@@ -248,6 +248,28 @@ public abstract class Callback {
    }
 
    /**
+    * Adds a callback to this Callback. Returns this Callback for easy
+    * chain-calls.
+    *
+    * @param callback the callback to add
+    *
+    * @return this Callback for easy chain-call
+    */
+   public Callback addCallback(final Runnable callback) {
+      this.callbacks.add(callback);
+      return this;
+   }
+
+   /**
+    * Convenient method if you just want to run all callbacks of this Callback.
+    */
+   public void runAllCallbacks() {
+      for (final Runnable r : this.callbacks) {
+         r.run();
+      }
+   }
+
+   /**
     * This method will be called for every received {@link IrcPacket} that
     * this Callback listens to, or everyone of them if
     * {@link #listenedCodes} is null.
