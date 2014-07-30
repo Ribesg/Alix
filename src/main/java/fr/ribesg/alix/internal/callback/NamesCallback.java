@@ -5,10 +5,10 @@ import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.internal.thread.SimpleCondition;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,10 +33,9 @@ public class NamesCallback extends Callback {
 		this.users = new HashSet<>();
 	}
 
-	public NamesCallback(final Channel channel, final SimpleCondition lock) {
-		super(lock, LISTENED_CODES);
-		this.channel = channel;
-		this.users = new HashSet<>();
+	public NamesCallback(final Channel channel, final List<Runnable> callbacks) {
+		this(channel);
+		this.callbacks.addAll(callbacks);
 	}
 
 	@Override
@@ -57,7 +56,9 @@ public class NamesCallback extends Callback {
 				if (this.channel.getName().equals(channelName)) {
 					Log.debug("DEBUG: Handled, unlocking");
 					channel.setUsers(this.users);
-					done();
+					for (final Runnable r : this.callbacks) {
+						r.run();
+					}
 					return true;
 				} else {
 					return false;
@@ -71,6 +72,5 @@ public class NamesCallback extends Callback {
 	public void onTimeout() {
 		Log.error("NAMES Command timed out! The users list of Channel " + this.channel.getName() + " has been emptied!");
 		channel.clearUsers();
-		done();
 	}
 }

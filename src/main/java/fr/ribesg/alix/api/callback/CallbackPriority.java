@@ -27,5 +27,5 @@ public enum CallbackPriority {
 	/**
 	 * Called after {@link #LOW} Priority Callbacks
 	 */
-	LOWEST
+	LOWEST,
 }

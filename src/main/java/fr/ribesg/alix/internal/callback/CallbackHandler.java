@@ -79,7 +79,6 @@ public class CallbackHandler {
 			} else if (callback.listensTo(code)) {
 				if (callback.onIrcPacket(packet)) {
 					Log.debug("DEBUG: Packet handled by a Callback!");
-					callback.done();
 					it.remove();
 				}
 			}

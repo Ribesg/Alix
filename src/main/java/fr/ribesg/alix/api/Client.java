@@ -264,8 +264,7 @@ public abstract class Client {
 	 * This method does not do anything and should be overridden.
 	 * <p>
 	 * Important Note: If you need to interact with the list of users, please use the
-	 * {@link Channel#updateUsers(boolean)} method with the
-	 * <code>blocking</code> parameter set to <code>true</code> before.
+	 * {@link Channel#updateUsers(Runnable...)} method.
 	 *
 	 * @param channel the Channel the Client just joined
 	 */
@@ -282,8 +281,7 @@ public abstract class Client {
 	 * This method does not do anything and should be overridden.
 	 * <p>
 	 * Important Note: If you need to interact with the list of users, please use the
-	 * {@link Channel#updateUsers(boolean)} method with the
-	 * <code>blocking</code> parameter set to <code>true</code> before.
+	 * {@link Channel#updateUsers(Runnable...)} method.
 	 *
 	 * @param channel the Channel the Client just left
 	 */
@@ -354,8 +352,7 @@ public abstract class Client {
 	 * This method does not do anything and should be overridden.
 	 * <p>
 	 * Important Note: If you need to interact with the list of users, please use the
-	 * {@link Channel#updateUsers(boolean)} method with the
-	 * <code>blocking</code> parameter set to <code>true</code> before.
+	 * {@link Channel#updateUsers(Runnable...)}.
 	 *
 	 * @param channel the Channel the User just joined
 	 */
@@ -370,8 +367,7 @@ public abstract class Client {
 	 * This method does not do anything and should be overridden.
 	 * <p>
 	 * Important Note: If you need to interact with the list of users, please use the
-	 * {@link Channel#updateUsers(boolean)} method with the
-	 * <code>blocking</code> parameter set to <code>true</code> before.
+	 * {@link Channel#updateUsers(Runnable...)}.
 	 *
 	 * @param channel the Channel the User just left
 	 */
@@ -386,8 +382,7 @@ public abstract class Client {
 	 * This method does not do anything and should be overridden.
 	 * <p>
 	 * Important Note: If you need to interact with the list of users, please use the
-	 * {@link Channel#updateUsers(boolean)} method with the
-	 * <code>blocking</code> parameter set to <code>true</code> before.
+	 * {@link Channel#updateUsers(Runnable...)}.
 	 *
 	 * @param channel the Channel a User just got kicked from
 	 * @param by      the Source of the kick
@@ -423,8 +418,7 @@ public abstract class Client {
 	 * This method does not do anything and should be overridden.
 	 * <p>
 	 * Important Note: If you need to interact with the list of users, please use the
-	 * {@link Channel#updateUsers(boolean)} method with the
-	 * <code>blocking</code> parameter set to <code>true</code> before.
+	 * {@link Channel#updateUsers(Runnable...)}.
 	 *
 	 * @param channel    the Channel the message was sent in
 	 * @param fromSource the Source that sent the message

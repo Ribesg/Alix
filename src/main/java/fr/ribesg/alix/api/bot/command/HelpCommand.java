@@ -7,40 +7,40 @@ import fr.ribesg.alix.api.enums.Codes;
 
 public class HelpCommand extends Command {
 
+	private final CommandManager manager;
+
 	public HelpCommand(final CommandManager manager) {
-		super(manager, "help", new String[] {
+		super("help", new String[] {
 				"Get help about a command, or list every commands",
 				"Usage: ##<.<command>| [command]>"
 		}, "h");
+		this.manager = manager;
 	}
 
 	@Override
-	public void exec(final Server server, final Channel channel, final Source user, final String primaryArgument, final String[] args) {
+	public boolean exec(final Server server, final Channel channel, final Source user, final String primaryArgument, final String[] args) {
 		final Receiver receiver = channel == null ? user : channel;
-
 		if (args.length == 1 && primaryArgument != null || args.length > 1) {
-			sendUsage(user);
-			return;
+			return false;
 		}
-
 		final String arg = args.length == 1 ? args[0] : primaryArgument;
-
 		if (arg != null) {
 			final String cmdName = arg.toLowerCase();
-			final String realCmd = manager.aliases.get(cmdName) == null ? cmdName : manager.aliases.get(cmdName);
-			final Command cmd = manager.commands.get(realCmd);
+			final String realCmd = this.manager.aliases.get(cmdName) == null ? cmdName : this.manager.aliases.get(cmdName);
+			final Command cmd = this.manager.commands.get(realCmd);
 			if (cmd == null) {
 				receiver.sendMessage(Codes.RED + "Unknown command: " + cmdName);
-				return;
+			} else {
+				cmd.sendUsage(this.manager.getCommandPrefix(), receiver);
 			}
-			cmd.sendUsage(receiver);
 		} else {
 			if (channel != null) {
 				channel.sendMessage(Codes.RED + user.getName() + ", check your private messages");
 			}
-			for (final Command cmd : manager.commands.values()) {
-				cmd.sendUsage(user);
+			for (final Command cmd : this.manager.commands.values()) {
+				cmd.sendUsage(this.manager.getCommandPrefix(), user);
 			}
 		}
+		return true;
 	}
 }

@@ -6,6 +6,7 @@ import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 /**
  * This class handles receiving packets.
@@ -35,8 +36,10 @@ public class SocketReceiver extends AbstractRepeatingThread {
 				Log.debug(server.getUrl() + ':' + server.getPort() + " - RECEIVED MESSAGE: '" + mes + "'");
 				this.packetHandler.queue(this.server, mes);
 			}
-		} catch (final IOException ignored) {
+		} catch (final SocketTimeoutException ignored) {
 			// readLine() Timeout
+		} catch (final IOException e) {
+			Log.error("IOException caught when reading from Socket", e);
 		}
 	}
 

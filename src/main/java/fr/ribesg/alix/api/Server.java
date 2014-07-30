@@ -339,7 +339,9 @@ public class Server {
 			this.socket.write(new QuitIrcPacket(message));
 
 			// Waiting for everything that has to be sent
-			while (this.socket.hasAnythingToWrite()) {}
+			while (this.socket.hasAnythingToWrite()) {
+				Tools.pause(100);
+			}
 
 			// Asking stop
 			this.socket.askStop();

@@ -10,7 +10,7 @@ import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 import java.util.Random;
 
 /**
- * This taks will handle the Ping-Pong thing, to make sure
+ * This task will handle the Ping-Pong thing, to make sure
  * we're still connected.
  */
 public class PingPongTask extends AbstractRepeatingThread {

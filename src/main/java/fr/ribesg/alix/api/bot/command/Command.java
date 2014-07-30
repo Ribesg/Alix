@@ -4,6 +4,7 @@ import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Receiver;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
+import fr.ribesg.alix.api.bot.util.ArtUtil;
 import fr.ribesg.alix.api.enums.Codes;
 
 import java.util.Set;
@@ -12,11 +13,6 @@ import java.util.Set;
  * Represents a Command
  */
 public abstract class Command {
-
-	/**
-	 * The CommandManager this Command belongs to.
-	 */
-	protected final CommandManager manager;
 
 	/**
 	 * The name of this Command, the main String that has to be written for
@@ -58,38 +54,35 @@ public abstract class Command {
 
 	/**
 	 * Public Command constructor.
-	 * Calls {@link #Command(CommandManager, String, String[], boolean, Set, String...)}.
+	 * Calls {@link #Command(String, String[], boolean, Set, String...)}.
 	 *
-	 * @param manager the CommandManager this Command belongs to
-	 * @param name    the name of this Command
-	 * @param usage   usage of this Command
+	 * @param name  the name of this Command
+	 * @param usage usage of this Command
 	 *
-	 * @see #Command(CommandManager, String, String[], boolean, Set, String...) for non-public Command
+	 * @see #Command(String, String[], boolean, Set, String...) for non-public Command
 	 */
-	public Command(final CommandManager manager, final String name, final String[] usage) {
-		this(manager, name, usage, false, null);
+	public Command(final String name, final String[] usage) {
+		this(name, usage, false, null);
 	}
 
 	/**
 	 * Public Command with aliases constructor.
-	 * Calls {@link #Command(CommandManager, String, String[], boolean, Set, String...)}.
+	 * Calls {@link #Command(String, String[], boolean, Set, String...)}.
 	 *
-	 * @param manager the CommandManager this Command belongs to
 	 * @param name    the name of this Command
 	 * @param usage   usage of this Command
 	 * @param aliases possible aliases for this Command
 	 *
-	 * @see #Command(CommandManager, String, String[], boolean, Set, String...) for non-public Command
+	 * @see #Command(String, String[], boolean, Set, String...) for non-public Command
 	 */
-	public Command(final CommandManager manager, final String name, final String[] usage, final String... aliases) {
-		this(manager, name, usage, false, null, aliases);
+	public Command(final String name, final String[] usage, final String... aliases) {
+		this(name, usage, false, null, aliases);
 	}
 
 	/**
 	 * Complete Command constructor.
 	 * Should be used for restricted Commands.
 	 *
-	 * @param manager          the CommandManager this Command belongs to
 	 * @param name             the name of this Command
 	 * @param usage            usage of this Command
 	 * @param restricted       if this Command is restricted or public
@@ -100,11 +93,14 @@ public abstract class Command {
 	 * @throws IllegalArgumentException if the Command is public and a Set
 	 *                                  of allowedNickNames was provided
 	 */
-	public Command(final CommandManager manager, final String name, final String[] usage, final boolean restricted, final Set<String> allowedNickNames, final String... aliases) {
+	public Command(final String name,
+	               final String[] usage,
+	               final boolean restricted,
+	               final Set<String> allowedNickNames,
+	               final String... aliases) {
 		if (!restricted && allowedNickNames != null) {
 			throw new IllegalArgumentException("A public Command should not have allowedNickNames, did you do something wrong?");
 		}
-		this.manager = manager;
 		this.name = name.toLowerCase();
 		this.aliases = aliases;
 		this.restricted = restricted;
@@ -117,10 +113,10 @@ public abstract class Command {
 
 		final String commandString = this.toString();
 		this.usage = new String[1 + (usage == null ? 0 : usage.length - 1) + (this.aliases.length > 0 ? 1 : 0)];
-		this.usage[0] = Codes.RED + commandString + " - " + (usage != null && usage.length > 0 ? usage[0] : "");
+		this.usage[0] = commandString + " - " + (usage != null && usage.length > 0 ? usage[0] : "");
 		if (usage != null && usage.length > 1) {
 			for (int i = 1; i < usage.length; i++) {
-				this.usage[i] = Codes.RED + " | " + usage[i].replaceAll("##", commandString);
+				this.usage[i] = ArtUtil.spaces(commandString.length()) + " | " + usage[i].replaceAll("##", commandString);
 			}
 		}
 		if (this.aliases.length > 0) {
@@ -185,22 +181,31 @@ public abstract class Command {
 	 * @param user            the User that wrote the Command
 	 * @param primaryArgument argument passed as commandPrefix.primaryArgument
 	 * @param args            arguments passed the the Command
+	 *
+	 * @return false if the CommandManager should print the usage, true otherwise
 	 */
-	public abstract void exec(final Server server, final Channel channel, final Source user, final String primaryArgument, final String[] args);
+	public abstract boolean exec(final Server server,
+	                             final Channel channel,
+	                             final Source user,
+	                             final String primaryArgument,
+	                             final String[] args);
 
 	/**
 	 * Sends the usage of this Command to a Receiver.
 	 *
 	 * @param receiver the receiver to send the usage to
 	 */
-	public void sendUsage(final Receiver receiver) {
-		receiver.sendMessage(this.usage);
+	public void sendUsage(final String commandPrefix, final Receiver receiver) {
+		receiver.sendMessage(Codes.RED + commandPrefix + this.usage[0]);
+		for (int i = 1; i < this.usage.length; i++) {
+			receiver.sendMessage(Codes.RED + ArtUtil.spaces(commandPrefix.length()) + this.usage[i]);
+		}
 	}
 
 	/**
-	 * @return commandPrefix + commandName
+	 * @return commandName
 	 */
 	public String toString() {
-		return this.manager.getCommandPrefix() + getName();
+		return this.getName();
 	}
 }

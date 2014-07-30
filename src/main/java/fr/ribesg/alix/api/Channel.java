@@ -5,9 +5,8 @@ import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.internal.callback.NamesCallback;
-import fr.ribesg.alix.internal.thread.SimpleCondition;
-import org.apache.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,15 +21,19 @@ import java.util.stream.Collectors;
  */
 public class Channel extends Receiver {
 
-	private static final Logger LOGGER = Logger.getLogger(Channel.class.getName());
-
 	/**
 	 * The password of this Channel, if any
 	 */
 	private final String password;
 
+	/**
+	 * The topic of this Channel, if known
+	 */
 	private String topic;
 
+	/**
+	 * The Users in this Channel, if known
+	 */
 	private Set<String> users;
 
 	/**
@@ -205,11 +208,7 @@ public class Channel extends Receiver {
 					final Source user = packet.getPrefixAsSource(this.server);
 					final String channelName = packet.getParameters()[0];
 					if (Channel.this.getName().equals(channelName) && server.getClient().getName().equals(user.getName())) {
-						try {
-							Channel.this.updateUsers(false);
-						} catch (final InterruptedException e) {
-							Log.error("Failed to update user list for Channel " + channelName, e);
-						}
+						Channel.this.updateUsers();
 						// TODO Other things to update like topic and modes
 						return true;
 					} else {
@@ -236,34 +235,21 @@ public class Channel extends Receiver {
 	 * This flag indicates if there is an update running for the Users Set.
 	 * It's also use as a mutex to wait for the update to finish.
 	 */
-	private final    SimpleCondition updateLock    = new SimpleCondition();
-	private volatile boolean         updatingUsers = false;
+	private volatile boolean updatingUsers = false;
 
 	/**
-	 * Update the Users Set.
+	 * Trigger an update of the Users Set.
+	 * <p>
+	 * If callbacks are passed to this method, they will be executed once the
+	 * Users Set has been filled.
 	 *
-	 * @param block true if the method should block until the update is done,
-	 *              false otherwise
+	 * @param callback optional callbacks
 	 */
-	public void updateUsers(final boolean block) throws InterruptedException {
+	public void updateUsers(final Runnable... callback) {
 		this.clearUsers();
 		if (!updatingUsers) {
 			updatingUsers = true;
-			if (block) {
-				Log.debug("DEBUG: - Sending IrcPacket");
-				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, updateLock));
-				Log.debug("DEBUG: - Locking on condition");
-				updateLock.await();
-			} else {
-				this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this));
-			}
-			updatingUsers = false;
-		} else if (block) {
-			while (this.getUsers().isEmpty()) {
-				Log.debug("DEBUG: - Begin while loop");
-				updateLock.await();
-				Log.debug("DEBUG: - End while loop");
-			}
+			this.server.send(new NamesIrcPacket(this.getName()), true, new NamesCallback(this, Arrays.asList(callback)));
 		}
 	}
 }

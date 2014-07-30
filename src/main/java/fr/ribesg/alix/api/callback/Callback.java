@@ -2,12 +2,13 @@ package fr.ribesg.alix.api.callback;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.internal.thread.SimpleCondition;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -40,14 +41,15 @@ public abstract class Callback {
 	protected final long timeoutDate;
 
 	/**
-	 * A mutex that can be unlocked later
-	 */
-	protected final SimpleCondition condition;
-
-	/**
 	 * This Callback's Priority
 	 */
 	protected final CallbackPriority priority;
+
+	/**
+	 * A Callback can choose to have multiple Callbacks itself and to execute
+	 * them whenever it wants to.
+	 */
+	protected final List<Runnable> callbacks;
 
 	/**
 	 * The Original IRC Packet for which the Callback was set up.
@@ -84,12 +86,10 @@ public abstract class Callback {
 	 * @param timeoutDuration the time after which this Callback should call
 	 *                        {@link #onTimeout} and be destroyed, in
 	 *                        milliseconds
-	 * @param condition       a condition to signal when the Callback
-	 *                        execution is done
 	 * @param listenedCodes   listened Commands and Reply codes, can be empty
 	 *                        to listen to everything
 	 */
-	public Callback(final CallbackPriority priority, final long timeoutDuration, final SimpleCondition condition, final String... listenedCodes) {
+	public Callback(final CallbackPriority priority, final long timeoutDuration, final String... listenedCodes) {
 		this.priority = priority;
 		this.timeoutDuration = timeoutDuration;
 		this.timeoutDate = System.currentTimeMillis() + timeoutDuration;
@@ -99,31 +99,7 @@ public abstract class Callback {
 		} else {
 			this.listenedCodes = null;
 		}
-		this.condition = condition;
-	}
-
-	/**
-	 * Constructor without condition.
-	 * <p>
-	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
-	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
-	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
-	 * <p>
-	 * If listenedCodes is empty, {@link #onIrcPacket(IrcPacket)} will be
-	 * called for every incoming {@link IrcPacket} until the method
-	 * returns true.
-	 * <p>
-	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
-	 *
-	 * @param priority        the priority of this Callback
-	 * @param timeoutDuration the time after which this Callback should call
-	 *                        {@link #onTimeout} and be destroyed, in
-	 *                        milliseconds
-	 * @param listenedCodes   listened Commands and Reply codes, can be empty
-	 *                        to listen to everything
-	 */
-	public Callback(final CallbackPriority priority, final long timeoutDuration, final String... listenedCodes) {
-		this(priority, timeoutDuration, null, listenedCodes);
+		this.callbacks = new LinkedList<>();
 	}
 
 	/**
@@ -140,34 +116,11 @@ public abstract class Callback {
 	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
 	 *
 	 * @param priority      the priority of this Callback
-	 * @param condition     a condition to signal when the Callback
-	 *                      execution is done
-	 * @param listenedCodes listened Commands and Reply codes, can be empty
-	 *                      to listen to everything
-	 */
-	public Callback(final CallbackPriority priority, final SimpleCondition condition, final String... listenedCodes) {
-		this(priority, DEFAULT_TIMEOUT, condition, listenedCodes);
-	}
-
-	/**
-	 * Constructor with default timeout of 30 seconds and without condition.
-	 * <p>
-	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
-	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
-	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
-	 * <p>
-	 * If no argument is passed, {@link #onIrcPacket(IrcPacket)} will be
-	 * called for every incoming {@link IrcPacket} until the method
-	 * returns true.
-	 * <p>
-	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
-	 *
-	 * @param priority      the priority of this Callback
 	 * @param listenedCodes listened Commands and Reply codes, can be empty
 	 *                      to listen to everything
 	 */
 	public Callback(final CallbackPriority priority, final String... listenedCodes) {
-		this(priority, DEFAULT_TIMEOUT, null, listenedCodes);
+		this(priority, DEFAULT_TIMEOUT, listenedCodes);
 	}
 
 	/**
@@ -186,37 +139,11 @@ public abstract class Callback {
 	 * @param timeoutDuration the time after which this Callback should call
 	 *                        {@link #onTimeout} and be destroyed, in
 	 *                        milliseconds
-	 * @param condition       a condition to signal when the Callback
-	 *                        execution is done
-	 * @param listenedCodes   listened Commands and Reply codes, can be empty
-	 *                        to listen to everything
-	 */
-	public Callback(final long timeoutDuration, final SimpleCondition condition, final String... listenedCodes) {
-		this(CallbackPriority.LOW, timeoutDuration, condition, listenedCodes);
-	}
-
-	/**
-	 * Constructor with default {@link CallbackPriority#LOW} priority and
-	 * without condition.
-	 * <p>
-	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
-	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
-	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
-	 * <p>
-	 * If listenedCodes is empty, {@link #onIrcPacket(IrcPacket)} will be
-	 * called for every incoming {@link IrcPacket} until the method
-	 * returns true.
-	 * <p>
-	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
-	 *
-	 * @param timeoutDuration the time after which this Callback should call
-	 *                        {@link #onTimeout} and be destroyed, in
-	 *                        milliseconds
 	 * @param listenedCodes   listened Commands and Reply codes, can be empty
 	 *                        to listen to everything
 	 */
 	public Callback(final long timeoutDuration, final String... listenedCodes) {
-		this(CallbackPriority.LOW, timeoutDuration, null, listenedCodes);
+		this(CallbackPriority.LOW, timeoutDuration, listenedCodes);
 	}
 
 	/**
@@ -233,34 +160,11 @@ public abstract class Callback {
 	 * <p>
 	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
 	 *
-	 * @param condition     a condition to signal when the Callback
-	 *                      execution is done
-	 * @param listenedCodes listened Commands and Reply codes, can be empty
-	 *                      to listen to everything
-	 */
-	public Callback(final SimpleCondition condition, final String... listenedCodes) {
-		this(CallbackPriority.LOW, DEFAULT_TIMEOUT, condition, listenedCodes);
-	}
-
-	/**
-	 * Constructor with default {@link CallbackPriority#LOW} priority,
-	 * without condition and with a default timeout of 30 seconds.
-	 * <p>
-	 * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
-	 * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
-	 * calls to {@link #onIrcPacket(IrcPacket)} to them.
-	 * <p>
-	 * If no argument is passed, {@link #onIrcPacket(IrcPacket)} will be
-	 * called for every incoming {@link IrcPacket} until the method
-	 * returns true.
-	 * <p>
-	 * Of course listened Codes have to be uppercase to follow IRC RFCs.
-	 *
 	 * @param listenedCodes listened Commands and Reply codes, can be empty
 	 *                      to listen to everything
 	 */
 	public Callback(final String... listenedCodes) {
-		this(CallbackPriority.LOW, DEFAULT_TIMEOUT, null, listenedCodes);
+		this(CallbackPriority.LOW, DEFAULT_TIMEOUT, listenedCodes);
 	}
 
 	/**
@@ -367,16 +271,5 @@ public abstract class Callback {
 	public void onTimeout() {
 		Log.warn("A Callback timed out! It had a timeout of " + format.format(getTimeoutDuration() / 1000.0) +
 		         " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
-		this.done();
 	}
-
-	/**
-	 * Unlock this Callback's mutex, if any
-	 */
-	public void done() {
-		if (this.condition != null) {
-			this.condition.signalAll();
-		}
-	}
-
 }
