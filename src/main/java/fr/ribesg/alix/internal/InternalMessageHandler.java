@@ -127,16 +127,16 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
                break;
             case JOIN:
             case PART:
-               Client.getThreadPool().submit(() -> handleJoinPart(server, cmd == Command.JOIN, packet));
+               handleJoinPart(server, cmd == Command.JOIN, packet);
                break;
             case KICK:
-               Client.getThreadPool().submit(() -> handleKick(server, packet));
+               handleKick(server, packet);
                break;
             case QUIT:
-               Client.getThreadPool().submit(() -> handleQuit(server, packet));
+               handleQuit(server, packet);
                break;
             case PRIVMSG:
-               Client.getThreadPool().submit(() -> handlePrivMsg(server, packet));
+               handlePrivMsg(server, packet);
                break;
             default:
                break;
@@ -186,18 +186,20 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
       final Source source = packet.getPrefix() == null ? null : packet.getPrefixAsSource(server);
       if (source == null || source.getName().equals(server.getClientNick())) {
          if (isJoin) {
-            client.onClientJoinChannel(channel);
+            Client.getThreadPool().submit(() -> client.onClientJoinChannel(channel));
          } else {
-            client.onClientPartChannel(channel);
-            server.removeChannel(channelName);
+            Client.getThreadPool().submit(() -> {
+               client.onClientPartChannel(channel);
+               server.removeChannel(channelName);
+            });
          }
       } else {
          if (isJoin) {
             // TODO Fetch info about user (+, @) and add it to the users list
-            client.onUserJoinChannel(source, channel);
+            Client.getThreadPool().submit(() -> client.onUserJoinChannel(source, channel));
          } else {
             // TODO Remove user from users list
-            client.onUserPartChannel(source, channel);
+            Client.getThreadPool().submit(() -> client.onUserPartChannel(source, channel));
          }
       }
    }
@@ -209,11 +211,13 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
       final Source source = packet.getPrefix() == null ? null : packet.getPrefixAsSource(server);
       final String reason = packet.getTrail();
       if (server.getClientNick().equals(who)) {
-         client.onClientKickedFromChannel(channel, source, reason);
-         server.removeChannel(channelName);
+         Client.getThreadPool().submit(() -> {
+            client.onClientKickedFromChannel(channel, source, reason);
+            server.removeChannel(channelName);
+         });
       } else {
          // TODO Remove user from users list
-         client.onUserKickedFromChannel(channel, source, reason);
+         Client.getThreadPool().submit(() -> client.onUserKickedFromChannel(channel, source, reason));
       }
    }
 
@@ -223,12 +227,12 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
          final String who = source.getName();
          final String reason = packet.getTrail();
          if (server.getClientNick().equals(who)) {
-            client.onClientKickedFromServer(server, reason);
             server.setJoined(false);
             server.setConnected(false);
+            Client.getThreadPool().submit(() -> client.onClientKickedFromServer(server, reason));
          } else {
             // TODO Remove user from users list (in all channels?)
-            client.onUserQuitServer(server, reason);
+            Client.getThreadPool().submit(() -> client.onUserQuitServer(server, reason));
          }
       }
    }
@@ -243,12 +247,12 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
             server.addChannel(dest);
          }
          if (isBotCommand) {
-            client.getCommandManager().exec(server, channel, source, packet.getTrail(), false);
+            Client.getThreadPool().submit(() -> client.getCommandManager().exec(server, channel, source, packet.getTrail(), false));
          } else {
-            client.onChannelMessage(channel, source, packet.getTrail());
+            Client.getThreadPool().submit(() -> client.onChannelMessage(channel, source, packet.getTrail()));
          }
       } else {
-         client.getCommandManager().exec(server, null, source, packet.getTrail(), true);
+         Client.getThreadPool().submit(() -> client.getCommandManager().exec(server, null, source, packet.getTrail(), true));
       }
    }
 }
