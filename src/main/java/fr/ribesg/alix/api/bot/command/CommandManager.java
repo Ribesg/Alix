@@ -219,6 +219,13 @@ public class CommandManager {
    }
 
    /**
+    * @return the admins of this Bot
+    */
+   public Set<String> getBotAdmins() {
+      return this.botAdmins;
+   }
+
+   /**
     * @return the prefix used for this CommandManager
     */
    public String getCommandPrefix() {
