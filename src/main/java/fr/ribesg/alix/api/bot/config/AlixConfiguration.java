@@ -6,6 +6,7 @@
 
 package fr.ribesg.alix.api.bot.config;
 import fr.ribesg.alix.api.Channel;
+import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.bot.util.configuration.YamlDocument;
 import fr.ribesg.alix.api.bot.util.configuration.YamlFile;
@@ -67,7 +68,7 @@ public class AlixConfiguration {
       return Files.exists(Paths.get(this.fileName));
    }
 
-   public boolean load() throws IOException {
+   public boolean load(final Client client) throws IOException {
       if (this.exists()) {
          this.file.load(this.fileName);
          final YamlDocument firstDocument = this.file.getDocuments().get(0);
@@ -90,7 +91,7 @@ public class AlixConfiguration {
             } else {
                clientNick = this.mainNick;
             }
-            final Server server = new Server(null, clientNick, url, port, sslType);
+            final Server server = new Server(client, clientNick, url, port, sslType);
             channels.forEach(server::addChannel);
             this.servers.add(server);
             this.loadServerAdditional(server, document);
