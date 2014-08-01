@@ -46,13 +46,11 @@ public class AlixConfiguration {
       return result;
    }
 
-   private final String fileName;
-
-   protected final YamlFile file;
+   private final String   fileName;
+   private final YamlFile file;
 
    protected final List<Server> servers;
-
-   protected String mainNick;
+   protected       String       mainNick;
 
    public AlixConfiguration() {
       this("alix.yml");
@@ -110,7 +108,7 @@ public class AlixConfiguration {
    protected void loadServerAdditional(final Server server, final YamlDocument mainDocument) {
       // NOP
    }
-   
+
    public void newConfig() throws IOException {
       final AlixConfiguration config = AlixConfiguration.getDefault(this.fileName);
       this.mainNick = config.mainNick;
