@@ -5,9 +5,11 @@
  */
 
 package fr.ribesg.alix.api.bot.util.configuration;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Ribesg
@@ -147,6 +149,10 @@ public class ConfigurationSection {
       return new ConfigurationSection(this.getAs(key, Map.class));
    }
 
+   public Set<String> getKeys() {
+      return this.contentMap.keySet();
+   }
+
    @Override
    public boolean equals(Object o) {
       if (this == o) {
@@ -158,7 +164,7 @@ public class ConfigurationSection {
 
       final ConfigurationSection that = (ConfigurationSection) o;
 
-      if (!contentMap.equals(that.contentMap)) {
+      if (!this.contentMap.equals(that.contentMap)) {
          return false;
       }
 
@@ -167,6 +173,6 @@ public class ConfigurationSection {
 
    @Override
    public int hashCode() {
-      return contentMap.hashCode();
+      return this.contentMap.hashCode();
    }
 }
