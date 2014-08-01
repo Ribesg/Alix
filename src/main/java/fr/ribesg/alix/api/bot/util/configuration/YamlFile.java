@@ -54,7 +54,7 @@ public class YamlFile {
       this.load("alix.yml");
    }
 
-   protected void load(final String filePath) throws IOException {
+   public void load(final String filePath) throws IOException {
       final Path path = Paths.get(filePath);
       if (!Files.exists(path)) {
          Files.createFile(path);
@@ -69,7 +69,7 @@ public class YamlFile {
       }
    }
 
-   protected void loadFromString(final String yamlFileContent) {
+   public void loadFromString(final String yamlFileContent) {
       final Iterable<Object> documents = getYaml().loadAll(yamlFileContent);
       for (final Object o : documents) {
          @SuppressWarnings("unchecked")
@@ -82,14 +82,14 @@ public class YamlFile {
       this.save("alix.yml");
    }
 
-   protected void save(final String filePath) throws IOException {
+   public void save(final String filePath) throws IOException {
       final Path path = Paths.get(filePath);
       try (BufferedWriter writer = Files.newBufferedWriter(path, CHARSET, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE)) {
          writer.write(saveToString());
       }
    }
 
-   protected String saveToString() {
+   public String saveToString() {
       final List<Map<String, Object>> rawContentMap = new ArrayList<>();
       for (final YamlDocument document : this.documents) {
          rawContentMap.add(document.asMap());

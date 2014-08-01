@@ -37,7 +37,7 @@ public class ConfigurationSection {
       }
    }
 
-   public void set(final String key, Object o) {
+   public void set(final String key, final Object o) {
       if (o == null) {
          this.contentMap.remove(key);
       } else if (o instanceof ConfigurationSection) {
@@ -55,6 +55,14 @@ public class ConfigurationSection {
       return this.getAs(key, String.class);
    }
 
+   public String getString(final String key, final String def) {
+      try {
+         return this.getString(key);
+      } catch (final IllegalArgumentException e) {
+         return def;
+      }
+   }
+
    public boolean isInt(final String key) {
       return this.is(key, Integer.class);
    }
@@ -63,12 +71,44 @@ public class ConfigurationSection {
       return this.getAs(key, Integer.class);
    }
 
+   public int getInt(final String key, final int def) {
+      try {
+         return this.getInt(key);
+      } catch (final IllegalArgumentException e) {
+         return def;
+      }
+   }
+
+   public boolean isBoolean(final String key) {
+      return this.is(key, Boolean.class);
+   }
+
+   public Boolean getBoolean(final String key) {
+      return this.getAs(key, Boolean.class);
+   }
+
+   public boolean getBoolean(final String key, final boolean def) {
+      try {
+         return this.getBoolean(key);
+      } catch (final IllegalArgumentException e) {
+         return def;
+      }
+   }
+
    public boolean isList(final String key) {
       return this.is(key, List.class);
    }
 
    public List<?> getList(final String key) {
       return this.getAs(key, List.class);
+   }
+
+   public List<?> getList(final String key, final List<?> def) {
+      try {
+         return this.getList(key);
+      } catch (final IllegalArgumentException e) {
+         return def;
+      }
    }
 
    public boolean isStringList(final String key) {
@@ -88,6 +128,14 @@ public class ConfigurationSection {
    @SuppressWarnings("unchecked")
    public List<String> getStringList(final String key) {
       return (List<String>) this.getAs(key, List.class);
+   }
+
+   public List<String> getStringList(final String key, final List<String> def) {
+      try {
+         return this.getStringList(key);
+      } catch (final IllegalArgumentException e) {
+         return def;
+      }
    }
 
    public boolean isConfigurationSection(final String key) {

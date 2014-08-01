@@ -92,10 +92,11 @@ public abstract class Client {
       this.name = name;
       this.servers = new HashSet<>();
 
-      load();
-      connectToServers();
+      if (load()) {
+         connectToServers();
 
-      Runtime.getRuntime().addShutdownHook(new Thread(this::kill));
+         Runtime.getRuntime().addShutdownHook(new Thread(this::kill));
+      }
    }
 
    /**
@@ -194,10 +195,12 @@ public abstract class Client {
     * After calling this method, the Client will try to
     * connect to all servers ({@link #connectToServers()})
     *
+    * @return false if the Client should stop, true otherwise
+    *
     * @see fr.ribesg.alix.TestClient TestClient class for an example
     * implementation
     */
-   protected abstract void load();
+   protected abstract boolean load();
 
    /**
     * Creates a new CommandManager for this Client.

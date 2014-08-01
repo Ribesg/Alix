@@ -25,7 +25,7 @@ public class TestClient {
       new Client("AlixTestBot") {
 
          @Override
-         protected void load() {
+         protected boolean load() {
             final Server server = new Server(this, "irc.esper.net", 6667);
             server.addChannel("#alix");
             this.getServers().add(server);
@@ -51,12 +51,13 @@ public class TestClient {
                   return true;
                }
             });
+            return true;
          }
 
          @Override
          public void onServerJoined(final Server server) {
             /* Here you can register with NickServ for example
-				server.send(new PrivMsgIrcPacket("NickServ", "REGISTER SomePassword some@email"));
+            server.send(new PrivMsgIrcPacket("NickServ", "REGISTER SomePassword some@email"));
 				server.send(new PrivMsgIrcPacket("NickServ", "IDENTIFY SomePassword"));
 				*/
          }

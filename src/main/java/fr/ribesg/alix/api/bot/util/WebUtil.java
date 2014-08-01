@@ -8,6 +8,7 @@ package fr.ribesg.alix.api.bot.util;
 import fr.ribesg.alix.api.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class WebUtil {
    }
 
    /**
-    * Parse a web page content as a Jsoup Document.
+    * Parses a web page content as a Jsoup Document.
     *
     * @param documentContent the content of the web page in a single String
     *
@@ -74,6 +75,17 @@ public class WebUtil {
     */
    public static Document parseHtml(final String documentContent) {
       return Jsoup.parse(documentContent);
+   }
+
+   /**
+    * Parses an XML document as a Jsoup Document.
+    *
+    * @param documentContent the XML document
+    *
+    * @return the XML document as a Jsoup Document
+    */
+   public static Document parseXml(final String documentContent) {
+      return Jsoup.parse(documentContent, "", Parser.xmlParser());
    }
 
    /**
