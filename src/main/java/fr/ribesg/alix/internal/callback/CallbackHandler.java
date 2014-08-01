@@ -5,6 +5,7 @@
  */
 
 package fr.ribesg.alix.internal.callback;
+
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.callback.Callback;
@@ -12,11 +13,7 @@ import fr.ribesg.alix.api.callback.CallbackPriority;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
@@ -120,9 +117,9 @@ public class CallbackHandler {
       public void work() {
          for (final CallbackPriority priority : this.prioritizedCallbacks.keySet()) {
             final Iterable<Callback> callbacks = this.prioritizedCallbacks.get(priority);
-            if (!this.prioritizedCallbacks.isEmpty()) {
+            final Iterator<Callback> it = callbacks.iterator();
+            if (it.hasNext()) {
                final long now = System.currentTimeMillis();
-               final Iterator<Callback> it = callbacks.iterator();
                boolean removedCallback;
                do {
                   removedCallback = false;
