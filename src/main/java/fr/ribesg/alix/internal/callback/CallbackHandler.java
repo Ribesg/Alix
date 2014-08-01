@@ -54,7 +54,7 @@ public class CallbackHandler {
       try {
          this.cleanerThread.join();
       } catch (final InterruptedException e) {
-         Log.error(e);
+         Log.error(e.getMessage(), e);
       }
    }
 
