@@ -232,9 +232,7 @@ public abstract class Client {
     * @see Server#joinChannels() Joining Channels
     */
    private void connectToServers() {
-      for (final Server server : this.servers) {
-         server.connect();
-      }
+      this.servers.forEach(Server::connect);
 
       this.pingPongTask = new PingPongTask(this);
       this.pingPongTask.start();
