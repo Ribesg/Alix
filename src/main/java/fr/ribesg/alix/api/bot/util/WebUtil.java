@@ -17,18 +17,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class WebUtil {
 
    private static final String URL_SHORTENER_URL = "http://is.gd/create.php?format=simple&url=";
-   private static final Map<String, String> DEFAULT_HEADERS;
-   static {
-      DEFAULT_HEADERS = new HashMap<>();
-      DEFAULT_HEADERS.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, " + "like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-   }
 
    private static final int DEFAULT_TIMEOUT = 5_000;
 
@@ -106,7 +99,7 @@ public class WebUtil {
     * @throws IOException if something fails
     */
    public static String get(final String urlString) throws IOException {
-      return get(urlString, DEFAULT_TIMEOUT, null);
+      return get(urlString, DEFAULT_TIMEOUT);
    }
 
    /**
@@ -120,17 +113,14 @@ public class WebUtil {
     *
     * @throws IOException if something fails
     */
-   public static String get(final String urlString, final int timeOut, final Map<String, String> headers) throws IOException {
+   public static String get(final String urlString, final int timeOut) throws IOException {
       Log.debug("Getting page " + urlString + " ...");
 
       final URL url = new URL(urlString);
 
       final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-      DEFAULT_HEADERS.forEach(connection::setRequestProperty);
-      if (headers != null) {
-         headers.forEach(connection::setRequestProperty);
-      }
+      connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, " + "like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 
       connection.setConnectTimeout(timeOut);
       connection.setReadTimeout(timeOut);
