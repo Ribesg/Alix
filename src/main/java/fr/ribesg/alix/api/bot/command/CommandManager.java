@@ -5,6 +5,7 @@
  */
 
 package fr.ribesg.alix.api.bot.command;
+
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
@@ -88,35 +89,15 @@ public class CommandManager {
 
       // Check for collisions
       if (this.commands.containsKey(name)) {
-         throw new IllegalArgumentException("Failed to register Command '" +
-                                            name +
-                                            "': a Command with name '" +
-                                            name +
-                                            "' already exists!");
+         throw new IllegalArgumentException("Failed to register Command '" + name + "': a Command with name '" + name + "' already exists!");
       } else if (this.aliases.containsKey(name)) {
-         throw new IllegalArgumentException("Failed to register Command '" +
-                                            name +
-                                            "': the command '" +
-                                            this.aliases.get(name) +
-                                            "' already has '" +
-                                            name +
-                                            "' as an alias!");
+         throw new IllegalArgumentException("Failed to register Command '" + name + "': the command '" + this.aliases.get(name) + "' already has '" + name + "' as an alias!");
       } else {
          for (final String alias : aliases) {
             if (this.commands.containsKey(alias)) {
-               throw new IllegalArgumentException("Failed to register Command '" +
-                                                  name +
-                                                  "': a Command with name '" +
-                                                  alias +
-                                                  "' already exists!");
+               throw new IllegalArgumentException("Failed to register Command '" + name + "': a Command with name '" + alias + "' already exists!");
             } else if (this.aliases.containsKey(alias)) {
-               throw new IllegalArgumentException("Failed to register Command '" +
-                                                  name +
-                                                  "': the command '" +
-                                                  this.aliases.get(alias) +
-                                                  "' already has '" +
-                                                  alias +
-                                                  "' as an alias!");
+               throw new IllegalArgumentException("Failed to register Command '" + name + "': the command '" + this.aliases.get(alias) + "' already has '" + alias + "' as an alias!");
             }
          }
       }
@@ -215,7 +196,9 @@ public class CommandManager {
       final String[] args = Arrays.copyOfRange(messageSplit, 1, messageSplit.length);
 
       // Execute the Command
-      command.exec(server, channel, user, primaryArgument, args);
+      if (!command.exec(server, channel, user, primaryArgument, args)) {
+         command.sendUsage(this.commandPrefix, channel == null ? user : channel);
+      }
    }
 
    /**
