@@ -26,7 +26,7 @@ public class TestClient {
 
          @Override
          protected boolean load() {
-            final Server server = new Server(this, "irc.esper.net", 6667);
+            final Server server = new Server(this, "EsperNet", "irc.esper.net", 6667);
             server.addChannel("#alix");
             this.getServers().add(server);
 

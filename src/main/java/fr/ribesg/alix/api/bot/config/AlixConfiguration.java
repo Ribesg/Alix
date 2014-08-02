@@ -5,6 +5,7 @@
  */
 
 package fr.ribesg.alix.api.bot.config;
+
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
@@ -31,26 +32,26 @@ public class AlixConfiguration {
    public static AlixConfiguration getDefault(final String fileName) {
       final AlixConfiguration result = new AlixConfiguration(fileName);
       result.mainNick = "AlixTestBot";
-      result.servers.add(new Server(null, "irc.test.net", 6667) {{
+      result.servers.add(new Server(null, "Test", "irc.test.net", 6667) {{
          addChannel("#channelOne");
          addChannel("#channelTwo");
       }});
-      result.servers.add(new Server(null, "AlixTestBot", "irc.someServer.net", 1337, SSLType.TRUSTING) {{
+      result.servers.add(new Server(null, "SomeServer", "AlixTestBot", "irc.someServer.net", 1337, SSLType.TRUSTING) {{
          addChannel("#channelOne");
          addChannel("#channelTwo");
       }});
-      result.servers.add(new Server(null, "AlixTestBot_", "irc.someOtherServer.net", 6697, SSLType.SECURED) {{
+      result.servers.add(new Server(null, "SomeOtherServer", "AlixTestBot_", "irc.someOtherServer.net", 6697, SSLType.SECURED) {{
          addChannel("#channelOne");
          addChannel("#channelTwo");
       }});
       return result;
    }
 
-   private final String   fileName;
+   private final String fileName;
    private final YamlFile file;
 
    protected final List<Server> servers;
-   protected       String       mainNick;
+   protected String mainNick;
 
    public AlixConfiguration() {
       this("alix.yml");
@@ -74,6 +75,7 @@ public class AlixConfiguration {
          this.loadMainAdditional(firstDocument);
          for (int i = 1; i < this.file.getDocuments().size(); i++) {
             final YamlDocument document = this.file.getDocuments().get(i);
+            final String name = document.getString("name");
             final String url = document.getString("url");
             final int port = document.getInt("port");
             final SSLType sslType;
@@ -89,7 +91,7 @@ public class AlixConfiguration {
             } else {
                clientNick = this.mainNick;
             }
-            final Server server = new Server(client, clientNick, url, port, sslType);
+            final Server server = new Server(client, name, clientNick, url, port, sslType);
             channels.forEach(server::addChannel);
             this.servers.add(server);
             this.loadServerAdditional(server, document);
@@ -125,11 +127,13 @@ public class AlixConfiguration {
 
       for (final Server server : this.servers) {
          final YamlDocument document = new YamlDocument();
+         final String name = server.getName();
          final String url = server.getUrl();
          final int port = server.getPort();
          final SSLType sslType = server.getSslType();
          final List<String> channels = server.getChannels().stream().map(Channel::getName).collect(Collectors.toList());
          final String clientNick = server.getClientNick();
+         document.set("name", name);
          document.set("url", url);
          document.set("port", port);
          if (sslType != SSLType.NONE) {

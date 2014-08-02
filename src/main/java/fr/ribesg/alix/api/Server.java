@@ -31,6 +31,11 @@ public class Server {
    private final Client client;
 
    /**
+    * The server name
+    */
+   private final String name;
+
+   /**
     * The url used to connect to this server
     * May be a hostname or an IP
     */
@@ -84,14 +89,16 @@ public class Server {
     * Main constructor.
     *
     * @param client     the Client this Server is / will be connected to
+    * @param serverName the Server's name
     * @param clientNick the Client name on this Server
     * @param url        the url of this Server (IP or FQDN)
     * @param port       the port of this Server
     * @param sslType    If this connection should use secured SSL, trusting SSL
     *                   or no SSL
     */
-   public Server(final Client client, final String clientNick, final String url, final int port, final SSLType sslType) {
+   public Server(final Client client, final String serverName, final String clientNick, final String url, final int port, final SSLType sslType) {
       this.client = client;
+      this.name = serverName;
       this.clientNick = clientNick;
       this.url = url;
       this.port = port;
@@ -104,12 +111,13 @@ public class Server {
    /**
     * Convenient constructor for SSL-free connection.
     *
-    * @param client the Client this Server is / will be connected to
-    * @param url    the url of this Server (IP or FQDN)
-    * @param port   the port of this Server
+    * @param client     the Client this Server is / will be connected to
+    * @param serverName the Server's name
+    * @param url        the url of this Server (IP or FQDN)
+    * @param port       the port of this Server
     */
-   public Server(final Client client, final String url, final int port) {
-      this(client, client == null ? "AlixTestBot" : client.getName(), url, port, SSLType.NONE);
+   public Server(final Client client, final String serverName, final String url, final int port) {
+      this(client, serverName, client == null ? "AlixTestBot" : client.getName(), url, port, SSLType.NONE);
    }
 
    /**
@@ -117,6 +125,13 @@ public class Server {
     */
    public Client getClient() {
       return client;
+   }
+
+   /**
+    * @return the Server's name
+    */
+   public String getName() {
+      return name;
    }
 
    /**
