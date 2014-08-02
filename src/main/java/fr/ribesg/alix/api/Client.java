@@ -212,9 +212,11 @@ public abstract class Client {
     *                      CommandManager
     * @param botAdmins     a Set of nicknames which have to be considered
     *                      as Admins
+    *
+    * @return the command manager created
     */
-   protected final void createCommandManager(final String commandPrefix, final Set<String> botAdmins) {
-      this.commandManager = new CommandManager(commandPrefix, botAdmins);
+   protected CommandManager createCommandManager(final String commandPrefix, final Set<String> botAdmins) {
+      return this.commandManager = new CommandManager(commandPrefix, botAdmins);
    }
 
    /**
