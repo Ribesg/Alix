@@ -70,6 +70,11 @@ public class Server {
    private String clientNick;
 
    /**
+    * The client username on this Server
+    */
+   private String clientUserName;
+
+   /**
     * The SocketHandler dedicated to this Server
     */
    private SocketHandler socket;
@@ -93,19 +98,21 @@ public class Server {
    /**
     * Main constructor.
     *
-    * @param client     the Client this Server is / will be connected to
-    * @param serverName the Server's name
-    * @param clientNick the Client name on this Server
-    * @param url        the url of this Server (IP or FQDN)
-    * @param port       the port of this Server
-    * @param password   the Server's password
-    * @param sslType    If this connection should use secured SSL, trusting SSL
-    *                   or no SSL
+    * @param client         the Client this Server is / will be connected to
+    * @param serverName     the Server's name
+    * @param clientNick     the Client name on this Server
+    * @param clientUserName the Client username on this Server
+    * @param url            the url of this Server (IP or FQDN)
+    * @param port           the port of this Server
+    * @param password       the Server's password
+    * @param sslType        If this connection should use secured SSL, trusting SSL
+    *                       or no SSL
     */
-   public Server(final Client client, final String serverName, final String clientNick, final String url, final int port, final String password, final SSLType sslType) {
+   public Server(final Client client, final String serverName, final String clientNick, final String clientUserName, final String url, final int port, final String password, final SSLType sslType) {
       this.client = client;
       this.name = serverName;
       this.clientNick = clientNick;
+      this.clientUserName = clientUserName;
       this.url = url;
       this.port = port;
       this.password = password;
@@ -118,16 +125,17 @@ public class Server {
    /**
     * Convenient constructor for password-free connection.
     *
-    * @param client     the Client this Server is / will be connected to
-    * @param serverName the Server's name
-    * @param clientNick the Client name on this Server
-    * @param url        the url of this Server (IP or FQDN)
-    * @param port       the port of this Server
-    * @param sslType    If this connection should use secured SSL, trusting SSL
-    *                   or no SSL
+    * @param client         the Client this Server is / will be connected to
+    * @param serverName     the Server's name
+    * @param clientNick     the Client name on this Server
+    * @param clientUserName the Client username on this Server
+    * @param url            the url of this Server (IP or FQDN)
+    * @param port           the port of this Server
+    * @param sslType        If this connection should use secured SSL, trusting SSL
+    *                       or no SSL
     */
-   public Server(final Client client, final String serverName, final String clientNick, final String url, final int port, final SSLType sslType) {
-      this(client, serverName, clientNick, url, port, null, sslType);
+   public Server(final Client client, final String serverName, final String clientNick, final String clientUserName, final String url, final int port, final SSLType sslType) {
+      this(client, serverName, clientNick, clientUserName, url, port, null, sslType);
    }
 
    /**
@@ -140,7 +148,7 @@ public class Server {
     * @param password   the Server's password
     */
    public Server(final Client client, final String serverName, final String url, final int port, final String password) {
-      this(client, serverName, client == null ? "AlixTestBot" : client.getName(), url, port, password, SSLType.NONE);
+      this(client, serverName, client == null ? "AlixTestBot" : client.getName(), client == null ? "AlixTestBot" : client.getName(), url, port, password, SSLType.NONE);
    }
 
    /**
@@ -152,7 +160,7 @@ public class Server {
     * @param port       the port of this Server
     */
    public Server(final Client client, final String serverName, final String url, final int port) {
-      this(client, serverName, client == null ? "AlixTestBot" : client.getName(), url, port, null, SSLType.NONE);
+      this(client, serverName, client == null ? "AlixTestBot" : client.getName(), client == null ? "AlixTestBot" : client.getName(), url, port, null, SSLType.NONE);
    }
 
    /**
@@ -188,6 +196,13 @@ public class Server {
     */
    public void setClientNick(final String clientNick) {
       this.clientNick = clientNick;
+   }
+
+   /**
+    * @return the Client username on this Server
+    */
+   public String getClientUserName() {
+      return clientUserName;
    }
 
    /**

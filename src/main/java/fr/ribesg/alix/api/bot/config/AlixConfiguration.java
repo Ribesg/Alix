@@ -38,11 +38,11 @@ public class AlixConfiguration {
          addChannel("#channelOne");
          addChannel("#channelTwo");
       }});
-      result.servers.add(new Server(null, "SomeServer", "AlixTestBot", "irc.someServer.net", 1337, SSLType.TRUSTING) {{
+      result.servers.add(new Server(null, "SomeServer", "AlixTestBot", "AlixTestBot", "irc.someServer.net", 1337, SSLType.TRUSTING) {{
          addChannel("#channelOne");
          addChannel("#channelTwo");
       }});
-      result.servers.add(new Server(null, "SomeOtherServer", "AlixTestBot_", "irc.someOtherServer.net", 6697, SSLType.SECURED) {{
+      result.servers.add(new Server(null, "SomeOtherServer", "AlixTestBot_", "AlixTestBot_", "irc.someOtherServer.net", 6697, SSLType.SECURED) {{
          addChannel("#channelOne");
          addChannel("#channelTwo");
       }});
@@ -94,7 +94,13 @@ public class AlixConfiguration {
             } else {
                clientNick = this.mainNick;
             }
-            final Server server = new Server(client, name, clientNick, url, port, password, sslType);
+            final String clientUserName;
+            if (document.isString("clientUserName")) {
+               clientUserName = document.getString("clientUserName");
+            } else {
+               clientUserName = this.mainNick;
+            }
+            final Server server = new Server(client, name, clientNick, clientUserName, url, port, password, sslType);
             if (password != null) {
                Log.addFilter(Pattern.quote(password), "**********");
             }
@@ -140,6 +146,7 @@ public class AlixConfiguration {
          final SSLType sslType = server.getSslType();
          final List<String> channels = server.getChannels().stream().map(Channel::getName).collect(Collectors.toList());
          final String clientNick = server.getClientNick();
+         final String clientUserName = server.getClientUserName();
          document.set("name", name);
          document.set("url", url);
          document.set("port", port);
@@ -152,6 +159,9 @@ public class AlixConfiguration {
          document.set("channels", channels);
          if (!clientNick.equals(this.mainNick)) {
             document.set("clientNick", clientNick);
+         }
+         if (!clientUserName.equals(this.mainNick)) {
+            document.set("clientUserName", clientUserName);
          }
          this.saveServerAdditional(server, document);
          this.file.getDocuments().add(document);
