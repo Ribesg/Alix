@@ -20,7 +20,7 @@ import java.util.Collection;
 @RunWith(Parameterized.class)
 public class TestPrefixParser {
 
-   private static final Server DUMMY_SERVER = new Server(null, null, 0);
+   private static final Server DUMMY_SERVER = new Server(null, null, null, 0);
 
    private final Source awaitedSource;
    private final String prefix;
