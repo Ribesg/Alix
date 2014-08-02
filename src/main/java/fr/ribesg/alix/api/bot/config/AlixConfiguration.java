@@ -8,6 +8,7 @@ package fr.ribesg.alix.api.bot.config;
 
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Client;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.bot.util.configuration.YamlDocument;
 import fr.ribesg.alix.api.bot.util.configuration.YamlFile;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -78,6 +80,7 @@ public class AlixConfiguration {
             final String name = document.getString("name");
             final String url = document.getString("url");
             final int port = document.getInt("port");
+            final String password = document.getString("password", null);
             final SSLType sslType;
             if (document.isString("ssl")) {
                sslType = SSLType.valueOf(document.getString("ssl"));
@@ -91,7 +94,10 @@ public class AlixConfiguration {
             } else {
                clientNick = this.mainNick;
             }
-            final Server server = new Server(client, name, clientNick, url, port, sslType);
+            final Server server = new Server(client, name, clientNick, url, port, password, sslType);
+            if (password != null) {
+               Log.addFilter(Pattern.quote(password), "**********");
+            }
             channels.forEach(server::addChannel);
             this.servers.add(server);
             this.loadServerAdditional(server, document);
@@ -130,12 +136,16 @@ public class AlixConfiguration {
          final String name = server.getName();
          final String url = server.getUrl();
          final int port = server.getPort();
+         final String password = server.getPassword();
          final SSLType sslType = server.getSslType();
          final List<String> channels = server.getChannels().stream().map(Channel::getName).collect(Collectors.toList());
          final String clientNick = server.getClientNick();
          document.set("name", name);
          document.set("url", url);
          document.set("port", port);
+         if (password != null) {
+            document.set("password", password);
+         }
          if (sslType != SSLType.NONE) {
             document.set("ssl", sslType.name());
          }

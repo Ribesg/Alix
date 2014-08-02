@@ -31,7 +31,7 @@ public class Server {
    private final Client client;
 
    /**
-    * The server name
+    * The Server's name
     */
    private final String name;
 
@@ -46,6 +46,11 @@ public class Server {
     * Default: 6667
     */
    private final int port;
+
+   /**
+    * The Server's password, if any
+    */
+   private final String password;
 
    /**
     * If this Server should be joined with secured SSL, trusting SSL
@@ -93,19 +98,36 @@ public class Server {
     * @param clientNick the Client name on this Server
     * @param url        the url of this Server (IP or FQDN)
     * @param port       the port of this Server
+    * @param password   the Server's password
     * @param sslType    If this connection should use secured SSL, trusting SSL
     *                   or no SSL
     */
-   public Server(final Client client, final String serverName, final String clientNick, final String url, final int port, final SSLType sslType) {
+   public Server(final Client client, final String serverName, final String clientNick, final String url, final int port, final String password, final SSLType sslType) {
       this.client = client;
       this.name = serverName;
       this.clientNick = clientNick;
       this.url = url;
       this.port = port;
+      this.password = password;
       this.sslType = sslType;
       this.channels = new HashMap<>();
       this.socket = null;
       this.connected = false;
+   }
+
+   /**
+    * Convenient constructor for password-free connection.
+    *
+    * @param client     the Client this Server is / will be connected to
+    * @param serverName the Server's name
+    * @param clientNick the Client name on this Server
+    * @param url        the url of this Server (IP or FQDN)
+    * @param port       the port of this Server
+    * @param sslType    If this connection should use secured SSL, trusting SSL
+    *                   or no SSL
+    */
+   public Server(final Client client, final String serverName, final String clientNick, final String url, final int port, final SSLType sslType) {
+      this(client, serverName, clientNick, url, port, null, sslType);
    }
 
    /**
@@ -115,9 +137,22 @@ public class Server {
     * @param serverName the Server's name
     * @param url        the url of this Server (IP or FQDN)
     * @param port       the port of this Server
+    * @param password   the Server's password
+    */
+   public Server(final Client client, final String serverName, final String url, final int port, final String password) {
+      this(client, serverName, client == null ? "AlixTestBot" : client.getName(), url, port, password, SSLType.NONE);
+   }
+
+   /**
+    * Convenient constructor for SSL-free and password-free connection.
+    *
+    * @param client     the Client this Server is / will be connected to
+    * @param serverName the Server's name
+    * @param url        the url of this Server (IP or FQDN)
+    * @param port       the port of this Server
     */
    public Server(final Client client, final String serverName, final String url, final int port) {
-      this(client, serverName, client == null ? "AlixTestBot" : client.getName(), url, port, SSLType.NONE);
+      this(client, serverName, client == null ? "AlixTestBot" : client.getName(), url, port, null, SSLType.NONE);
    }
 
    /**
@@ -235,6 +270,15 @@ public class Server {
     */
    public int getPort() {
       return port;
+   }
+
+   /**
+    * Gets the Server's password, if any.
+    *
+    * @return the Server's password, if any, null otherwise
+    */
+   public String getPassword() {
+      return password;
    }
 
    /**
