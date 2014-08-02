@@ -382,7 +382,7 @@ public class Server {
             return;
          }
          this.socket.write(new NickIrcPacket(getClientNick()));
-         this.socket.write(new UserIrcPacket(getClientNick(), client.getName()));
+         this.socket.write(new UserIrcPacket(getClientUserName(), client.getName()));
 
          Log.info("Successfully connected to " + this.url + ":" + this.port);
          Log.info("Waiting for Welcome message...");
