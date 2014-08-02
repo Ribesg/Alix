@@ -8,10 +8,7 @@ package fr.ribesg.alix.api;
 
 import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.callback.Callback;
-import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.api.message.NickIrcPacket;
-import fr.ribesg.alix.api.message.QuitIrcPacket;
-import fr.ribesg.alix.api.message.UserIrcPacket;
+import fr.ribesg.alix.api.message.*;
 import fr.ribesg.alix.api.network.ssl.SSLType;
 import fr.ribesg.alix.internal.network.SocketHandler;
 
@@ -380,6 +377,9 @@ public class Server {
          } catch (final IOException e) {
             Log.error("Failed to connect to Server", e);
             return;
+         }
+         if (getPassword() != null) {
+            this.socket.write(new PassIrcPacket(getPassword()));
          }
          this.socket.write(new NickIrcPacket(getClientNick()));
          this.socket.write(new UserIrcPacket(getClientUserName(), client.getName()));
