@@ -113,16 +113,15 @@ public abstract class Command {
          this.aliases[i] = this.aliases[i].toLowerCase();
       }
 
-      final String commandString = this.toString();
       this.usage = new String[1 + (usage == null ? 0 : usage.length - 1) + (this.aliases.length > 0 ? 1 : 0)];
-      this.usage[0] = commandString + " - " + (usage != null && usage.length > 0 ? usage[0] : "");
+      this.usage[0] = this.name + " - " + (usage != null && usage.length > 0 ? usage[0] : "");
       if (usage != null && usage.length > 1) {
          for (int i = 1; i < usage.length; i++) {
-            this.usage[i] = ArtUtil.spaces(commandString.length()) + " | " + usage[i].replaceAll("##", commandString);
+            this.usage[i] = ArtUtil.spaces(this.name.length()) + " | " + usage[i].replaceAll("##", this.name);
          }
       }
       if (this.aliases.length > 0) {
-         final StringBuilder aliasesStringBuilder = new StringBuilder(ArtUtil.spaces(commandString.length()) + " | Aliases: " + this.aliases[0]);
+         final StringBuilder aliasesStringBuilder = new StringBuilder(ArtUtil.spaces(this.name.length()) + " | Aliases: " + this.aliases[0]);
          for (int i = 1; i < this.aliases.length; i++) {
             aliasesStringBuilder.append(", ").append(this.aliases[i]);
          }
