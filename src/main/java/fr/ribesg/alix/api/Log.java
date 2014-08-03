@@ -13,8 +13,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -109,7 +110,12 @@ public class Log {
    private static void paste(final Priority level, final String message, final Throwable t) {
       final StringBuilder builder = new StringBuilder();
       builder.append(message).append("\n\n");
-      Arrays.stream(t.getStackTrace()).forEach((st) -> builder.append(st.toString()).append('\n'));
+
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
+      final PrintStream printOut = new PrintStream(out);
+      t.printStackTrace(printOut);
+      builder.append(out.toString());
+
       final String longLink = PasteUtil.paste(builder.toString());
       String link;
       try {
