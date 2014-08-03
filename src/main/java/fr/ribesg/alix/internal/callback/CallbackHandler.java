@@ -80,7 +80,15 @@ public class CallbackHandler {
             Client.getThreadPool().submit(callback::onTimeout);
             it.remove();
          } else if (callback.listensTo(code)) {
-            if (callback.onIrcPacket(packet)) {
+            final boolean result;
+            try {
+               result = callback.onIrcPacket(packet);
+            } catch (final Throwable t) {
+               Log.error("Error in Callback while handling packet '" + packet + "', Callback abandoned.", t);
+               it.remove();
+               return;
+            }
+            if (result) {
                Log.debug("DEBUG: Packet handled by a Callback!");
                it.remove();
             }
