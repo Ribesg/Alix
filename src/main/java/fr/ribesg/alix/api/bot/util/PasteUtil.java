@@ -84,7 +84,7 @@ public class PasteUtil {
          LOG.error("Failed to Gist", e);
          LOG.error("This is what I was trying to Gist:\n##########\n" + toGist + "\n##########\n");
          LOG.error("Failed to Gist, error above.");
-         return "Error. Limit exceeded?";
+         return "Gist Error. Limit exceeded?";
       }
    }
 
