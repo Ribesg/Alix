@@ -5,12 +5,14 @@
  */
 
 package fr.ribesg.alix.internal.callback;
+
 import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,12 +27,12 @@ import java.util.Set;
  */
 public class NamesCallback extends Callback {
 
-   private static final String[] LISTENED_CODES = new String[] {
+   private static final String[] LISTENED_CODES = new String[]{
       Reply.RPL_NAMREPLY.getIntCodeAsString(),
       Reply.RPL_ENDOFNAMES.getIntCodeAsString()
    };
 
-   private final Channel     channel;
+   private final Channel channel;
    private final Set<String> users;
 
    public NamesCallback(final Channel channel) {
@@ -45,8 +47,9 @@ public class NamesCallback extends Callback {
    }
 
    @Override
-   public boolean onIrcPacket(final IrcPacket packet) {
-      Log.debug("DEBUG: Received packet " + packet);
+   public boolean onReceivedPacket(final ReceivedPacketEvent event) {
+      Log.debug("DEBUG: Received packet " + event);
+      final IrcPacket packet = event.getPacket();
       String channelName;
       switch (Reply.getFromCode(packet.getRawCommandString())) {
          case RPL_NAMREPLY: // A part of the complete Users Set
@@ -55,6 +58,7 @@ public class NamesCallback extends Callback {
                Log.debug("DEBUG: Handled, adding to the list");
                final String[] users = packet.getTrail().split(Codes.SP);
                Collections.addAll(this.users, users);
+               event.consume();
             }
             return false;
          case RPL_ENDOFNAMES: // Notification of the End of the Users Set
@@ -63,6 +67,7 @@ public class NamesCallback extends Callback {
                Log.debug("DEBUG: Handled, unlocking");
                this.channel.setUsers(this.users);
                this.runAllCallbacks();
+               event.consume();
                return true;
             } else {
                return false;

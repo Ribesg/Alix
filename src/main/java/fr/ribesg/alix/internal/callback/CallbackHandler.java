@@ -11,6 +11,7 @@ import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.callback.CallbackPriority;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
 import java.util.*;
@@ -67,9 +68,10 @@ public class CallbackHandler {
    /**
     * See if a Callback handles an incoming IRC Packet.
     *
-    * @param packet the incoming IRC Packet
+    * @param event the incoming IRC Packet event
     */
-   public void handle(final CallbackPriority priority, final IrcPacket packet) {
+   public void handle(final CallbackPriority priority, final ReceivedPacketEvent event) {
+      final IrcPacket packet = event.getPacket();
       final Iterable<Callback> callbacks = this.prioritizedCallbacks.get(priority);
       final String code = packet.getRawCommandString().toUpperCase();
       final long now = System.currentTimeMillis();
@@ -82,14 +84,14 @@ public class CallbackHandler {
          } else if (callback.listensTo(code)) {
             final boolean result;
             try {
-               result = callback.onIrcPacket(packet);
+               result = callback.onReceivedPacket(event);
             } catch (final Throwable t) {
-               Log.error("Error in Callback while handling packet '" + packet + "', Callback abandoned.", t);
+               Log.error("Error in Callback while handling event '" + event + "', Callback abandoned.", t);
                it.remove();
                return;
             }
             if (result) {
-               Log.debug("DEBUG: Packet handled by a Callback!");
+               Log.debug("DEBUG: Callback done!");
                it.remove();
             }
          }

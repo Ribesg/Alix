@@ -6,18 +6,14 @@
 
 package fr.ribesg.alix.internal;
 
-import fr.ribesg.alix.api.Channel;
-import fr.ribesg.alix.api.Client;
-import fr.ribesg.alix.api.Log;
-import fr.ribesg.alix.api.Server;
-import fr.ribesg.alix.api.Source;
+import fr.ribesg.alix.api.*;
 import fr.ribesg.alix.api.callback.CallbackPriority;
 import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.enums.Reply;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.PongIrcPacket;
 import fr.ribesg.alix.internal.callback.CallbackHandler;
-import fr.ribesg.alix.internal.network.ReceivedPacket;
+import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
 import java.util.concurrent.BlockingQueue;
@@ -47,7 +43,7 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
     * The Queue of received packets, populated by
     * {@link fr.ribesg.alix.internal.network.SocketReceiver}
     */
-   private final BlockingQueue<ReceivedPacket> packetBuffer;
+   private final BlockingQueue<ReceivedPacketEvent> packetBuffer;
 
    /**
     * The Callback handler
@@ -80,100 +76,111 @@ public class InternalMessageHandler extends AbstractRepeatingThread {
 
    public void queue(final Server server, final String packet) {
       Log.debug("DEBUG: Queue packet " + packet);
-      this.packetBuffer.add(new ReceivedPacket(server, packet));
+      this.packetBuffer.add(new ReceivedPacketEvent(server, packet));
    }
 
    @Override
    public void work() {
-      ReceivedPacket packet;
-      while ((packet = this.packetBuffer.poll()) != null) {
-         Log.debug("DEBUG: Poll packet " + packet.getPacket());
-         this.handleMessage(packet.getSource(), packet.getPacket());
+      ReceivedPacketEvent event;
+      while ((event = this.packetBuffer.poll()) != null) {
+         Log.debug("DEBUG: Poll packet " + event.getPacket());
+         this.handleMessage(event);
       }
    }
 
    /**
     * Handles received messages.
     *
-    * @param server       the Server the message come from
-    * @param packetString the raw IRC message to handle
+    * @param event the IRC message to handle
     */
-   public void handleMessage(final Server server, final String packetString) {
+   public void handleMessage(final ReceivedPacketEvent event) {
+      Log.debug("DEBUG: Handling Event " + event);
 
-      Log.debug("DEBUG: Handling Packet " + packetString);
-
+      final Server server = event.getServer();
+      final IrcPacket packet = event.getPacket();
       server.setJoined(true);
-
-      // Parse the IRC Packet
-      final IrcPacket packet = IrcPacket.parseMessage(packetString);
 
       // Callback Handler: High priorities
       if (this.callbackHandler != null) {
-         this.callbackHandler.handle(CallbackPriority.HIGHEST, packet);
-         this.callbackHandler.handle(CallbackPriority.HIGH, packet);
+         this.callbackHandler.handle(CallbackPriority.HIGHEST, event);
+         this.callbackHandler.handle(CallbackPriority.HIGH, event);
       }
 
       // Raw IRC Packet
       client.onRawIrcMessage(server, packet);
 
-      // Command?
-      final boolean isCommand = packet.isValidCommand();
-      if (isCommand) {
-         final Command cmd = packet.getCommandAsCommand();
-         switch (cmd) {
-            // TODO Handle NICK Command
-            case PING:
-               server.send(new PongIrcPacket(packet.getTrail()), true);
-               break;
-            case JOIN:
-            case PART:
-               handleJoinPart(server, cmd == Command.JOIN, packet);
-               break;
-            case KICK:
-               handleKick(server, packet);
-               break;
-            case QUIT:
-               handleQuit(server, packet);
-               break;
-            case PRIVMSG:
-               handlePrivMsg(server, packet);
-               break;
-            default:
-               break;
-         }
-      }
+      if (!event.isConsumed()) {
 
-      // Reply?
-      else if (packet.isValidReply()) {
-         final Reply rep = packet.getCommandAsReply();
-         switch (rep) {
-            case RPL_WELCOME:
-               server.setConnected(true);
-               Client.getThreadPool().submit(server::joinChannels);
-               Client.getThreadPool().submit(() -> client.onServerJoined(server));
-               break;
-            case RPL_TOPIC:
-               final String channelName = packet.getParameters()[1];
-               final Channel channel = server.getChannel(channelName);
-               channel.setTopic(packet.getTrail());
-               break;
-            case ERR_NICKNAMEINUSE:
-            case ERR_NICKCOLLISION:
-               Client.getThreadPool().submit(() -> client.switchToBackupName(server));
-               break;
-            default:
-               break;
+         // Command?
+         final boolean isCommand = packet.isValidCommand();
+         if (isCommand) {
+            final Command cmd = packet.getCommandAsCommand();
+            switch (cmd) {
+               // TODO Handle NICK Command
+               case PING:
+                  server.send(new PongIrcPacket(packet.getTrail()), true);
+                  event.consume();
+                  break;
+               case JOIN:
+               case PART:
+                  handleJoinPart(server, cmd == Command.JOIN, packet);
+                  event.consume();
+                  break;
+               case KICK:
+                  handleKick(server, packet);
+                  event.consume();
+                  break;
+               case QUIT:
+                  handleQuit(server, packet);
+                  event.consume();
+                  break;
+               case PRIVMSG:
+                  handlePrivMsg(server, packet);
+                  event.consume();
+                  break;
+               default:
+                  break;
+            }
          }
-      } else {
-         // Reply code not defined by the RFCs
-         Log.warn("Unknown command/reply code: " + packet.getRawCommandString());
+
+         // Reply?
+         else if (packet.isValidReply()) {
+            final Reply rep = packet.getCommandAsReply();
+            switch (rep) {
+               case RPL_WELCOME:
+                  server.setConnected(true);
+                  Client.getThreadPool().submit(server::joinChannels);
+                  Client.getThreadPool().submit(() -> client.onServerJoined(server));
+                  event.consume();
+                  break;
+               case RPL_TOPIC:
+                  final String channelName = packet.getParameters()[1];
+                  final Channel channel = server.getChannel(channelName);
+                  channel.setTopic(packet.getTrail());
+                  event.consume();
+                  break;
+               case ERR_NICKNAMEINUSE:
+               case ERR_NICKCOLLISION:
+                  Client.getThreadPool().submit(() -> client.switchToBackupName(server));
+                  event.consume();
+                  break;
+               default:
+                  break;
+            }
+         } else {
+            // Reply code not defined by the RFCs
+            Log.warn("Unknown command/reply code: " + packet.getRawCommandString());
+         }
+
       }
 
       // Callback Handler: Low priorities
       if (this.callbackHandler != null) {
-         this.callbackHandler.handle(CallbackPriority.LOW, packet);
-         this.callbackHandler.handle(CallbackPriority.LOWEST, packet);
+         this.callbackHandler.handle(CallbackPriority.LOW, event);
+         this.callbackHandler.handle(CallbackPriority.LOWEST, event);
       }
+
+      Log.debug("DEBUG: Packet " + (event.isConsumed() ? "not" : "") + " consumed: " + packet);
    }
 
    private void handleJoinPart(final Server server, final boolean isJoin, final IrcPacket packet) {

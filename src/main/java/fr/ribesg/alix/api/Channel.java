@@ -5,18 +5,16 @@
  */
 
 package fr.ribesg.alix.api;
+
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Command;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.internal.callback.NamesCallback;
+import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -210,12 +208,14 @@ public class Channel extends Receiver {
          final Callback joinCallback = new Callback(Command.JOIN.name()) {
 
             @Override
-            public boolean onIrcPacket(final IrcPacket packet) {
+            public boolean onReceivedPacket(final ReceivedPacketEvent event) {
+               final IrcPacket packet = event.getPacket();
                final Source user = packet.getPrefixAsSource(this.server);
                final String channelName = packet.getParameters()[0];
                if (Channel.this.getName().equals(channelName) && server.getClient().getName().equals(user.getName())) {
                   Channel.this.updateUsers();
                   // TODO Other things to update like topic and modes
+                  event.consume();
                   return true;
                } else {
                   return false;

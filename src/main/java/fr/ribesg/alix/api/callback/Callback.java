@@ -5,17 +5,15 @@
  */
 
 package fr.ribesg.alix.api.callback;
+
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents a Callback for a sent IrcPacket.
@@ -80,9 +78,9 @@ public abstract class Callback {
     * <p>
     * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
     * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
-    * calls to {@link #onIrcPacket(IrcPacket)} to them.
+    * calls to {@link #onReceivedPacket(ReceivedPacketEvent)} to them.
     * <p>
-    * If no argument is passed, {@link #onIrcPacket(IrcPacket)} will be
+    * If no argument is passed, {@link #onReceivedPacket(ReceivedPacketEvent)} will be
     * called for every incoming {@link IrcPacket} until the method
     * returns true.
     * <p>
@@ -113,10 +111,10 @@ public abstract class Callback {
     * <p>
     * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
     * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
-    * calls to {@link #onIrcPacket(IrcPacket)} to them.
+    * calls to {@link #onReceivedPacket(ReceivedPacketEvent)} to them.
     * <p>
-    * If listenedCodes is empty, {@link #onIrcPacket(IrcPacket)} will be
-    * called for every incoming {@link IrcPacket} until the method
+    * If listenedCodes is empty, {@link #onReceivedPacket(ReceivedPacketEvent)}
+    * will be called for every incoming {@link IrcPacket} until the method
     * returns true.
     * <p>
     * Of course listened Codes have to be uppercase to follow IRC RFCs.
@@ -134,10 +132,10 @@ public abstract class Callback {
     * <p>
     * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
     * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
-    * calls to {@link #onIrcPacket(IrcPacket)} to them.
+    * calls to {@link #onReceivedPacket(ReceivedPacketEvent)} to them.
     * <p>
-    * If no argument is passed, {@link #onIrcPacket(IrcPacket)} will be
-    * called for every incoming {@link IrcPacket} until the method
+    * If no argument is passed, {@link #onReceivedPacket(ReceivedPacketEvent)}
+    * will be called for every incoming {@link IrcPacket} until the method
     * returns true.
     * <p>
     * Of course listened Codes have to be uppercase to follow IRC RFCs.
@@ -158,9 +156,9 @@ public abstract class Callback {
     * <p>
     * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
     * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
-    * calls to {@link #onIrcPacket(IrcPacket)} to them.
+    * calls to {@link #onReceivedPacket(ReceivedPacketEvent)} to them.
     * <p>
-    * If listenedCodes is empty, {@link #onIrcPacket(IrcPacket)} will be
+    * If listenedCodes is empty, {@link #onReceivedPacket(ReceivedPacketEvent)} will be
     * called for every incoming {@link IrcPacket} until the method
     * returns true.
     * <p>
@@ -283,12 +281,13 @@ public abstract class Callback {
     * <p>
     * Please @see #onTimeout()
     *
-    * @param packet a received IrcPacket matching {@link #listenedCodes} if
-    *               defined, any received IrcPacket otherwise
+    * @param event an event relative to a received IrcPacket matching
+    *              {@link #listenedCodes} if defined, any received IrcPacket
+    *              otherwise
     *
     * @return true if the Callback's job is done, false otherwise
     */
-   public abstract boolean onIrcPacket(final IrcPacket packet);
+   public abstract boolean onReceivedPacket(final ReceivedPacketEvent event);
 
    /**
     * This method will be called when this Callback times out.
@@ -298,6 +297,6 @@ public abstract class Callback {
    // TODO This should maybe throw an Exception? With list of deadlocked threads maybe?
    public void onTimeout() {
       Log.warn("A Callback timed out! It had a timeout of " + format.format(getTimeoutDuration() / 1000.0) +
-               " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
+         " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
    }
 }

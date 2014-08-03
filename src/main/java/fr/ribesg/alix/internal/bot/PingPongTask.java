@@ -5,12 +5,13 @@
  */
 
 package fr.ribesg.alix.internal.bot;
+
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Command;
-import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.PingIrcPacket;
+import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
 import java.util.Random;
@@ -48,8 +49,13 @@ public class PingPongTask extends AbstractRepeatingThread {
       }
 
       @Override
-      public boolean onIrcPacket(final IrcPacket packet) {
-         return this.value.equals(packet.getTrail());
+      public boolean onReceivedPacket(final ReceivedPacketEvent event) {
+         if (this.value.equals(event.getPacket().getTrail())) {
+            event.consume();
+            return true;
+         } else {
+            return false;
+         }
       }
 
       @Override
