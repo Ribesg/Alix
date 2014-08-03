@@ -45,7 +45,7 @@ public class PasteUtil {
    private static final String GITHUB_API_URL = "https://api.github.com/";
    private static final String GIST_API_LOCATION = "gists";
    private static final String GIST_URL = GITHUB_API_URL + GIST_API_LOCATION;
-   private static final String DESCRIPTION = "Willie pasted this on ";
+   private static final String DESCRIPTION = "Alix pasted this on ";
 
    /**
     * Paste a String to Gist then returns the link to the gist
