@@ -112,14 +112,14 @@ public abstract class Command {
       }
 
       this.usage = new String[1 + (usage == null ? 0 : usage.length - 1) + (this.aliases.length > 0 ? 1 : 0)];
-      this.usage[0] = this.name + " - " + (usage != null && usage.length > 0 ? usage[0] : "");
+      this.usage[0] = this.name + " - " + (usage != null && usage.length > 0 ? usage[0].replace("##", this.name) : "");
       if (usage != null && usage.length > 1) {
          for (int i = 1; i < usage.length; i++) {
-            this.usage[i] = " | " + usage[i].replaceAll("##", this.name);
+            this.usage[i] = usage[i].replace("##", this.name);
          }
       }
       if (this.aliases.length > 0) {
-         final StringBuilder aliasesStringBuilder = new StringBuilder(" | Aliases: " + this.aliases[0]);
+         final StringBuilder aliasesStringBuilder = new StringBuilder("Aliases: " + this.aliases[0]);
          for (int i = 1; i < this.aliases.length; i++) {
             aliasesStringBuilder.append(", ").append(this.aliases[i]);
          }
