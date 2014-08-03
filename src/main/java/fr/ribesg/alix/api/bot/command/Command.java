@@ -10,8 +10,6 @@ import fr.ribesg.alix.api.Channel;
 import fr.ribesg.alix.api.Receiver;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
-import fr.ribesg.alix.api.bot.util.ArtUtil;
-import fr.ribesg.alix.api.enums.Codes;
 
 import java.util.Set;
 
@@ -117,11 +115,11 @@ public abstract class Command {
       this.usage[0] = this.name + " - " + (usage != null && usage.length > 0 ? usage[0] : "");
       if (usage != null && usage.length > 1) {
          for (int i = 1; i < usage.length; i++) {
-            this.usage[i] = ArtUtil.spaces(this.name.length()) + " | " + usage[i].replaceAll("##", this.name);
+            this.usage[i] = " | " + usage[i].replaceAll("##", this.name);
          }
       }
       if (this.aliases.length > 0) {
-         final StringBuilder aliasesStringBuilder = new StringBuilder(ArtUtil.spaces(this.name.length()) + " | Aliases: " + this.aliases[0]);
+         final StringBuilder aliasesStringBuilder = new StringBuilder(" | Aliases: " + this.aliases[0]);
          for (int i = 1; i < this.aliases.length; i++) {
             aliasesStringBuilder.append(", ").append(this.aliases[i]);
          }
@@ -193,9 +191,9 @@ public abstract class Command {
     * @param receiver the receiver to send the usage to
     */
    public void sendUsage(final String commandPrefix, final Receiver receiver) {
-      receiver.sendMessage(Codes.RED + commandPrefix + this.usage[0]);
+      receiver.sendMessage(commandPrefix + this.usage[0]);
       for (int i = 1; i < this.usage.length; i++) {
-         receiver.sendMessage(Codes.RED + ArtUtil.spaces(commandPrefix.length()) + this.usage[i]);
+         receiver.sendMessage(" | " + this.usage[i]);
       }
    }
 
