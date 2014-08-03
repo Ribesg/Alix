@@ -5,24 +5,47 @@
  */
 
 package fr.ribesg.alix.api;
+
+import fr.ribesg.alix.api.bot.util.PasteUtil;
+import fr.ribesg.alix.api.bot.util.WebUtil;
+import fr.ribesg.alix.api.enums.Codes;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 /**
  * Logging class.
+ * TODO Javadocs
  *
  * @author Ribesg
  */
 public class Log {
 
+   // ################# //
+   // ## Back Logger ## //
+   // ################# //
+
    private static final Logger logger = Logger.getRootLogger();
 
+   public static Logger get() {
+      return Log.logger;
+   }
+
+   // ############# //
+   // ## Filters ## //
+   // ############# //
+
    private static final Map<String, String> filters = new HashMap<>();
+
+   public static void addFilter(final String regex, final String replacement) {
+      Log.filters.put(regex, replacement);
+   }
 
    private static String filter(final String message) {
       String result = message;
@@ -32,79 +55,162 @@ public class Log {
       return result;
    }
 
-   public static void warn(String message) {
-      logger.warn(filter(message));
+   // ################# //
+   // ## Log Channel ## //
+   // ################# //
+
+   private static Channel logChannel;
+   private static Priority logChannelLevel;
+
+   public static Channel getLogChannel() {
+      return Log.logChannel;
    }
 
-   public static void warn(String message, Throwable t) {
-      logger.warn(filter(message), t);
+   public static void setLogChannel(Channel logChannel) {
+      Log.logChannel = logChannel;
    }
 
-   public static void log(String callerFQCN, Priority level, String message, Throwable t) {
-      logger.log(callerFQCN, level, filter(message), t);
+   public static Priority getLogChannelLevel() {
+      return Log.logChannelLevel;
    }
 
-   public static void log(Level level, String message) {
-      logger.log(level, filter(message));
+   public static void setLogChannelLevel(final Priority logChannelLevel) {
+      Log.logChannelLevel = logChannelLevel;
    }
 
-   public static void log(Level level, String message, Throwable t) {
-      logger.log(level, filter(message), t);
+   public static boolean isLogChannel(final Priority level) {
+      return level.toInt() >= Log.logChannelLevel.toInt();
    }
 
-   public static boolean isDebugEnabled() {
-      return logger.isDebugEnabled();
+   public static void logChannel(final Priority level, final String message) {
+      Log.logChannel(level, message, false);
    }
 
-   public static boolean isEnabledFor(Priority level) {
-      return logger.isEnabledFor(level);
+   private static void logChannel(final Priority level, final String message, final boolean force) {
+      if (Log.logChannel != null && (force || Log.isLogChannel(level))) {
+         Log.logChannel.sendMessage(Codes.RED + '[' + level.toString() + "] " + message);
+      }
    }
 
-   public static boolean isInfoEnabled() {
-      return logger.isInfoEnabled();
+   // ################## //
+   // ## Paste Errors ## //
+   // ################## //
+
+   private static boolean pasteErrors = false;
+
+   public static boolean getPasteErrors() {
+      return Log.pasteErrors;
    }
 
-   public static void info(String message, Throwable t) {
-      logger.info(filter(message), t);
+   public static void setPasteErrors(final boolean value) {
+      Log.pasteErrors = value;
    }
 
-   public static void info(String message) {
-      logger.info(filter(message));
+   private static void paste(final Priority level, final String message, final Throwable t) {
+      final StringBuilder builder = new StringBuilder();
+      builder.append(message).append("\n\n");
+      Arrays.stream(t.getStackTrace()).forEach((st) -> builder.append(st.toString()).append('\n'));
+      final String longLink = PasteUtil.paste(builder.toString());
+      String link;
+      try {
+         link = WebUtil.shortenUrl(longLink);
+      } catch (final IOException e) {
+         link = longLink;
+      }
+      Log.logChannel(level, message + " (" + link + ')', true);
    }
 
-   public static void fatal(String message) {
-      logger.fatal(filter(message));
+   // ##################### //
+   // ## Logging methods ## //
+   // ##################### //
+
+   public static boolean isEnabledFor(final Priority level) {
+      return Log.logger.isEnabledFor(level);
    }
 
-   public static void fatal(String message, Throwable t) {
-      logger.fatal(filter(message), t);
+   public static void warn(final String message) {
+      final String filtered = filter(message);
+      Log.logger.warn(filtered);
+      Log.logChannel(Level.WARN, filtered);
    }
 
-   public static void error(String message, Throwable t) {
-      logger.error(filter(message), t);
+   public static void warn(final String message, final Throwable t) {
+      final String filtered = filter(message);
+      Log.logger.warn(filtered, t);
+      Log.paste(Level.WARN, filtered, t);
    }
 
-   public static void error(String message) {
-      logger.error(filter(message));
+   public static void log(final String callerFQCN, final Priority level, final String message, final Throwable t) {
+      final String filtered = filter(message);
+      Log.logger.log(callerFQCN, level, filtered, t);
+      Log.paste(level, filtered, t);
    }
 
-   public static void debug(String message, Throwable t) {
-      logger.debug(filter(message), t);
+   public static void log(final Priority level, final String message) {
+      final String filtered = filter(message);
+      Log.logger.log(level, filtered);
+      Log.logChannel(level, filtered);
    }
 
-   public static void debug(String message) {
-      logger.debug(filter(message));
+   public static void log(final Priority level, final String message, final Throwable t) {
+      final String filtered = filter(message);
+      Log.logger.log(level, filtered, t);
+      Log.paste(level, filtered, t);
    }
 
-   public static void assertLog(boolean assertion, String msg) {
-      logger.assertLog(assertion, msg);
+   public static void info(final String message, final Throwable t) {
+      final String filtered = filter(message);
+      Log.logger.info(filtered, t);
+      Log.paste(Level.INFO, filtered, t);
    }
 
-   public static void addFilter(final String regex, final String replacement) {
-      Log.filters.put(regex, replacement);
+   public static void info(final String message) {
+      final String filtered = filter(message);
+      Log.logger.info(filtered);
+      Log.logChannel(Level.INFO, filtered);
    }
 
-   public static Logger get() {
-      return Log.logger;
+   public static void fatal(final String message) {
+      final String filtered = filter(message);
+      Log.logger.fatal(filtered);
+      Log.logChannel(Level.FATAL, filtered);
+   }
+
+   public static void fatal(final String message, final Throwable t) {
+      final String filtered = filter(message);
+      Log.logger.fatal(filtered, t);
+      Log.paste(Level.FATAL, filtered, t);
+   }
+
+   public static void error(final String message, final Throwable t) {
+      final String filtered = filter(message);
+      Log.logger.error(filtered, t);
+      Log.paste(Level.ERROR, filtered, t);
+   }
+
+   public static void error(final String message) {
+      final String filtered = filter(message);
+      Log.logger.error(filtered);
+      Log.logChannel(Level.ERROR, filtered);
+   }
+
+   public static void debug(final String message, final Throwable t) {
+      final String filtered = filter(message);
+      Log.logger.debug(filtered, t);
+      Log.paste(Level.DEBUG, filtered, t);
+   }
+
+   public static void debug(final String message) {
+      final String filtered = filter(message);
+      Log.logger.debug(filtered);
+      Log.logChannel(Level.DEBUG, filtered);
+   }
+
+   public static void assertLog(boolean assertion, final String msg) {
+      final String filtered = filter(msg);
+      Log.logger.assertLog(assertion, msg);
+      if (assertion) {
+         Log.logChannel(Level.ERROR, filtered);
+      }
    }
 }
