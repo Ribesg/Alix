@@ -42,8 +42,10 @@ public class SocketSender extends AbstractRepeatingThread {
             Log.debug(server.getUrl() + ':' + server.getPort() +
                       " - SENDING MESSAGE: '" + mes.replace("\n", "\\n").replace("\r", "\\r") + "'");
             this.writer.write(mes);
-            this.writer.flush();
-            Thread.sleep(1_000);
+            if (buffer.isEmpty()) {
+               this.writer.flush();
+               Thread.sleep(1_000);
+            }
          }
       } catch (final IOException e) {
          Log.error("Failed to send IRC Packet", e);
