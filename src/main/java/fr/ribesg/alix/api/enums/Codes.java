@@ -24,10 +24,9 @@ public class Codes {
    // ########## //
 
    public static final String BOLD          = get(0x02);
-   public static final String ITALIC        = get(0x09);
+   public static final String ITALIC        = get(0x1D);
    public static final String STRIKETHROUGH = get(0x13);
    public static final String UNDERLINE     = get(0x1F);
-   public static final String UNDERLINE2    = get(0x15);
    public static final String REVERSE       = get(0x16);
 
    // ###### //
