@@ -9,7 +9,7 @@ import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.network.ssl.SSLType;
-import fr.ribesg.alix.internal.InternalMessageHandler;
+import fr.ribesg.alix.internal.ReceivedPacketHandler;
 import fr.ribesg.alix.internal.network.ssl.SSLSocketFactory;
 
 import java.io.BufferedReader;
@@ -37,7 +37,7 @@ public class SocketHandler {
    private SocketSender   socketSender;
    private SocketReceiver socketReceiver;
 
-   private InternalMessageHandler handler;
+   private ReceivedPacketHandler handler;
 
    public SocketHandler(final Server server, final String url, final int port) {
       this(server, url, port, SSLType.NONE);
@@ -50,7 +50,7 @@ public class SocketHandler {
       this.sslType = sslType;
    }
 
-   public InternalMessageHandler getHandler() {
+   public ReceivedPacketHandler getHandler() {
       return handler;
    }
 
@@ -73,7 +73,7 @@ public class SocketHandler {
       final BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), "UTF-8"));
       final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream(), "UTF-8"));
 
-      this.handler = new InternalMessageHandler(this.server.getClient());
+      this.handler = new ReceivedPacketHandler(this.server.getClient());
 
       this.socketSender = new SocketSender(this.server, writer);
       this.socketReceiver = new SocketReceiver(this.server, reader, this.handler);

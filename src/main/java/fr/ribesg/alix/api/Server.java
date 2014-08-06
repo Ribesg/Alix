@@ -8,7 +8,14 @@ package fr.ribesg.alix.api;
 
 import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.callback.Callback;
-import fr.ribesg.alix.api.message.*;
+import fr.ribesg.alix.api.event.EventHandler;
+import fr.ribesg.alix.api.event.EventHandlerPriority;
+import fr.ribesg.alix.api.event.ServerJoinEvent;
+import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.api.message.NickIrcPacket;
+import fr.ribesg.alix.api.message.PassIrcPacket;
+import fr.ribesg.alix.api.message.QuitIrcPacket;
+import fr.ribesg.alix.api.message.UserIrcPacket;
 import fr.ribesg.alix.api.network.ssl.SSLType;
 import fr.ribesg.alix.internal.network.SocketHandler;
 
@@ -117,6 +124,7 @@ public class Server {
       this.channels = new HashMap<>();
       this.socket = null;
       this.connected = false;
+      EventManager.getInstance().registerHandlers(this);
    }
 
    /**
@@ -226,9 +234,13 @@ public class Server {
     * Adds a Channel to the Set of Channels for this Server.
     *
     * @param channelName the name of the Channel to add
+    *
+    * @return the new Channel
     */
-   public void addChannel(final String channelName) {
-      this.channels.put(channelName.toLowerCase(), new Channel(this, channelName));
+   public Channel addChannel(final String channelName) {
+      final Channel channel = new Channel(this, channelName);
+      this.channels.put(channelName.toLowerCase(), channel);
+      return channel;
    }
 
    /**
@@ -237,9 +249,13 @@ public class Server {
     *
     * @param channelName the name of the Channel to add
     * @param password    the password of the Channel to add
+    *
+    * @return the new Channel
     */
-   public void addChannel(final String channelName, final String password) {
-      this.channels.put(channelName.toLowerCase(), new Channel(this, channelName, password));
+   public Channel addChannel(final String channelName, final String password) {
+      final Channel channel = new Channel(this, channelName, password);
+      this.channels.put(channelName.toLowerCase(), channel);
+      return channel;
    }
 
    /**
@@ -248,9 +264,11 @@ public class Server {
     * caution.
     *
     * @param channelName the Channel to remove from the Set
+    *
+    * @return the removed Channel
     */
-   public void removeChannel(final String channelName) {
-      this.channels.remove(channelName.toLowerCase());
+   public Channel removeChannel(final String channelName) {
+      return this.channels.remove(channelName.toLowerCase());
    }
 
    /**
@@ -263,6 +281,11 @@ public class Server {
       for (final Channel channel : channels.values()) {
          channel.join();
       }
+   }
+
+   @EventHandler(priority = EventHandlerPriority.INTERNAL)
+   public void onServerJoined(final ServerJoinEvent event) {
+      this.joinChannels();
    }
 
    /**
@@ -316,7 +339,7 @@ public class Server {
    /**
     * Modifies the joined state of this Server.
     * This is called by the
-    * {@link fr.ribesg.alix.internal.InternalMessageHandler}, please
+    * {@link fr.ribesg.alix.internal.ReceivedPacketHandler}, please
     * do not use it.
     * <p>
     * This is nothing more than a Setter for {@link #joined}, please
@@ -339,7 +362,7 @@ public class Server {
    /**
     * Modifies the connected state of this Server.
     * This is called by the
-    * {@link fr.ribesg.alix.internal.InternalMessageHandler}, please
+    * {@link fr.ribesg.alix.internal.ReceivedPacketHandler}, please
     * do not use it.
     * <p>
     * This is nothing more than a Setter for {@link #connected}, please
@@ -486,7 +509,7 @@ public class Server {
       if (callback != null) {
          callback.setServer(this);
          callback.setOriginalIrcPacket(ircPacket);
-         this.socket.getHandler().getCallbackHandler().registerCallback(callback);
+         EventManager.getInstance().registerCallback(callback);
       }
 
       this.sendRaw(ircPacket.getRawMessage(), prioritized);

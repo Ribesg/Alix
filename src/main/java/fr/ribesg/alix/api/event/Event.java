@@ -4,6 +4,8 @@ package fr.ribesg.alix.api.event;
  * Represents an Event.
  * <p>
  * An Event can be consumed by an EventHandler.
+ *
+ * TODO Document internal behaviour for all Events
  */
 public class Event {
 

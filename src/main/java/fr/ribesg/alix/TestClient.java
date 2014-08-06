@@ -11,6 +11,12 @@ import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
 import fr.ribesg.alix.api.bot.command.Command;
 import fr.ribesg.alix.api.bot.command.CommandManager;
+import fr.ribesg.alix.api.event.ChannelMessageEvent;
+import fr.ribesg.alix.api.event.ClientJoinChannelEvent;
+import fr.ribesg.alix.api.event.EventHandler;
+import fr.ribesg.alix.api.event.PrivateMessageEvent;
+import fr.ribesg.alix.api.event.ServerJoinEvent;
+import fr.ribesg.alix.api.event.UserJoinChannelEvent;
 import fr.ribesg.alix.api.message.PrivMsgIrcPacket;
 
 /**
@@ -54,26 +60,30 @@ public class TestClient {
             return true;
          }
 
-         @Override
-         public void onServerJoined(final Server server) {
+         @EventHandler
+         public void onServerJoined(final ServerJoinEvent event) {
             /* Here you can register with NickServ for example
+            final Server server = event.getServer();
             server.send(new PrivMsgIrcPacket("NickServ", "REGISTER SomePassword some@email"));
 				server.send(new PrivMsgIrcPacket("NickServ", "IDENTIFY SomePassword"));
 				*/
          }
 
-         @Override
-         public void onClientJoinChannel(final Channel channel) {
-            channel.sendMessage("Hi!");
+         @EventHandler
+         public void onClientJoinChannel(final ClientJoinChannelEvent event) {
+            event.getChannel().sendMessage("Hi!");
          }
 
-         @Override
-         public void onUserJoinChannel(final Source source, final Channel channel) {
-            channel.sendMessage(source.getName() + ", Hi!");
+         @EventHandler
+         public void onUserJoinChannel(final UserJoinChannelEvent event) {
+            event.getChannel().sendMessage(event.getUser().getName() + ", Hi!");
          }
 
-         @Override
-         public void onPrivateMessage(final Server server, final Source fromSource, final String message) {
+         @EventHandler
+         public void onPrivateMessage(final PrivateMessageEvent event) {
+            final Server server = event.getServer();
+            final Source fromSource = event.getFrom();
+            final String message = event.getMessage();
             server.send(new PrivMsgIrcPacket(fromSource.getName(), "Hi!"));
             if (message.equalsIgnoreCase(server.getClientNick() + ", quit")) {
                // Disconnect from server
@@ -86,8 +96,11 @@ public class TestClient {
             }
          }
 
-         @Override
-         public void onChannelMessage(final Channel channel, final Source fromSource, final String message) {
+         @EventHandler
+         public void onChannelMessage(final ChannelMessageEvent event) {
+            final String message = event.getMessage();
+            final Channel channel = event.getChannel();
+            final Source fromSource = event.getUser();
             if (message.equalsIgnoreCase(channel.getServer().getClientNick() + ", quit")) {
                // Disconnect from server
                channel.getServer().disconnect();

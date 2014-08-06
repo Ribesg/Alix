@@ -11,8 +11,8 @@ import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Codes;
 import fr.ribesg.alix.api.enums.Reply;
+import fr.ribesg.alix.api.event.ReceivedPacketEvent;
 import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,12 +27,12 @@ import java.util.Set;
  */
 public class NamesCallback extends Callback {
 
-   private static final String[] LISTENED_CODES = new String[]{
+   private static final String[] LISTENED_CODES = new String[] {
       Reply.RPL_NAMREPLY.getIntCodeAsString(),
       Reply.RPL_ENDOFNAMES.getIntCodeAsString()
    };
 
-   private final Channel channel;
+   private final Channel     channel;
    private final Set<String> users;
 
    public NamesCallback(final Channel channel) {

@@ -3,7 +3,7 @@ package fr.ribesg.alix.api.event;
 /**
  * Defines the priority of an EventHandler.
  */
-public enum HandlerPriority {
+public enum EventHandlerPriority {
 
    /**
     * Use this priority if you want to handle an event before any stock

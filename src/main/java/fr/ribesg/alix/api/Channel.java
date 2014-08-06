@@ -6,13 +6,12 @@
 
 package fr.ribesg.alix.api;
 
-import fr.ribesg.alix.api.callback.Callback;
-import fr.ribesg.alix.api.enums.Command;
-import fr.ribesg.alix.api.message.IrcPacket;
+import fr.ribesg.alix.api.event.ClientJoinChannelEvent;
+import fr.ribesg.alix.api.event.EventHandler;
+import fr.ribesg.alix.api.event.EventHandlerPriority;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
 import fr.ribesg.alix.internal.callback.NamesCallback;
-import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -51,9 +50,7 @@ public class Channel extends Receiver {
     * @param name   the name of the Channel, in the format #foo
     */
    public Channel(final Server server, final String name) {
-      super(server, name);
-      this.password = null;
-      this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
+      this(server, name, null);
    }
 
    /**
@@ -67,6 +64,7 @@ public class Channel extends Receiver {
       super(server, name);
       this.password = password;
       this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
+      EventManager.getInstance().registerHandlers(this);
    }
 
    /**
@@ -209,32 +207,22 @@ public class Channel extends Receiver {
     */
    public void join() {
       if (getServer().isConnected()) {
-         final Callback joinCallback = new Callback(Command.JOIN.name()) {
-
-            @Override
-            public boolean onReceivedPacket(final ReceivedPacketEvent event) {
-               final IrcPacket packet = event.getPacket();
-               final Source user = packet.getPrefixAsSource(this.server);
-               final String channelName = packet.getParameters()[0];
-               if (Channel.this.getName().equalsIgnoreCase(channelName) && server.getClient().getName().equals(user.getName())) {
-                  Channel.this.name = channelName;
-                  Channel.this.updateUsers();
-                  // TODO Other things to update like topic and modes
-                  event.consume();
-                  return true;
-               } else {
-                  return false;
-               }
-            }
-         };
-
          if (this.hasPassword()) {
-            this.server.send(new JoinIrcPacket(this.getName(), this.getPassword()), joinCallback);
+            this.server.send(new JoinIrcPacket(this.getName(), this.getPassword()));
          } else {
-            this.server.send(new JoinIrcPacket(this.getName()), joinCallback);
+            this.server.send(new JoinIrcPacket(this.getName()));
          }
       } else {
          throw new IllegalStateException("Not connected!");
+      }
+   }
+
+   @EventHandler(priority = EventHandlerPriority.INTERNAL)
+   public void onChannelJoined(final ClientJoinChannelEvent event) {
+      if (event.getChannel() == this) {
+         Channel.this.updateUsers();
+         // TODO Other things to update like topic and modes
+         event.consume();
       }
    }
 

@@ -7,8 +7,13 @@
 package fr.ribesg.alix.api.bot.command;
 
 import fr.ribesg.alix.api.Channel;
+import fr.ribesg.alix.api.EventManager;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
+import fr.ribesg.alix.api.event.ChannelMessageEvent;
+import fr.ribesg.alix.api.event.EventHandler;
+import fr.ribesg.alix.api.event.EventHandlerPriority;
+import fr.ribesg.alix.api.event.PrivateMessageEvent;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -71,7 +76,25 @@ public class CommandManager {
       this.botAdmins = botAdmins;
       this.commandPrefix = commandPrefix;
 
+      EventManager.getInstance().registerHandlers(this);
+
       this.registerCommand(new HelpCommand(this));
+   }
+
+   @EventHandler(priority = EventHandlerPriority.INTERNAL)
+   public void onChannelMessage(final ChannelMessageEvent event) {
+      if (this.isCommand(event.getMessage())) {
+         if (this.exec(event.getChannel().getServer(), event.getChannel(), event.getUser(), event.getMessage(), false)) {
+            event.consume();
+         }
+      }
+   }
+
+   @EventHandler(priority = EventHandlerPriority.INTERNAL)
+   public void onPrivateMessage(final PrivateMessageEvent event) {
+      if (this.exec(event.getServer(), null, event.getFrom(), event.getMessage(), true)) {
+         event.consume();
+      }
    }
 
    /**
@@ -133,7 +156,7 @@ public class CommandManager {
     * @throws IllegalArgumentException if the provided message doesn't start
     *                                  with a Command call
     */
-   public void exec(final Server server, final Channel channel, final Source user, final String message, final boolean privateMessage) {
+   public boolean exec(final Server server, final Channel channel, final Source user, final String message, final boolean privateMessage) {
       if (!privateMessage && !isCommand(message)) {
          throw new IllegalArgumentException("Provided message is not a Command, please use isCommand(...) before calling exec(...)");
       }
@@ -172,7 +195,7 @@ public class CommandManager {
                   channel.sendMessage(user.getName() + ", " + formattedMessage);
                }
             }
-            return;
+            return false;
          } else {
             command = this.commands.get(realCmd);
          }
@@ -189,7 +212,7 @@ public class CommandManager {
                channel.sendMessage(user.getName() + ", " + formattedMessage);
             }
          }
-         return;
+         return true;
       }
 
       // Get args
@@ -199,6 +222,7 @@ public class CommandManager {
       if (!command.exec(server, channel, user, primaryArgument, args)) {
          command.sendUsage(this.commandPrefix, channel == null ? user : channel);
       }
+      return true;
    }
 
    /**

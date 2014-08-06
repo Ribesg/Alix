@@ -7,11 +7,13 @@
 package fr.ribesg.alix.internal.bot;
 
 import fr.ribesg.alix.api.Client;
+import fr.ribesg.alix.api.EventManager;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Command;
+import fr.ribesg.alix.api.event.ClientLostConnectionEvent;
+import fr.ribesg.alix.api.event.ReceivedPacketEvent;
 import fr.ribesg.alix.api.message.PingIrcPacket;
-import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
 import java.util.Random;
@@ -61,7 +63,7 @@ public class PingPongTask extends AbstractRepeatingThread {
       @Override
       public void onTimeout() {
          this.server.disconnect();
-         this.server.getClient().onClientLostConnection(this.server);
+         Client.getThreadPool().submit(() -> EventManager.getInstance().call(new ClientLostConnectionEvent(this.server)));
       }
    }
 }

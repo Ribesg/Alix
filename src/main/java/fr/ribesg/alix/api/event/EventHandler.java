@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
  * Annotation to state that a method is an Event Handler.
  * <p>
  * Any class containing at least an Event Handler should register itself to
- * the {@link EventManager} using
- * {@link EventManager#registerHandlers(Object)}.
+ * the {@link fr.ribesg.alix.api.EventManager} using
+ * {@link fr.ribesg.alix.api.EventManager#registerHandlers(Object)}.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -19,11 +19,11 @@ public @interface EventHandler {
    /**
     * Priority of this EventHandler.
     * <p>
-    * Default: {@link HandlerPriority#LOW}
+    * Default: {@link EventHandlerPriority#LOW}
     *
-    * @see HandlerPriority
+    * @see EventHandlerPriority
     */
-   HandlerPriority priority() default HandlerPriority.LOW;
+   EventHandlerPriority priority() default EventHandlerPriority.LOW;
 
    /**
     * States if this EventHandler wants to ignore Events which have already

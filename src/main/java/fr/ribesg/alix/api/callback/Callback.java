@@ -8,12 +8,17 @@ package fr.ribesg.alix.api.callback;
 
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
+import fr.ribesg.alix.api.event.EventHandlerPriority;
+import fr.ribesg.alix.api.event.ReceivedPacketEvent;
 import fr.ribesg.alix.api.message.IrcPacket;
-import fr.ribesg.alix.internal.network.ReceivedPacketEvent;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Represents a Callback for a sent IrcPacket.
@@ -47,11 +52,16 @@ public abstract class Callback {
    /**
     * This Callback's Priority
     */
-   protected final CallbackPriority priority;
+   protected final EventHandlerPriority priority;
 
    /**
-    * A Callback can choose to have multiple Callbacks itself and to execute
-    * them whenever it wants to.
+    * If this Callback ignore previously consumed packets
+    */
+   protected final boolean ignoreConsumed;
+
+   /**
+    * A Callback can choose to have multiple callback Runnables itself and to
+    * execute them whenever it wants to.
     */
    protected final List<Runnable> callbacks;
 
@@ -87,19 +97,20 @@ public abstract class Callback {
     * Of course listened Codes have to be uppercase to follow IRC RFCs.
     *
     * @param priority        the priority of this Callback
+    * @param ignoreConsumed  if this Callback ignores previously consumed packets
     * @param timeoutDuration the time after which this Callback should call
     *                        {@link #onTimeout} and be destroyed, in
     *                        milliseconds
     * @param listenedCodes   listened Commands and Reply codes, can be empty
     *                        to listen to everything
     */
-   public Callback(final CallbackPriority priority, final long timeoutDuration, final String... listenedCodes) {
+   public Callback(final EventHandlerPriority priority, final boolean ignoreConsumed, final long timeoutDuration, final String... listenedCodes) {
       this.priority = priority;
+      this.ignoreConsumed = ignoreConsumed;
       this.timeoutDuration = timeoutDuration;
       this.timeoutDate = System.currentTimeMillis() + timeoutDuration;
       if (listenedCodes.length != 0) {
-         this.listenedCodes = new HashSet<>();
-         Collections.addAll(this.listenedCodes, listenedCodes);
+         this.listenedCodes = Arrays.stream(listenedCodes).map(String::toUpperCase).collect(Collectors.toSet());
       } else {
          this.listenedCodes = null;
       }
@@ -119,16 +130,110 @@ public abstract class Callback {
     * <p>
     * Of course listened Codes have to be uppercase to follow IRC RFCs.
     *
+    * @param priority       the priority of this Callback
+    * @param ignoreConsumed if this Callback ignores previously consumed packets
+    * @param listenedCodes  listened Commands and Reply codes, can be empty
+    *                       to listen to everything
+    */
+   public Callback(final EventHandlerPriority priority, final boolean ignoreConsumed, final String... listenedCodes) {
+      this(priority, ignoreConsumed, DEFAULT_TIMEOUT, listenedCodes);
+   }
+
+   /**
+    * Constructor with default {@link EventHandlerPriority#LOW} priority.
+    * <p>
+    * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+    * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+    * calls to {@link #onReceivedPacket(ReceivedPacketEvent)} to them.
+    * <p>
+    * If no argument is passed, {@link #onReceivedPacket(ReceivedPacketEvent)}
+    * will be called for every incoming {@link IrcPacket} until the method
+    * returns true.
+    * <p>
+    * Of course listened Codes have to be uppercase to follow IRC RFCs.
+    *
+    * @param ignoreConsumed  if this Callback ignores previously consumed packets
+    * @param timeoutDuration the time after which this Callback should call
+    *                        {@link #onTimeout} and be destroyed, in
+    *                        milliseconds
+    * @param listenedCodes   listened Commands and Reply codes, can be empty
+    *                        to listen to everything
+    */
+   public Callback(final boolean ignoreConsumed, final long timeoutDuration, final String... listenedCodes) {
+      this(EventHandlerPriority.LOW, ignoreConsumed, timeoutDuration, listenedCodes);
+   }
+
+   /**
+    * Constructor with default {@link EventHandlerPriority#LOW} priority
+    * and with a default timeout of 30 seconds.
+    * <p>
+    * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+    * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+    * calls to {@link #onReceivedPacket(ReceivedPacketEvent)} to them.
+    * <p>
+    * If listenedCodes is empty, {@link #onReceivedPacket(ReceivedPacketEvent)} will be
+    * called for every incoming {@link IrcPacket} until the method
+    * returns true.
+    * <p>
+    * Of course listened Codes have to be uppercase to follow IRC RFCs.
+    *
+    * @param ignoreConsumed if this Callback ignores previously consumed packets
+    * @param listenedCodes  listened Commands and Reply codes, can be empty
+    *                       to listen to everything
+    */
+   public Callback(final boolean ignoreConsumed, final String... listenedCodes) {
+      this(EventHandlerPriority.LOW, ignoreConsumed, DEFAULT_TIMEOUT, listenedCodes);
+   }
+
+   /**
+    * Constructor with default ignore previously consumed packets.
+    * <p>
+    * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+    * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+    * calls to {@link #onReceivedPacket(ReceivedPacketEvent)} to them.
+    * <p>
+    * If no argument is passed, {@link #onReceivedPacket(ReceivedPacketEvent)} will be
+    * called for every incoming {@link IrcPacket} until the method
+    * returns true.
+    * <p>
+    * Of course listened Codes have to be uppercase to follow IRC RFCs.
+    *
+    * @param priority        the priority of this Callback
+    * @param timeoutDuration the time after which this Callback should call
+    *                        {@link #onTimeout} and be destroyed, in
+    *                        milliseconds
+    * @param listenedCodes   listened Commands and Reply codes, can be empty
+    *                        to listen to everything
+    */
+   public Callback(final EventHandlerPriority priority, final long timeoutDuration, final String... listenedCodes) {
+      this(priority, true, timeoutDuration, listenedCodes);
+   }
+
+   /**
+    * Constructor with default timeout of 30 seconds and with default ignore
+    * previously consumed packets.
+    * <p>
+    * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
+    * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
+    * calls to {@link #onReceivedPacket(ReceivedPacketEvent)} to them.
+    * <p>
+    * If listenedCodes is empty, {@link #onReceivedPacket(ReceivedPacketEvent)}
+    * will be called for every incoming {@link IrcPacket} until the method
+    * returns true.
+    * <p>
+    * Of course listened Codes have to be uppercase to follow IRC RFCs.
+    *
     * @param priority      the priority of this Callback
     * @param listenedCodes listened Commands and Reply codes, can be empty
     *                      to listen to everything
     */
-   public Callback(final CallbackPriority priority, final String... listenedCodes) {
-      this(priority, DEFAULT_TIMEOUT, listenedCodes);
+   public Callback(final EventHandlerPriority priority, final String... listenedCodes) {
+      this(priority, true, DEFAULT_TIMEOUT, listenedCodes);
    }
 
    /**
-    * Constructor with default {@link CallbackPriority#LOW} priority.
+    * Constructor with default {@link EventHandlerPriority#LOW} priority and
+    * with default ignore previously consumed packets.
     * <p>
     * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
     * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -147,12 +252,13 @@ public abstract class Callback {
     *                        to listen to everything
     */
    public Callback(final long timeoutDuration, final String... listenedCodes) {
-      this(CallbackPriority.LOW, timeoutDuration, listenedCodes);
+      this(EventHandlerPriority.LOW, true, timeoutDuration, listenedCodes);
    }
 
    /**
-    * Constructor with default {@link CallbackPriority#LOW} priority
-    * and with a default timeout of 30 seconds.
+    * Constructor with default {@link EventHandlerPriority#LOW} priority,
+    * with a default timeout of 30 seconds and with default ignore previously
+    * consumed packets.
     * <p>
     * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
     * {@link fr.ribesg.alix.api.enums.Reply} codes to it to restrict
@@ -168,7 +274,7 @@ public abstract class Callback {
     *                      to listen to everything
     */
    public Callback(final String... listenedCodes) {
-      this(CallbackPriority.LOW, DEFAULT_TIMEOUT, listenedCodes);
+      this(EventHandlerPriority.LOW, true, DEFAULT_TIMEOUT, listenedCodes);
    }
 
    /**
@@ -198,7 +304,7 @@ public abstract class Callback {
    /**
     * @return this Callback's priority
     */
-   public CallbackPriority getPriority() {
+   public EventHandlerPriority getPriority() {
       return priority;
    }
 
@@ -239,7 +345,7 @@ public abstract class Callback {
     * @return true if the provided code is listened by this Callback
     */
    public boolean listensTo(final String code) {
-      return this.listenedCodes == null || this.listenedCodes.contains(code);
+      return this.listenedCodes == null || this.listenedCodes.contains(code.toUpperCase());
    }
 
    /**
@@ -297,6 +403,6 @@ public abstract class Callback {
    // TODO This should maybe throw an Exception? With list of deadlocked threads maybe?
    public void onTimeout() {
       Log.warn("A Callback timed out! It had a timeout of " + format.format(getTimeoutDuration() / 1000.0) +
-         " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
+               " seconds, and its original IRC Packet is '" + this.originalIrcPacket + "'");
    }
 }

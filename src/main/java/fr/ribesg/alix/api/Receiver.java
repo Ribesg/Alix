@@ -56,6 +56,15 @@ public abstract class Receiver {
    }
 
    /**
+    * Sets the name of this Received.
+    *
+    * @param name the name of the Receiver
+    */
+   public void setName(final String name) {
+      this.name = name;
+   }
+
+   /**
     * Sends one or multiple messages to this Receiver.
     *
     * @param messages the message or the messages to send to this Receiver

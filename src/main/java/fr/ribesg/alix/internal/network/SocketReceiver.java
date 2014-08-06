@@ -7,7 +7,7 @@
 package fr.ribesg.alix.internal.network;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
-import fr.ribesg.alix.internal.InternalMessageHandler;
+import fr.ribesg.alix.internal.ReceivedPacketHandler;
 import fr.ribesg.alix.internal.thread.AbstractRepeatingThread;
 
 import java.io.BufferedReader;
@@ -24,10 +24,10 @@ public class SocketReceiver extends AbstractRepeatingThread {
 
    private final BufferedReader reader;
 
-   private final Server                 server;
-   private final InternalMessageHandler packetHandler;
+   private final Server                server;
+   private final ReceivedPacketHandler packetHandler;
 
-   /* package */ SocketReceiver(final Server server, final BufferedReader reader, final InternalMessageHandler packetHandler) {
+   /* package */ SocketReceiver(final Server server, final BufferedReader reader, final ReceivedPacketHandler packetHandler) {
       super("S-Receiver", 10);
       this.reader = reader;
       this.server = server;
