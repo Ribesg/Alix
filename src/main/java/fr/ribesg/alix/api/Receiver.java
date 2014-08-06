@@ -24,7 +24,7 @@ public abstract class Receiver {
    /**
     * The name of this Receiver
     */
-   protected final String name;
+   protected String name;
 
    /**
     * Receiver constructor.
