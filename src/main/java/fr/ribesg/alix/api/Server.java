@@ -210,7 +210,7 @@ public class Server {
     * @return a Channel object, or null
     */
    public Channel getChannel(final String channelName) {
-      return this.channels.get(channelName);
+      return this.channels.get(channelName.toLowerCase());
    }
 
    /**
@@ -228,7 +228,7 @@ public class Server {
     * @param channelName the name of the Channel to add
     */
    public void addChannel(final String channelName) {
-      this.channels.put(channelName, new Channel(this, channelName));
+      this.channels.put(channelName.toLowerCase(), new Channel(this, channelName));
    }
 
    /**
@@ -239,7 +239,7 @@ public class Server {
     * @param password    the password of the Channel to add
     */
    public void addChannel(final String channelName, final String password) {
-      this.channels.put(channelName, new Channel(this, channelName, password));
+      this.channels.put(channelName.toLowerCase(), new Channel(this, channelName, password));
    }
 
    /**
@@ -250,7 +250,7 @@ public class Server {
     * @param channelName the Channel to remove from the Set
     */
    public void removeChannel(final String channelName) {
-      this.channels.remove(channelName);
+      this.channels.remove(channelName.toLowerCase());
    }
 
    /**
