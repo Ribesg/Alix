@@ -296,7 +296,7 @@ public class IrcPacket {
     */
    @Override
    public String toString() {
-      return this.getRawMessage();
+      return this.getRawMessage().replaceAll("(\n|\r)", "");
    }
 
    @Override
