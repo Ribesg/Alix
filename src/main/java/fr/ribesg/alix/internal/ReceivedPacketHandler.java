@@ -60,7 +60,7 @@ public class ReceivedPacketHandler extends AbstractRepeatingThread {
     * @param packetString the packet
     */
    public void queue(final Server server, final String packetString) {
-      Log.debug("DEBUG: Queue packet " + packetString);
+      Log.debug("Queue packet " + packetString);
       final IrcPacket packet;
       try {
          packet = IrcPacket.parseMessage(packetString);
@@ -77,7 +77,7 @@ public class ReceivedPacketHandler extends AbstractRepeatingThread {
    public void work() {
       ReceivedPacketEvent event;
       while ((event = this.packetBuffer.poll()) != null) {
-         Log.debug("DEBUG: Poll packet " + event.getPacket());
+         Log.debug("Poll packet " + event.getPacket());
          EventManager.getInstance().call(event);
       }
    }
