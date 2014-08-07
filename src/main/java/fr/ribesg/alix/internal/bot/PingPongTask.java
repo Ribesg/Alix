@@ -63,7 +63,7 @@ public class PingPongTask extends AbstractRepeatingThread {
       @Override
       public void onTimeout() {
          this.server.disconnect();
-         Client.getThreadPool().submit(() -> EventManager.getInstance().call(new ClientLostConnectionEvent(this.server)));
+         Client.getThreadPool().submit(() -> EventManager.call(new ClientLostConnectionEvent(this.server)));
       }
    }
 }

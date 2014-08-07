@@ -22,7 +22,7 @@ public class InternalReceivedEventHandler {
 
    public InternalReceivedEventHandler(final Client client) {
       this.client = client;
-      EventManager.getInstance().registerHandlers(this);
+      EventManager.register(this);
    }
 
    @EventHandler(priority = EventHandlerPriority.INTERNAL, ignoreConsumed = true)
@@ -71,7 +71,7 @@ public class InternalReceivedEventHandler {
             switch (rep) {
                case RPL_WELCOME:
                   server.setConnected(true);
-                  Client.getThreadPool().submit(() -> EventManager.getInstance().call(new ServerJoinEvent(server)));
+                  Client.getThreadPool().submit(() -> EventManager.call(new ServerJoinEvent(server)));
                   event.consume();
                   break;
                case RPL_TOPIC:
@@ -109,17 +109,17 @@ public class InternalReceivedEventHandler {
       if (source == null || source.getName().equals(server.getClientNick())) {
          // TODO Have some "joined" state in Channel?
          if (isJoin) {
-            Client.getThreadPool().submit(() -> EventManager.getInstance().call(new ClientJoinChannelEvent(finalChannel)));
+            Client.getThreadPool().submit(() -> EventManager.call(new ClientJoinChannelEvent(finalChannel)));
          } else {
-            Client.getThreadPool().submit(() -> EventManager.getInstance().call(new ClientPartChannelEvent(finalChannel)));
+            Client.getThreadPool().submit(() -> EventManager.call(new ClientPartChannelEvent(finalChannel)));
          }
       } else {
          if (isJoin) {
             // TODO Fetch info about user (+, @) and add it to the users list
-            Client.getThreadPool().submit(() -> EventManager.getInstance().call(new UserJoinChannelEvent(source, finalChannel)));
+            Client.getThreadPool().submit(() -> EventManager.call(new UserJoinChannelEvent(source, finalChannel)));
          } else {
             // TODO Remove user from users list
-            Client.getThreadPool().submit(() -> EventManager.getInstance().call(new UserPartChannelEvent(source, finalChannel)));
+            Client.getThreadPool().submit(() -> EventManager.call(new UserPartChannelEvent(source, finalChannel)));
          }
       }
    }
@@ -131,10 +131,10 @@ public class InternalReceivedEventHandler {
       final Source source = packet.getPrefix() == null ? null : packet.getPrefixAsSource(server);
       final String reason = packet.getTrail();
       if (server.getClientNick().equals(who)) {
-         Client.getThreadPool().submit(() -> EventManager.getInstance().call(new ClientKickedFromChannelEvent(channel, source, reason)));
+         Client.getThreadPool().submit(() -> EventManager.call(new ClientKickedFromChannelEvent(channel, source, reason)));
       } else {
          // TODO Remove user from users list
-         Client.getThreadPool().submit(() -> EventManager.getInstance().call(new UserKickedFromChannelEvent(channel, source, reason)));
+         Client.getThreadPool().submit(() -> EventManager.call(new UserKickedFromChannelEvent(channel, source, reason)));
       }
    }
 
@@ -146,10 +146,10 @@ public class InternalReceivedEventHandler {
          if (server.getClientNick().equals(who)) {
             server.setJoined(false);
             server.setConnected(false);
-            Client.getThreadPool().submit(() -> EventManager.getInstance().call(new ClientQuitServerEvent(server, reason)));
+            Client.getThreadPool().submit(() -> EventManager.call(new ClientQuitServerEvent(server, reason)));
          } else {
             // TODO Remove user from users list (in all channels?)
-            Client.getThreadPool().submit(() -> EventManager.getInstance().call(new UserQuitServerEvent(server, source, reason)));
+            Client.getThreadPool().submit(() -> EventManager.call(new UserQuitServerEvent(server, source, reason)));
          }
       }
    }
@@ -163,9 +163,9 @@ public class InternalReceivedEventHandler {
             channel = server.addChannel(dest);
          }
          final Channel finalChannel = channel;
-         Client.getThreadPool().submit(() -> EventManager.getInstance().call(new ChannelMessageEvent(finalChannel, source, packet.getTrail())));
+         Client.getThreadPool().submit(() -> EventManager.call(new ChannelMessageEvent(finalChannel, source, packet.getTrail())));
       } else {
-         Client.getThreadPool().submit(() -> EventManager.getInstance().call(new PrivateMessageEvent(server, source, packet.getTrail())));
+         Client.getThreadPool().submit(() -> EventManager.call(new PrivateMessageEvent(server, source, packet.getTrail())));
       }
    }
 }

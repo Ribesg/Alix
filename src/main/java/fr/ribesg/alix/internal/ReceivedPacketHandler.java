@@ -7,9 +7,9 @@
 package fr.ribesg.alix.internal;
 
 import fr.ribesg.alix.api.Client;
+import fr.ribesg.alix.api.EventManager;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
-import fr.ribesg.alix.api.EventManager;
 import fr.ribesg.alix.api.event.ReceivedPacketEvent;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.internal.handlers.InternalReceivedEventHandler;
@@ -78,7 +78,7 @@ public class ReceivedPacketHandler extends AbstractRepeatingThread {
       ReceivedPacketEvent event;
       while ((event = this.packetBuffer.poll()) != null) {
          Log.debug("Poll packet " + event.getPacket());
-         EventManager.getInstance().call(event);
+         EventManager.call(event);
       }
    }
 }

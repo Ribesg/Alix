@@ -124,7 +124,7 @@ public class Server {
       this.channels = new HashMap<>();
       this.socket = null;
       this.connected = false;
-      EventManager.getInstance().registerHandlers(this);
+      EventManager.register(this);
    }
 
    /**
@@ -509,7 +509,7 @@ public class Server {
       if (callback != null) {
          callback.setServer(this);
          callback.setOriginalIrcPacket(ircPacket);
-         EventManager.getInstance().registerCallback(callback);
+         EventManager.register(callback);
       }
 
       this.sendRaw(ircPacket.getRawMessage(), prioritized);

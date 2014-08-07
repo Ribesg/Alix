@@ -375,7 +375,7 @@ public abstract class Callback {
     * Unregisters this Callback.
     */
    public void unregister() {
-      EventManager.getInstance().unregisterCallback(this);
+      EventManager.unregister(this);
    }
 
    /**

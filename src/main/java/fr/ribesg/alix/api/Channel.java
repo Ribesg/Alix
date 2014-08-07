@@ -64,7 +64,7 @@ public class Channel extends Receiver {
       super(server, name);
       this.password = password;
       this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
-      EventManager.getInstance().registerHandlers(this);
+      EventManager.register(this);
    }
 
    /**

@@ -66,6 +66,74 @@ public class EventManager {
    }
 
    /**
+    * Registers all handlers of the provided object.
+    * <p>
+    * Valid EventHandlers are public method with the
+    * {@link fr.ribesg.alix.api.event.EventHandler} annotation.
+    *
+    * @param instance an object holding one or multiple EventHandlers
+    */
+   public static void register(final Object instance) {
+      getInstance()._registerHandlers(instance);
+   }
+
+   /**
+    * Unregisters all handlers of the provided object.
+    *
+    * @param instance an object holding one or multiple registered
+    *                 EventHandlers
+    */
+   public static void unregister(final Object instance) {
+      getInstance()._unRegisterHandlers(instance, false);
+   }
+
+   /**
+    * Unregisters all handlers of the provided object.
+    *
+    * @param instance           an object holding one or multiple registered
+    *                           EventHandlers
+    * @param ignoreUnregistered if this call should ignore errors that may
+    *                           occur if the provided instance isn't
+    *                           registered
+    */
+   public static void unregister(final Object instance, final boolean ignoreUnregistered) {
+      getInstance()._unRegisterHandlers(instance, true);
+   }
+
+   /**
+    * Registers a Callback.
+    * <p>
+    * Note: Callbacks are automatically registered and unregistered, you
+    * do not need to call that method.
+    *
+    * @param callback the Callback
+    */
+   public static void register(final Callback callback) {
+      getInstance()._registerCallback(callback);
+   }
+
+   /**
+    * Unregisters a Callback.
+    * <p>
+    * Note: Callbacks are automatically registered and unregistered, you
+    * do not need to call that method.
+    *
+    * @param callback the Callback
+    */
+   public static void unregister(final Callback callback) {
+      getInstance()._unregisterCallback(callback);
+   }
+
+   /**
+    * Calls an Event.
+    *
+    * @param event an Event
+    */
+   public static void call(final Event event) {
+      getInstance()._call(event);
+   }
+
+   /**
     * A Map to store all the EventHandlers
     */
    private final Map<Class<? extends Event>, Map<EventHandlerPriority, Queue<ObjectMethod>>> handlers;
@@ -133,16 +201,8 @@ public class EventManager {
       }
    }
 
-   /**
-    * Registers all handlers of the provided object.
-    * <p>
-    * Valid EventHandlers are public method with the {@link fr.ribesg.alix.api.event.EventHandler}
-    * annotation.
-    *
-    * @param handlersHolder an object holding one or multiple EventHandlers
-    */
    @SuppressWarnings("unchecked SuspiciousMethodCalls")
-   public void registerHandlers(final Object handlersHolder) {
+   private void _registerHandlers(final Object handlersHolder) {
       Validate.notNull(handlersHolder, "handlersHolder can't be null");
       EventHandler eh;
       Class<?> parameterType;
@@ -174,27 +234,8 @@ public class EventManager {
       }
    }
 
-   /**
-    * Unregisters all handlers of the provided object.
-    *
-    * @param handlersHolder an object holding one or multiple registered
-    *                       EventHandlers
-    */
-   public void unRegisterHandlers(final Object handlersHolder) {
-      this.unRegisterHandlers(handlersHolder, false);
-   }
-
-   /**
-    * Unregisters all handlers of the provided object.
-    *
-    * @param handlersHolder     an object holding one or multiple registered
-    *                           EventHandlers
-    * @param ignoreUnregistered if this call should ignore errors that may
-    *                           occur if the provided instance isn't
-    *                           registered
-    */
    @SuppressWarnings("SuspiciousMethodCalls")
-   public void unRegisterHandlers(final Object handlersHolder, final boolean ignoreUnregistered) {
+   private void _unRegisterHandlers(final Object handlersHolder, final boolean ignoreUnregistered) {
       Validate.notNull(handlersHolder, "handlersHolder can't be null");
       EventHandler eh;
       Class<?> parameterType;
@@ -232,15 +273,7 @@ public class EventManager {
       }
    }
 
-   /**
-    * Registers a Callback.
-    * <p>
-    * Note: Callbacks are automatically registered and unregistered, you
-    * do not need to call that method.
-    *
-    * @param callback the Callback
-    */
-   public void registerCallback(final Callback callback) {
+   private void _registerCallback(final Callback callback) {
       Validate.notNull(callback, "callback can't be null");
       Map<EventHandlerPriority, Queue<ObjectMethod>> eventHandlers = this.handlers.get(ReceivedPacketEvent.class);
       if (eventHandlers == null) {
@@ -255,15 +288,7 @@ public class EventManager {
       priorityHandlers.add(new ObjectMethod(callback, this.callbackHandler));
    }
 
-   /**
-    * Unregisters a Callback.
-    * <p>
-    * Note: Callbacks are automatically registered and unregistered, you
-    * do not need to call that method.
-    *
-    * @param callback the Callback
-    */
-   public void unregisterCallback(final Callback callback) {
+   private void _unregisterCallback(final Callback callback) {
       Validate.notNull(callback, "callback can't be null");
       Map<EventHandlerPriority, Queue<ObjectMethod>> eventHandlers = this.handlers.get(ReceivedPacketEvent.class);
       if (eventHandlers != null) {
@@ -286,12 +311,7 @@ public class EventManager {
       }
    }
 
-   /**
-    * Calls an Event.
-    *
-    * @param event an Event
-    */
-   public void call(final Event event) {
+   private void _call(final Event event) {
       Log.debug("Handling event " + event);
       final Class<? extends Event> clazz = event.getClass();
       final Map<EventHandlerPriority, Queue<ObjectMethod>> eventHandlers = this.handlers.get(clazz);

@@ -76,7 +76,7 @@ public class CommandManager {
       this.botAdmins = botAdmins;
       this.commandPrefix = commandPrefix;
 
-      EventManager.getInstance().registerHandlers(this);
+      EventManager.register(this);
 
       this.registerCommand(new HelpCommand(this));
    }
