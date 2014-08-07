@@ -181,7 +181,7 @@ public class EventManager {
                final ObjectMethod om = it3.next();
                if (om.method == this.callbackHandler) {
                   final Callback callback = (Callback) om.instance;
-                  if (((Callback) om.instance).getTimeoutDate() < System.currentTimeMillis()) {
+                  if (callback.getTimeoutDate() < System.currentTimeMillis()) {
                      try {
                         if (callback.isEnabled()) {
                            callback.onTimeout();
