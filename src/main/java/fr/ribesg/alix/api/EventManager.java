@@ -12,11 +12,11 @@ import org.jsoup.helper.Validate;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Manages Events. Yeah.
@@ -68,7 +68,7 @@ public class EventManager {
    /**
     * A Map to store all the EventHandlers
     */
-   private final Map<Class<? extends Event>, Map<EventHandlerPriority, List<ObjectMethod>>> handlers;
+   private final Map<Class<? extends Event>, Map<EventHandlerPriority, Queue<ObjectMethod>>> handlers;
 
    /**
     * {@link Callback#onReceivedPacket(fr.ribesg.alix.api.event.ReceivedPacketEvent)}
@@ -102,12 +102,12 @@ public class EventManager {
     * FIXME Callbacks timeout could be handled better than that...
     */
    private void cleanCallbacks() {
-      final Iterator<Entry<Class<? extends Event>, Map<EventHandlerPriority, List<ObjectMethod>>>> it1 = this.handlers.entrySet().iterator();
+      final Iterator<Entry<Class<? extends Event>, Map<EventHandlerPriority, Queue<ObjectMethod>>>> it1 = this.handlers.entrySet().iterator();
       while (it1.hasNext()) {
-         final Entry<Class<? extends Event>, Map<EventHandlerPriority, List<ObjectMethod>>> e1 = it1.next();
-         final Iterator<Entry<EventHandlerPriority, List<ObjectMethod>>> it2 = e1.getValue().entrySet().iterator();
+         final Entry<Class<? extends Event>, Map<EventHandlerPriority, Queue<ObjectMethod>>> e1 = it1.next();
+         final Iterator<Entry<EventHandlerPriority, Queue<ObjectMethod>>> it2 = e1.getValue().entrySet().iterator();
          while (it2.hasNext()) {
-            final Entry<EventHandlerPriority, List<ObjectMethod>> e2 = it2.next();
+            final Entry<EventHandlerPriority, Queue<ObjectMethod>> e2 = it2.next();
             final Iterator<ObjectMethod> it3 = e2.getValue().iterator();
             while (it3.hasNext()) {
                final ObjectMethod om = it3.next();
@@ -154,14 +154,14 @@ public class EventManager {
             } else if (!Modifier.isPublic(m.getModifiers())) {
                throw new InvalidEventHandlerException(m, "Not public");
             } else {
-               Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(parameterType);
+               Map<EventHandlerPriority, Queue<ObjectMethod>> eventHandlers = this.handlers.get(parameterType);
                if (eventHandlers == null) {
                   eventHandlers = new ConcurrentHashMap<>();
                   this.handlers.put((Class<? extends Event>) parameterType, eventHandlers);
                }
-               List<ObjectMethod> priorityHandlers = eventHandlers.get(eh.priority());
+               Queue<ObjectMethod> priorityHandlers = eventHandlers.get(eh.priority());
                if (priorityHandlers == null) {
-                  priorityHandlers = new CopyOnWriteArrayList<>();
+                  priorityHandlers = new ConcurrentLinkedQueue<>();
                   eventHandlers.put(eh.priority(), priorityHandlers);
                }
                priorityHandlers.add(new ObjectMethod(handlersHolder, m));
@@ -204,9 +204,9 @@ public class EventManager {
             if (m.getParameterCount() != 1 || !Event.class.isAssignableFrom((parameterType = m.getParameterTypes()[0]))) {
                throw new InvalidEventHandlerException(m, "Invalid parameter count or type");
             } else {
-               Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(parameterType);
+               Map<EventHandlerPriority, Queue<ObjectMethod>> eventHandlers = this.handlers.get(parameterType);
                if (eventHandlers != null) {
-                  List<ObjectMethod> priorityHandlers = eventHandlers.get(eh.priority());
+                  Queue<ObjectMethod> priorityHandlers = eventHandlers.get(eh.priority());
                   if (priorityHandlers != null) {
                      final Iterator<ObjectMethod> it = priorityHandlers.iterator();
                      while (it.hasNext()) {
@@ -241,14 +241,14 @@ public class EventManager {
     */
    public void registerCallback(final Callback callback) {
       Validate.notNull(callback, "callback can't be null");
-      Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(ReceivedPacketEvent.class);
+      Map<EventHandlerPriority, Queue<ObjectMethod>> eventHandlers = this.handlers.get(ReceivedPacketEvent.class);
       if (eventHandlers == null) {
          eventHandlers = new ConcurrentHashMap<>();
          this.handlers.put(ReceivedPacketEvent.class, eventHandlers);
       }
-      List<ObjectMethod> priorityHandlers = eventHandlers.get(callback.getPriority());
+      Queue<ObjectMethod> priorityHandlers = eventHandlers.get(callback.getPriority());
       if (priorityHandlers == null) {
-         priorityHandlers = new CopyOnWriteArrayList<>();
+         priorityHandlers = new ConcurrentLinkedQueue<>();
          eventHandlers.put(callback.getPriority(), priorityHandlers);
       }
       priorityHandlers.add(new ObjectMethod(callback, this.callbackHandler));
@@ -264,9 +264,9 @@ public class EventManager {
     */
    public void unregisterCallback(final Callback callback) {
       Validate.notNull(callback, "callback can't be null");
-      Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(ReceivedPacketEvent.class);
+      Map<EventHandlerPriority, Queue<ObjectMethod>> eventHandlers = this.handlers.get(ReceivedPacketEvent.class);
       if (eventHandlers != null) {
-         List<ObjectMethod> priorityHandlers = eventHandlers.get(callback.getPriority());
+         Queue<ObjectMethod> priorityHandlers = eventHandlers.get(callback.getPriority());
          if (priorityHandlers != null) {
             final Iterator<ObjectMethod> it = priorityHandlers.iterator();
             while (it.hasNext()) {
@@ -292,10 +292,10 @@ public class EventManager {
    public void call(final Event event) {
       Log.debug("Handling event " + event);
       final Class<? extends Event> clazz = event.getClass();
-      final Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(clazz);
+      final Map<EventHandlerPriority, Queue<ObjectMethod>> eventHandlers = this.handlers.get(clazz);
       if (eventHandlers != null) {
          for (final EventHandlerPriority priority : EventHandlerPriority.values()) {
-            final List<ObjectMethod> priorityHandlers = eventHandlers.get(priority);
+            final Queue<ObjectMethod> priorityHandlers = eventHandlers.get(priority);
             if (priorityHandlers != null) {
                final Iterator<ObjectMethod> it = priorityHandlers.iterator();
                while (it.hasNext()) {
