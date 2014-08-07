@@ -6,6 +6,7 @@
 
 package fr.ribesg.alix.api.callback;
 
+import fr.ribesg.alix.api.EventManager;
 import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.event.EventHandlerPriority;
@@ -368,6 +369,13 @@ public abstract class Callback {
       for (final Runnable r : this.callbacks) {
          r.run();
       }
+   }
+
+   /**
+    * Unregisters this Callback.
+    */
+   public void unregister() {
+      EventManager.getInstance().unregisterCallback(this);
    }
 
    /**
