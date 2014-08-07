@@ -291,7 +291,7 @@ public class EventManager {
     * @param event an Event
     */
    public synchronized void call(final Event event) {
-      Log.debug("DEVUG: Handling event " + event);
+      Log.debug("Handling event " + event);
       final Class<? extends Event> clazz = event.getClass();
       final Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(clazz);
       if (eventHandlers != null) {
@@ -326,6 +326,6 @@ public class EventManager {
          }
       }
 
-      Log.debug("DEBUG: Event " + (event.isConsumed() ? "not" : "") + " consumed: " + event);
+      Log.debug("Event " + (event.isConsumed() ? "not" : "") + " consumed: " + event);
    }
 }
