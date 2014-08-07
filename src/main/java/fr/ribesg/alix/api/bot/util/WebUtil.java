@@ -54,6 +54,7 @@ public class WebUtil {
     * Shorten an URL using the http://is.gd/ api, behind-a-proxy version.
     *
     * @param longUrl the URL to shorten
+    * @param proxy   a proxy to use
     *
     * @return a short URL linking to the provided long URL
     *

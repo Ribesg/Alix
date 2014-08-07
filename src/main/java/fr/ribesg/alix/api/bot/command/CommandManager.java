@@ -145,13 +145,17 @@ public class CommandManager {
    }
 
    /**
-    * Executes a message as a Command.
+    * Executes a message as a Command. The return value decides if the
+    * related message event is consumed or not.
     *
-    * @param server  the Server the message was sent to
-    * @param channel the Channel the message was sent to, or null if it's
-    *                a private message
-    * @param user    the user who sent the message
-    * @param message the message sent
+    * @param server         the Server the message was sent to
+    * @param channel        the Channel the message was sent to, or null if it's
+    *                       a private message
+    * @param user           the user who sent the message
+    * @param message        the message sent
+    * @param privateMessage if this was sent as a private message
+    *
+    * @return true if the input was a valid command, false otherwise
     *
     * @throws IllegalArgumentException if the provided message doesn't start
     *                                  with a Command call

@@ -322,6 +322,8 @@ public abstract class Callback {
     * This should only be called by the Server's send-like methods to link
     * the original IrcPacket to its Callback, for the user not to have to
     * do it.
+    *
+    * @param originalIrcPacket the original IRC packet
     */
    public void setOriginalIrcPacket(final IrcPacket originalIrcPacket) {
       this.originalIrcPacket = originalIrcPacket;
@@ -333,6 +335,8 @@ public abstract class Callback {
     * This should only be called by the Server's send-like methods to link
     * the original IrcPacket to its Callback, for the user not to have to
     * do it.
+    *
+    * @param server the Server
     */
    public void setServer(final Server server) {
       this.server = server;

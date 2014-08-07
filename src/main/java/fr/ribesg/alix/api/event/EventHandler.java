@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * <p>
  * Any class containing at least an Event Handler should register itself to
  * the {@link fr.ribesg.alix.api.EventManager} using
- * {@link fr.ribesg.alix.api.EventManager#registerHandlers(Object)}.
+ * {@link fr.ribesg.alix.api.EventManager#register(Object)}.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -21,6 +21,8 @@ public @interface EventHandler {
     * <p>
     * Default: {@link EventHandlerPriority#LOW}
     *
+    * @return the priority of this EventHandler
+    *
     * @see EventHandlerPriority
     */
    EventHandlerPriority priority() default EventHandlerPriority.LOW;
@@ -30,6 +32,9 @@ public @interface EventHandler {
     * been consumed by another EventHandler or not.
     * <p>
     * Default: true
+    *
+    * @return if this EventHandler wants to ignore Events which have already
+    * been consumed by another EventHandler or not
     */
    boolean ignoreConsumed() default true;
 }

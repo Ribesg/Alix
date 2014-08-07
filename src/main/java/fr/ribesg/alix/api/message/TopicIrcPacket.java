@@ -17,6 +17,8 @@ public class TopicIrcPacket extends IrcPacket {
 
    /**
     * Just get TOPIC.
+    *
+    * @param channelName the Channel name
     */
    public TopicIrcPacket(final String channelName) {
       this(channelName, null);
@@ -24,6 +26,9 @@ public class TopicIrcPacket extends IrcPacket {
 
    /**
     * Change TOPIC.
+    *
+    * @param channelName the Channel name
+    * @param newTopic    the new topic
     */
    public TopicIrcPacket(final String channelName, final String newTopic) {
       super(null, Command.TOPIC.name(), newTopic, channelName);

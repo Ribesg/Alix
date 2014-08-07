@@ -188,7 +188,8 @@ public abstract class Command {
    /**
     * Sends the usage of this Command to a Receiver.
     *
-    * @param receiver the receiver to send the usage to
+    * @param commandPrefix the CommandManager prefix
+    * @param receiver      the receiver to send the usage to
     */
    public void sendUsage(final String commandPrefix, final Receiver receiver) {
       receiver.sendMessage(commandPrefix + this.usage[0]);
