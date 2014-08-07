@@ -85,6 +85,11 @@ public abstract class Callback {
    protected Server server;
 
    /**
+    * If this Callback is enabled.
+    */
+   protected boolean enabled;
+
+   /**
     * Main Callback constructor with all arguments.
     * <p>
     * Pass some {@link fr.ribesg.alix.api.enums.Command} and/or some
@@ -108,6 +113,7 @@ public abstract class Callback {
    public Callback(final EventHandlerPriority priority, final boolean ignoreConsumed, final long timeoutDuration, final String... listenedCodes) {
       this.priority = priority;
       this.ignoreConsumed = ignoreConsumed;
+      this.enabled = true;
       this.timeoutDuration = timeoutDuration;
       this.timeoutDate = System.currentTimeMillis() + timeoutDuration;
       if (listenedCodes.length != 0) {
@@ -343,6 +349,22 @@ public abstract class Callback {
    }
 
    /**
+    * Checks if this Callback is enabled.
+    *
+    * @return true if this Callback is enabled, false otherwise
+    */
+   public boolean isEnabled() {
+      return this.enabled;
+   }
+
+   /**
+    * Disables this Callback.
+    */
+   public void disable() {
+      this.enabled = false;
+   }
+
+   /**
     * Check that the provided code is listened by this Callback
     *
     * @param code some Command or Reply code
@@ -380,6 +402,7 @@ public abstract class Callback {
     */
    public void unregister() {
       EventManager.unregister(this);
+      this.disable();
    }
 
    /**

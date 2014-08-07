@@ -8,6 +8,7 @@ package fr.ribesg.alix.internal.bot;
 
 import fr.ribesg.alix.api.Client;
 import fr.ribesg.alix.api.EventManager;
+import fr.ribesg.alix.api.Log;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.enums.Command;
@@ -62,6 +63,7 @@ public class PingPongTask extends AbstractRepeatingThread {
 
       @Override
       public void onTimeout() {
+         Log.info("Failed to receive PONG response in time, disconnecting from server " + this.server.getName());
          this.server.disconnect();
          Client.getThreadPool().submit(() -> EventManager.call(new ClientLostConnectionEvent(this.server)));
       }

@@ -183,7 +183,9 @@ public class EventManager {
                   final Callback callback = (Callback) om.instance;
                   if (((Callback) om.instance).getTimeoutDate() > System.currentTimeMillis()) {
                      try {
-                        callback.onTimeout();
+                        if (callback.isEnabled()) {
+                           callback.onTimeout();
+                        }
                      } catch (final Throwable t) {
                         Log.error("Callback onTimeout call threw an error: " + t.getMessage(), t);
                      }
@@ -325,9 +327,12 @@ public class EventManager {
                   if (om.method == this.callbackHandler) {
                      final Callback callback = (Callback) om.instance;
                      final ReceivedPacketEvent packetEvent = (ReceivedPacketEvent) event;
-                     if (callback.listensTo(packetEvent.getPacket().getRawCommandString())) {
+                     if (!callback.isEnabled()) {
+                        it.remove();
+                     } else if (callback.listensTo(packetEvent.getPacket().getRawCommandString())) {
                         try {
                            if ((boolean) this.callbackHandler.invoke(callback, packetEvent)) {
+                              callback.disable();
                               it.remove();
                            }
                         } catch (final Throwable t) {
