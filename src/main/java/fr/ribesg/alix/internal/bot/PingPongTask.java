@@ -63,7 +63,7 @@ public class PingPongTask extends AbstractRepeatingThread {
 
       @Override
       public void onTimeout() {
-         Log.info("Failed to receive PONG response in time, disconnecting from server " + this.server.getName());
+         Log.info("Failed to receive PONG (" + this.value + ")response in time, disconnecting from server " + this.server.getName());
          this.server.disconnect();
          Client.getThreadPool().submit(() -> EventManager.call(new ClientLostConnectionEvent(this.server)));
       }
