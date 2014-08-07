@@ -352,6 +352,6 @@ public class EventManager {
          }
       }
 
-      Log.debug("Event " + (event.isConsumed() ? "not" : "") + " consumed: " + event);
+      Log.debug("Event " + (event.isConsumed() ? "" : "not ") + "consumed: " + event);
    }
 }
