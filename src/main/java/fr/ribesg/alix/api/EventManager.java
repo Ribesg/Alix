@@ -213,6 +213,7 @@ public class EventManager {
                         if (it.next().instance == handlersHolder) {
                            it.remove();
                            registeredHandlerFound = true;
+                           break;
                         }
                      }
                      if (priorityHandlers.isEmpty()) {
@@ -272,6 +273,7 @@ public class EventManager {
             while (it.hasNext()) {
                if (it.next().instance == callback) {
                   it.remove();
+                  break;
                }
             }
             if (priorityHandlers.isEmpty()) {
