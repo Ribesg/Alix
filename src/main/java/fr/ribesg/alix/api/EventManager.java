@@ -11,13 +11,12 @@ import org.jsoup.helper.Validate;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages Events. Yeah.
@@ -80,7 +79,7 @@ public class EventManager {
     * Builds the EventManager instance
     */
    private EventManager() {
-      this.handlers = new HashMap<>();
+      this.handlers = new ConcurrentHashMap<>();
       try {
          this.callbackHandler = Callback.class.getDeclaredMethod("onReceivedPacket", ReceivedPacketEvent.class);
       } catch (final NoSuchMethodException e) {
@@ -102,7 +101,7 @@ public class EventManager {
     *
     * FIXME Callbacks timeout could be handled better than that...
     */
-   private synchronized void cleanCallbacks() {
+   private void cleanCallbacks() {
       final Iterator<Entry<Class<? extends Event>, Map<EventHandlerPriority, List<ObjectMethod>>>> it1 = this.handlers.entrySet().iterator();
       while (it1.hasNext()) {
          final Entry<Class<? extends Event>, Map<EventHandlerPriority, List<ObjectMethod>>> e1 = it1.next();
@@ -143,7 +142,7 @@ public class EventManager {
     * @param handlersHolder an object holding one or multiple EventHandlers
     */
    @SuppressWarnings("unchecked SuspiciousMethodCalls")
-   public synchronized void registerHandlers(final Object handlersHolder) {
+   public void registerHandlers(final Object handlersHolder) {
       Validate.notNull(handlersHolder, "handlersHolder can't be null");
       EventHandler eh;
       Class<?> parameterType;
@@ -157,12 +156,12 @@ public class EventManager {
             } else {
                Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(parameterType);
                if (eventHandlers == null) {
-                  eventHandlers = new EnumMap<>(EventHandlerPriority.class);
+                  eventHandlers = new ConcurrentHashMap<>();
                   this.handlers.put((Class<? extends Event>) parameterType, eventHandlers);
                }
                List<ObjectMethod> priorityHandlers = eventHandlers.get(eh.priority());
                if (priorityHandlers == null) {
-                  priorityHandlers = new ArrayList<>();
+                  priorityHandlers = new CopyOnWriteArrayList<>();
                   eventHandlers.put(eh.priority(), priorityHandlers);
                }
                priorityHandlers.add(new ObjectMethod(handlersHolder, m));
@@ -181,7 +180,7 @@ public class EventManager {
     * @param handlersHolder an object holding one or multiple registered
     *                       EventHandlers
     */
-   public synchronized void unRegisterHandlers(final Object handlersHolder) {
+   public void unRegisterHandlers(final Object handlersHolder) {
       this.unRegisterHandlers(handlersHolder, false);
    }
 
@@ -195,7 +194,7 @@ public class EventManager {
     *                           registered
     */
    @SuppressWarnings("SuspiciousMethodCalls")
-   public synchronized void unRegisterHandlers(final Object handlersHolder, final boolean ignoreUnregistered) {
+   public void unRegisterHandlers(final Object handlersHolder, final boolean ignoreUnregistered) {
       Validate.notNull(handlersHolder, "handlersHolder can't be null");
       EventHandler eh;
       Class<?> parameterType;
@@ -240,16 +239,16 @@ public class EventManager {
     *
     * @param callback the Callback
     */
-   public synchronized void registerCallback(final Callback callback) {
+   public void registerCallback(final Callback callback) {
       Validate.notNull(callback, "callback can't be null");
       Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(ReceivedPacketEvent.class);
       if (eventHandlers == null) {
-         eventHandlers = new EnumMap<>(EventHandlerPriority.class);
+         eventHandlers = new ConcurrentHashMap<>();
          this.handlers.put(ReceivedPacketEvent.class, eventHandlers);
       }
       List<ObjectMethod> priorityHandlers = eventHandlers.get(callback.getPriority());
       if (priorityHandlers == null) {
-         priorityHandlers = new ArrayList<>();
+         priorityHandlers = new CopyOnWriteArrayList<>();
          eventHandlers.put(callback.getPriority(), priorityHandlers);
       }
       priorityHandlers.add(new ObjectMethod(callback, this.callbackHandler));
@@ -263,7 +262,7 @@ public class EventManager {
     *
     * @param callback the Callback
     */
-   public synchronized void unregisterCallback(final Callback callback) {
+   public void unregisterCallback(final Callback callback) {
       Validate.notNull(callback, "callback can't be null");
       Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(ReceivedPacketEvent.class);
       if (eventHandlers != null) {
@@ -290,7 +289,7 @@ public class EventManager {
     *
     * @param event an Event
     */
-   public synchronized void call(final Event event) {
+   public void call(final Event event) {
       Log.debug("Handling event " + event);
       final Class<? extends Event> clazz = event.getClass();
       final Map<EventHandlerPriority, List<ObjectMethod>> eventHandlers = this.handlers.get(clazz);
