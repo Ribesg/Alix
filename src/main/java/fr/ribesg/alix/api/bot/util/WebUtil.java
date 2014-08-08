@@ -27,7 +27,7 @@ public class WebUtil {
 
    private static final String URL_SHORTENER_URL = "http://is.gd/create.php?format=simple&url=";
 
-   private static final int DEFAULT_TIMEOUT = 5_000;
+   private static final int DEFAULT_TIMEOUT = 10_000;
 
    private static final Map<String, String> DEFAULT_HEADERS;
 
