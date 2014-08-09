@@ -8,7 +8,7 @@ package fr.ribesg.alix.api.message;
 import fr.ribesg.alix.api.enums.Command;
 
 /**
- * This class allow easy build of a PONG IRC Packet.
+ * This class allow easy build of a PING IRC Packet.
  */
 public class PingIrcPacket extends IrcPacket {
 
