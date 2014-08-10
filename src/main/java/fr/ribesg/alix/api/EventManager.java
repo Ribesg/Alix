@@ -336,7 +336,7 @@ public class EventManager {
                               it.remove();
                            }
                         } catch (final Throwable t) {
-                           Log.error("Callback invokation failed on packet '" + packetEvent.getPacket().toString() + "': " + t.getMessage());
+                           Log.error("Callback invokation failed on packet '" + packetEvent.getPacket().toString() + "': " + t.getMessage(), t);
                            it.remove();
                         }
                      }
@@ -344,7 +344,7 @@ public class EventManager {
                      try {
                         om.method.invoke(om.instance, event);
                      } catch (final Throwable t) {
-                        Log.error("EventHandler '" + om.method.getDeclaringClass().getName() + '.' + om.method.getName() + "(...)' invokation failed: " + t.getMessage());
+                        Log.error("EventHandler '" + om.method.getDeclaringClass().getName() + '.' + om.method.getName() + "(...)' invokation failed: " + t.getMessage(), t);
                      }
                   }
                }
