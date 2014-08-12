@@ -11,6 +11,7 @@ import fr.ribesg.alix.api.Receiver;
 import fr.ribesg.alix.api.Server;
 import fr.ribesg.alix.api.Source;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -104,7 +105,7 @@ public abstract class Command {
       this.name = name.toLowerCase();
       this.aliases = aliases;
       this.restricted = restricted;
-      this.allowedNickNames = allowedNickNames;
+      this.allowedNickNames = allowedNickNames == null ? Collections.EMPTY_SET : allowedNickNames;
 
       // Make the aliases lowercase, too
       for (int i = 0; i < this.aliases.length; i++) {
