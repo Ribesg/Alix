@@ -12,6 +12,8 @@ import fr.ribesg.alix.api.event.*;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.PongIrcPacket;
 
+import java.util.Arrays;
+
 /**
  * TODO Javadoc
  * TODO Fix all TODOs, damn
@@ -58,6 +60,10 @@ public class InternalReceivedEventHandler {
                   break;
                case PRIVMSG:
                   handlePrivMsg(server, packet);
+                  event.consume();
+                  break;
+               case MODE:
+                  handleMode(server, packet);
                   event.consume();
                   break;
                default:
@@ -168,6 +174,26 @@ public class InternalReceivedEventHandler {
          Client.getThreadPool().submit(() -> EventManager.call(new ChannelMessageEvent(finalChannel, source, packet.getTrail())));
       } else {
          Client.getThreadPool().submit(() -> EventManager.call(new PrivateMessageEvent(server, source, packet.getTrail())));
+      }
+   }
+
+   private void handleMode(final Server server, final IrcPacket packet) {
+      final Source source = packet.getPrefix() == null ? null : packet.getPrefixAsSource(server);
+      try {
+         final String dest = packet.getParameters()[0];
+         if (!dest.startsWith("#")) {
+            Log.error("MODE packet isn't about a Channel");
+            return;
+         }
+         Channel channel = server.getChannel(dest);
+         if (channel == null) {
+            channel = server.addChannel(dest);
+         }
+         final String modeString = packet.getParameters()[1];
+         final String[] parameters = Arrays.copyOfRange(packet.getParameters(), 2, packet.getParameters().length);
+         EventManager.call(new ModeEvent(source, channel, modeString, parameters));
+      } catch (final ArrayIndexOutOfBoundsException e) {
+         Log.error("Invalid MODE format");
       }
    }
 }
