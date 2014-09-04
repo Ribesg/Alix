@@ -11,6 +11,7 @@ import fr.ribesg.alix.api.event.EventHandler;
 import fr.ribesg.alix.api.event.EventHandlerPriority;
 import fr.ribesg.alix.api.message.JoinIrcPacket;
 import fr.ribesg.alix.api.message.NamesIrcPacket;
+import fr.ribesg.alix.api.message.PartIrcPacket;
 import fr.ribesg.alix.internal.callback.NamesCallback;
 
 import java.util.Arrays;
@@ -255,7 +256,10 @@ public class Channel extends Receiver {
     */
    public void part(final String message) {
       if (getServer().isConnected()) {
-
+         this.server.send(new PartIrcPacket(this.getName()));
+         this.clearUsers();
+      } else {
+         throw new IllegalStateException("Not connected!");
       }
    }
 
