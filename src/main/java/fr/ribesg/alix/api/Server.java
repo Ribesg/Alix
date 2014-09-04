@@ -410,7 +410,7 @@ public class Server {
          try {
             this.socket.connect();
          } catch (final IOException e) {
-            Log.error("Failed to connect to Server", e);
+            EventManager.call(new FailedToJoinServerEvent(e));
             return;
          }
          if (getPassword() != null) {
