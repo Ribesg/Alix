@@ -104,10 +104,10 @@ public class InternalReceivedEventHandler {
       } else {
          channel.setName(channelName);
       }
+      channel.setJoined(true);
       final Channel finalChannel = channel;
       final Source source = packet.getPrefix() == null ? null : packet.getPrefixAsSource(server);
       if (source == null || source.getName().equals(server.getClientNick())) {
-         // TODO Have some "joined" state in Channel?
          if (isJoin) {
             Client.getThreadPool().submit(() -> EventManager.call(new ClientJoinChannelEvent(finalChannel)));
          } else {
@@ -128,6 +128,7 @@ public class InternalReceivedEventHandler {
       final String channelName = packet.getParameters()[0];
       final String who = packet.getParameters()[1];
       final Channel channel = server.getChannel(channelName);
+      channel.setJoined(true);
       final Source source = packet.getPrefix() == null ? null : packet.getPrefixAsSource(server);
       final String reason = packet.getTrail();
       if (server.getClientNick().equals(who)) {
@@ -162,6 +163,7 @@ public class InternalReceivedEventHandler {
          if (channel == null) {
             channel = server.addChannel(dest);
          }
+         channel.setJoined(true);
          final Channel finalChannel = channel;
          Client.getThreadPool().submit(() -> EventManager.call(new ChannelMessageEvent(finalChannel, source, packet.getTrail())));
       } else {

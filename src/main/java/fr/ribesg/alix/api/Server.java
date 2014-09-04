@@ -10,6 +10,7 @@ import fr.ribesg.alix.Tools;
 import fr.ribesg.alix.api.callback.Callback;
 import fr.ribesg.alix.api.event.EventHandler;
 import fr.ribesg.alix.api.event.EventHandlerPriority;
+import fr.ribesg.alix.api.event.FailedToJoinServerEvent;
 import fr.ribesg.alix.api.event.ServerJoinEvent;
 import fr.ribesg.alix.api.message.IrcPacket;
 import fr.ribesg.alix.api.message.NickIrcPacket;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Ribesg
@@ -228,6 +231,15 @@ public class Server {
     */
    public Collection<Channel> getChannels() {
       return channels.values();
+   }
+
+   /**
+    * Gets all joined Channels for this Server.
+    *
+    * @return all joined Channels for this Server
+    */
+   public Set<Channel> getJoinedChannels() {
+      return channels.values().stream().filter(Channel::isJoined).collect(Collectors.toSet());
    }
 
    /**

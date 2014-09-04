@@ -44,6 +44,11 @@ public class Channel extends Receiver {
    private Set<String> users;
 
    /**
+    * If we're in this Channel currently
+    */
+   private boolean joined;
+
+   /**
     * Channel constructor.
     *
     * @param server the Server this Channel belongs to
@@ -64,6 +69,7 @@ public class Channel extends Receiver {
       super(server, name);
       this.password = password;
       this.users = Collections.newSetFromMap(new ConcurrentHashMap<>());
+      this.joined = false;
       EventManager.register(this);
    }
 
@@ -200,6 +206,24 @@ public class Channel extends Receiver {
    }
 
    /**
+    * Checks if we're in this Channel.
+    *
+    * @return true if we're in this Channel, false otherwise
+    */
+   public boolean isJoined() {
+      return this.joined;
+   }
+
+   /**
+    * Sets the joined state of this Channel.
+    *
+    * @param value the joined state of this Channel
+    */
+   public void setJoined(final boolean value) {
+      this.joined = value;
+   }
+
+   /**
     * Attempt to join this Channel.
     *
     * @throws IllegalStateException if the Client is not connected
@@ -214,6 +238,24 @@ public class Channel extends Receiver {
          }
       } else {
          throw new IllegalStateException("Not connected!");
+      }
+   }
+
+   /**
+    * Parts this Channel.
+    */
+   public void part() {
+      this.part(null);
+   }
+
+   /**
+    * Parts this Channel.
+    *
+    * @param message a part message
+    */
+   public void part(final String message) {
+      if (getServer().isConnected()) {
+
       }
    }
 
