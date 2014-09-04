@@ -32,7 +32,7 @@ public class Log {
    // ## Back Logger ## //
    // ################# //
 
-   private static final Logger logger = Logger.getRootLogger();
+   private static final Logger logger = Logger.getLogger("Alix");
 
    public static Logger get() {
       return Log.logger;
