@@ -5,27 +5,9 @@ A Java IRC API
 
 Documentation on IRCv3 for future: http://ircv3.atheme.org/
 
-How to maven:
-```xml
-	...
-	<repositories>
-		<repository>
-			<id>ribesg-releases</id>
-			<name>Ribesg's Release Repository</name>
-			<url>http://repo.ribesg.fr/content/repositories/releases</url>
-		</repository>
-	</repositories>
+Alix tries to be stable, but for now there isn't really any good versionning. Recommending using latest dev build.
 
-	<dependencies>
-		<dependency>
-			<groupId>fr.ribesg.alix</groupId>
-			<artifactId>alix</artifactId>
-			<version>0.2</version>
-		</dependency>
-	</dependencies>
-	...
-```
-And if you want to play with Snapshot versions, you can just use the Snapshot repo. It's convenient to keep both if you're in this case:
+How to maven:
 ```xml
 	...
 	<repositories>
@@ -45,7 +27,7 @@ And if you want to play with Snapshot versions, you can just use the Snapshot re
 		<dependency>
 			<groupId>fr.ribesg.alix</groupId>
 			<artifactId>alix</artifactId>
-			<version>0.3-SNAPSHOT</version>
+			<version>[0,) <!-- Means LATEST --></version>
 		</dependency>
 	</dependencies>
 	...
